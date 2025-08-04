@@ -50,6 +50,7 @@ export const useSecurityAudit = () => {
     details?: any
   ) => {
     try {
+      // Direct insert to audit_logs with proper security
       await supabase
         .from('audit_logs')
         .insert({

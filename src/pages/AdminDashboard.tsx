@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import SecuritySetupPanel from '@/components/admin/SecuritySetupPanel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
@@ -273,6 +274,14 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* Security Setup Panel - Critical for Admin Security */}
+        {userRole === 'admin' && (
+          <div className="mt-6">
+            <SecuritySetupPanel />
+          </div>
+        )}
+
         {/* Module Cards grid, responsive and scrollable on mobile */}
         <div className="mt-6 w-full overflow-x-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-w-[320px]">
