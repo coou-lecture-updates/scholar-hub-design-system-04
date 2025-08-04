@@ -50,7 +50,6 @@ import { NotificationProvider } from "@/components/ui/notifications";
 import LovableBadge from '@/components/LovableBadge';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import Contact from "./pages/Contact";
-import Maintenance from "./pages/Maintenance";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -99,7 +98,19 @@ function AppInner() {
 
   // Only admins (userProfile?.role === "admin") can access when maintenance is true
   if (maintenance && !isAdminRoute && (!user || userProfile?.role !== "admin")) {
-    return <Maintenance />;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-blue-50 px-4">
+        <div className="p-8 bg-white rounded-2xl shadow-lg border border-blue-100 flex flex-col items-center max-w-sm">
+          <div className="w-12 h-12 text-blue-600 mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold mb-2 text-blue-900">Maintenance Mode</h1>
+          <p className="text-gray-700 mb-4 text-center">
+            Our student portal is temporarily down for maintenance or updates.<br />
+            We'll be back shortly! Please check again soon.
+          </p>
+          <p className="text-xs text-gray-400 mt-2">Only admins may access the portal right now.</p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Settings, Globe, CreditCard, Shield, Wrench, BarChart3, AlertTriangle } from 'lucide-react';
+import { Settings, Globe, CreditCard, Shield, Wrench, BarChart3, AlertTriangle, TestTube } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +50,12 @@ const SystemSettingsNavigation = () => {
       label: 'Maintenance',
       icon: Wrench,
       description: 'Site maintenance and downtime'
+    },
+    {
+      path: '/admin/settings/testing',
+      label: 'System Testing',
+      icon: TestTube,
+      description: 'Test system functionality'
     }
   ];
 
