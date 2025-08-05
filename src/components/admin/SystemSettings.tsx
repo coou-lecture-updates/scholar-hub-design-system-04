@@ -19,6 +19,11 @@ import MaintenanceSettings from '@/components/admin/MaintenanceSettings';
 import SystemSettingsNavigation from '@/components/admin/SystemSettingsNavigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
+// Enhanced Settings Components
+import EnhancedGeneralSettings from '@/components/admin/enhanced/EnhancedGeneralSettings';
+import EnhancedAnalyticsSettings from '@/components/admin/enhanced/EnhancedAnalyticsSettings';
+import EnhancedPaymentSettings from '@/components/admin/enhanced/EnhancedPaymentSettings';
+
 interface SystemSetting {
   id: string;
   key: string;
@@ -107,7 +112,7 @@ const SystemSettings: React.FC = () => {
           <Route 
             path="/" 
             element={
-              <GeneralSettings 
+              <EnhancedGeneralSettings 
                 getSetting={getSetting} 
                 onUpdate={handleSettingUpdate}
                 isUpdating={updateSettingMutation.isPending}
@@ -127,7 +132,7 @@ const SystemSettings: React.FC = () => {
           <Route 
             path="/analytics" 
             element={
-              <AnalyticsSettings 
+              <EnhancedAnalyticsSettings 
                 getSetting={getSetting} 
                 onUpdate={handleSettingUpdate}
                 isUpdating={updateSettingMutation.isPending}
@@ -137,7 +142,7 @@ const SystemSettings: React.FC = () => {
           <Route 
             path="/payments" 
             element={
-              <PaymentGatewaySettings 
+              <EnhancedPaymentSettings 
                 getSetting={getSetting} 
                 onUpdate={handleSettingUpdate}
                 isUpdating={updateSettingMutation.isPending}
