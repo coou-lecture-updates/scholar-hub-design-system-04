@@ -47,32 +47,66 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
 
   const quickAmounts = [1000, 2000, 5000, 10000, 20000, 50000];
   
-  const paymentMethods = [
-    {
-      id: 'card',
-      name: 'Debit/Credit Card',
-      description: 'Visa, Mastercard, Verve',
-      icon: <CreditCard className="h-5 w-5" />,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
-    },
-    {
-      id: 'bank',
-      name: 'Bank Transfer',
-      description: 'Direct bank transfer',
-      icon: <Building className="h-5 w-5" />,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
-    },
-    {
-      id: 'ussd',
-      name: 'USSD Code',
-      description: '*737# and other codes',
-      icon: <Smartphone className="h-5 w-5" />,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
-    }
-  ];
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+
+  // Fetch available payment gateways
+  React.useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('payment_gateways')
+          .select('*')
+          .eq('enabled', true)
+          .order('display_order');
+
+        if (error) throw error;
+
+        const methods = (data || []).map(gateway => {
+          const provider = gateway.provider.toLowerCase();
+          return {
+            id: provider,
+            name: gateway.business_name || gateway.provider,
+            description: `${gateway.provider} payment gateway`,
+            icon: provider === 'flutterwave' ? <CreditCard className="h-5 w-5" /> :
+                  provider === 'paystack' ? <CreditCard className="h-5 w-5" /> :
+                  provider === 'korapay' ? <Smartphone className="h-5 w-5" /> :
+                  <Building className="h-5 w-5" />,
+            color: provider === 'flutterwave' ? 'text-orange-600' :
+                   provider === 'paystack' ? 'text-blue-600' :
+                   provider === 'korapay' ? 'text-purple-600' :
+                   'text-gray-600',
+            bgColor: provider === 'flutterwave' ? 'bg-orange-50' :
+                     provider === 'paystack' ? 'bg-blue-50' :
+                     provider === 'korapay' ? 'bg-purple-50' :
+                     'bg-gray-50',
+            provider: gateway.provider
+          };
+        });
+
+        setPaymentMethods(methods);
+        if (methods.length > 0) {
+          setSelectedMethod(methods[0].id);
+        }
+      } catch (error) {
+        console.error('Error fetching payment methods:', error);
+        // Fallback to default methods
+        setPaymentMethods([
+          {
+            id: 'flutterwave',
+            name: 'Flutterwave',
+            description: 'Cards, Bank Transfer, Mobile Money',
+            icon: <CreditCard className="h-5 w-5" />,
+            color: 'text-orange-600',
+            bgColor: 'bg-orange-50',
+            provider: 'flutterwave'
+          }
+        ]);
+        setSelectedMethod('flutterwave');
+      }
+    };
+
+    fetchPaymentMethods();
+  }, []);
 
   const handleAmountChange = (value: string) => {
     const cleanValue = value.replace(/[^\d]/g, '');
@@ -127,6 +161,10 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
         throw new Error('User not authenticated');
       }
 
+      // Get the selected payment method details
+      const selectedPaymentMethod = paymentMethods.find(m => m.id === selectedMethod);
+      const provider = selectedPaymentMethod?.provider || selectedMethod;
+
       // Call payment processing edge function
       const { data: paymentResult, error: paymentError } = await supabase.functions
         .invoke('process-payment', {
@@ -135,7 +173,7 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
             email: user.email,
             full_name: user.user_metadata?.full_name || 'User',
             phone: user.user_metadata?.phone || '',
-            provider: selectedMethod === 'card' ? 'flutterwave' : selectedMethod === 'bank' ? 'korapay' : 'demo',
+            provider: provider,
             payment_type: 'wallet_funding',
             user_id: user.id
           }
@@ -301,34 +339,41 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
       </div>
 
       <div className="space-y-3">
-        {paymentMethods.map((method) => (
-          <Card
-            key={method.id}
-            className={`cursor-pointer transition-all ${
-              selectedMethod === method.id 
-                ? 'border-primary bg-primary/5 ring-1 ring-primary/20' 
-                : 'hover:border-primary/50'
-            }`}
-            onClick={() => handleMethodSelect(method.id)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${method.bgColor}`}>
-                    <div className={method.color}>
-                      {method.icon}
+        {paymentMethods.length === 0 ? (
+          <div className="text-center p-6 text-muted-foreground">
+            <p>No payment methods available</p>
+            <p className="text-sm">Please contact support to enable payment gateways</p>
+          </div>
+        ) : (
+          paymentMethods.map((method) => (
+            <Card
+              key={method.id}
+              className={`cursor-pointer transition-all ${
+                selectedMethod === method.id 
+                  ? 'border-primary bg-primary/5 ring-1 ring-primary/20' 
+                  : 'hover:border-primary/50'
+              }`}
+              onClick={() => handleMethodSelect(method.id)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${method.bgColor}`}>
+                      <div className={method.color}>
+                        {method.icon}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-medium">{method.name}</p>
+                      <p className="text-sm text-muted-foreground">{method.description}</p>
                     </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{method.name}</p>
-                    <p className="text-sm text-muted-foreground">{method.description}</p>
-                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground p-3 bg-muted/30 rounded-lg">
@@ -338,11 +383,11 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
 
       <Button 
         onClick={handleProcessPayment}
-        disabled={!selectedMethod}
+        disabled={!selectedMethod || paymentMethods.length === 0}
         className="w-full h-12 text-base"
         size="lg"
       >
-        Pay ₦{parseFloat(amount).toLocaleString()}
+        {paymentMethods.length === 0 ? 'No Payment Methods Available' : `Pay ₦${parseFloat(amount).toLocaleString()}`}
       </Button>
     </div>
   );

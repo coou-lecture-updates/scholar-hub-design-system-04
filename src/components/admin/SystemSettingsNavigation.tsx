@@ -10,7 +10,7 @@ const SystemSettingsNavigation = () => {
 
   const navigationItems = [
     {
-      path: '/admin/settings',
+      path: '/admin/settings/general',
       label: 'General',
       icon: Settings,
       description: 'Site information and basic settings'
@@ -72,8 +72,8 @@ const SystemSettingsNavigation = () => {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center px-4 py-3 text-sm transition-colors hover:bg-muted",
-                  isActive && "bg-primary/10 text-primary border-r-2 border-primary"
+                  "flex items-center px-4 py-3 text-sm transition-colors hover:bg-muted rounded-md mx-1 my-0.5",
+                  isActive ? "bg-primary/10 text-primary border border-primary/20" : "hover:bg-accent"
                 )}
               >
                 <Icon className="mr-3 h-4 w-4" />

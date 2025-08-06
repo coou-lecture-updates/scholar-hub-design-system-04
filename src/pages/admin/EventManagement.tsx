@@ -255,7 +255,8 @@ const EventManagement = () => {
             ...eventData,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', eventForm.id);
+          .eq('id', eventForm.id)
+          .select();
         
         if (error) {
           console.error("Supabase update error:", error);
@@ -267,10 +268,11 @@ const EventManagement = () => {
           description: "The event has been updated successfully.",
         });
       } else {
-        // Create new event
+      // Create new event
         const { data, error } = await supabase
           .from('events')
-          .insert([eventData]);
+          .insert([eventData])
+          .select();
         
         if (error) {
           console.error("Supabase insert error:", error);

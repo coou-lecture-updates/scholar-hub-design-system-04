@@ -23,6 +23,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import EnhancedGeneralSettings from '@/components/admin/enhanced/EnhancedGeneralSettings';
 import EnhancedAnalyticsSettings from '@/components/admin/enhanced/EnhancedAnalyticsSettings';
 import EnhancedPaymentSettings from '@/components/admin/enhanced/EnhancedPaymentSettings';
+import EnhancedSecuritySettings from '@/components/admin/enhanced/EnhancedSecuritySettings';
 
 interface SystemSetting {
   id: string;
@@ -110,7 +111,7 @@ const SystemSettings: React.FC = () => {
           <div className="lg:col-span-3">
             <Routes>
           <Route 
-            path="/" 
+            index
             element={
               <EnhancedGeneralSettings 
                 getSetting={getSetting} 
@@ -120,7 +121,17 @@ const SystemSettings: React.FC = () => {
             } 
           />
           <Route 
-            path="/seo" 
+            path="general" 
+            element={
+              <EnhancedGeneralSettings 
+                getSetting={getSetting} 
+                onUpdate={handleSettingUpdate}
+                isUpdating={updateSettingMutation.isPending}
+              />
+            } 
+          />
+          <Route 
+            path="seo" 
             element={
               <SEOSettings 
                 getSetting={getSetting} 
@@ -130,7 +141,7 @@ const SystemSettings: React.FC = () => {
             } 
           />
           <Route 
-            path="/analytics" 
+            path="analytics" 
             element={
               <EnhancedAnalyticsSettings 
                 getSetting={getSetting} 
@@ -140,7 +151,7 @@ const SystemSettings: React.FC = () => {
             } 
           />
           <Route 
-            path="/payments" 
+            path="payments" 
             element={
               <EnhancedPaymentSettings 
                 getSetting={getSetting} 
@@ -150,7 +161,7 @@ const SystemSettings: React.FC = () => {
             } 
           />
           <Route 
-            path="/events" 
+            path="events" 
             element={
               <EventSettings 
                 getSetting={getSetting} 
@@ -160,11 +171,17 @@ const SystemSettings: React.FC = () => {
             } 
           />
           <Route 
-            path="/security" 
-            element={<AdminSecuritySettings />} 
+            path="security" 
+            element={
+              <EnhancedSecuritySettings 
+                getSetting={getSetting} 
+                onUpdate={handleSettingUpdate}
+                isUpdating={updateSettingMutation.isPending}
+              />
+            } 
           />
           <Route 
-            path="/maintenance" 
+            path="maintenance" 
             element={
               <MaintenanceSettings 
                 getSetting={getSetting} 
@@ -174,7 +191,7 @@ const SystemSettings: React.FC = () => {
             } 
           />
           <Route 
-            path="/testing" 
+            path="testing" 
             element={<SystemTestPanel />} 
           />
         </Routes>
