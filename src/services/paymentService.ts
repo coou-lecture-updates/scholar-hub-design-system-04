@@ -1,100 +1,92 @@
+import { supabase } from "@/integrations/supabase/client";
 
-export interface PaymentConfig {
-  publicKey: string;
-  businessName: string;
-  webhookUrl?: string;
-  mode: 'live' | 'test';
-}
-
-export interface PaymentDetails {
+export interface PaymentRequest {
   amount: number;
   email: string;
   name: string;
-  phoneNumber?: string;
-  reference: string;
-  description: string;
+  phone?: string;
+  provider: 'paystack' | 'flutterwave' | 'korapay';
+  type: 'wallet_funding' | 'event_ticket' | 'general';
   metadata?: Record<string, any>;
-  redirectUrl?: string;
 }
 
-interface FlutterwaveConfig extends PaymentConfig {
-  // Flutterwave specific config
-  encryptionKey?: string;
-}
-
-interface KorapayConfig extends PaymentConfig {
-  // Korapay specific config
-  merchantId?: string;
-}
-
-// Store configs in localStorage
-export const saveFlutterwaveConfig = (config: FlutterwaveConfig): void => {
-  localStorage.setItem('flutterwaveConfig', JSON.stringify(config));
-};
-
-export const saveKorapayConfig = (config: KorapayConfig): void => {
-  localStorage.setItem('korapayConfig', JSON.stringify(config));
-};
-
-export const getFlutterwaveConfig = (): FlutterwaveConfig | null => {
-  const config = localStorage.getItem('flutterwaveConfig');
-  return config ? JSON.parse(config) : null;
-};
-
-export const getKorapayConfig = (): KorapayConfig | null => {
-  const config = localStorage.getItem('korapayConfig');
-  return config ? JSON.parse(config) : null;
-};
-
-// Generate transaction reference
-export const generateTransactionReference = (): string => {
-  return 'COOU-' + Date.now().toString() + '-' + Math.floor(Math.random() * 10000);
-};
-
-// Initialize payment with Flutterwave 
-// This is a placeholder - will be implemented with Supabase integration
-export const initializeFlutterwavePayment = async (paymentDetails: PaymentDetails): Promise<string> => {
-  // This would normally be an API call to Flutterwave
-  // For now we'll just return a mock payment URL to be replaced with real implementation
-  
-  console.log('Initializing Flutterwave payment with:', paymentDetails);
-  return `/payment/redirect?ref=${paymentDetails.reference}&status=pending&provider=flutterwave`;
-};
-
-// Initialize payment with Korapay
-// This is a placeholder - will be implemented with Supabase integration
-export const initializeKorapayPayment = async (paymentDetails: PaymentDetails): Promise<string> => {
-  // This would normally be an API call to Korapay
-  // For now we'll just return a mock payment URL to be replaced with real implementation
-  
-  console.log('Initializing Korapay payment with:', paymentDetails);
-  return `/payment/redirect?ref=${paymentDetails.reference}&status=pending&provider=korapay`;
-};
-
-// Verify payment status
-// This is a placeholder - will be implemented with Supabase integration
-export const verifyPaymentStatus = async (reference: string, provider: 'flutterwave' | 'korapay'): Promise<{success: boolean, message: string, data?: any}> => {
-  // This would normally be an API call to verify payment status
-  // For now we'll just return a mock successful response
-  
-  console.log(`Verifying ${provider} payment with reference:`, reference);
-  return {
-    success: true,
-    message: 'Payment verified successfully',
-    data: {
-      reference,
-      amount: 500,
-      status: 'successful',
-      provider,
-      date: new Date().toISOString(),
-    }
+export interface PaymentResponse {
+  success: boolean;
+  data?: {
+    payment_url: string;
+    reference: string;
   };
-};
+  error?: string;
+}
 
-// Fund user account
-// This is a placeholder - will be implemented with Supabase integration
-export const fundUserAccount = async (userId: string, amount: number, reference: string): Promise<boolean> => {
-  // This would normally update a user's balance in the database
-  console.log(`Funding user ${userId} account with ${amount} NGN, reference: ${reference}`);
-  return true;
-};
+export class EnhancedPaymentService {
+  private generateReference(): string {
+    return `COOU_${Date.now()}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+  }
+
+  async initializePayment(request: PaymentRequest): Promise<PaymentResponse> {
+    try {
+      const reference = this.generateReference();
+      
+      const { data, error } = await supabase.functions.invoke('process-payment', {
+        body: {
+          ...request,
+          reference
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Payment initialization error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Payment initialization failed'
+      };
+    }
+  }
+
+  async verifyPayment(reference: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-payment', {
+        body: { reference }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Payment verification failed'
+      };
+    }
+  }
+
+  async getPaymentGateways(): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('payment_gateways')
+        .select('*')
+        .eq('enabled', true)
+        .order('provider');
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Payment gateways error:', error);
+      return [];
+    }
+  }
+}
+
+export const paymentService = new EnhancedPaymentService();

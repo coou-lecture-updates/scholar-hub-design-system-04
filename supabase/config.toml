@@ -1,1 +1,20 @@
 project_id = "hhcitezdbueybdtslkth"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[functions.process-payment]
+verify_jwt = false
+
+[functions.payment-callback]
+verify_jwt = false
+
+[functions.paystack-webhook]
+verify_jwt = false
+
+[functions.academic-system]
+verify_jwt = false

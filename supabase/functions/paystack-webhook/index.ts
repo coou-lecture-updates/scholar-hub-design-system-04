@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-paystack-signature',
 };
 
 serve(async (req) => {
@@ -12,49 +12,72 @@ serve(async (req) => {
   }
 
   try {
+    const signature = req.headers.get('x-paystack-signature');
+    const body = await req.text();
+    
+    console.log('Paystack webhook received');
+
+    // Verify webhook signature
+    const expectedSignature = await verifyPaystackSignature(body, Deno.env.get('PAYSTACK_SECRET_KEY') || '');
+    
+    if (signature !== expectedSignature) {
+      console.log('Invalid Paystack signature');
+      return new Response('Invalid signature', { 
+        status: 400,
+        headers: corsHeaders 
+      });
+    }
+
+    const event = JSON.parse(body);
+    console.log('Paystack event:', event.event);
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    const signature = req.headers.get('x-paystack-signature');
-    const body = await req.text();
-    
-    // Verify webhook signature
-    const hash = await crypto.subtle.digest(
-      'SHA-512',
-      new TextEncoder().encode(Deno.env.get('PAYSTACK_SECRET_KEY') + body)
-    );
-    const expectedSignature = Array.from(new Uint8Array(hash))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-
-    if (signature !== expectedSignature) {
-      console.log('Invalid signature');
-      return new Response('Invalid signature', { status: 400 });
-    }
-
-    const event = JSON.parse(body);
-    
     if (event.event === 'charge.success') {
-      const { reference, amount, status } = event.data;
+      const { reference, amount, status, customer } = event.data;
       
+      console.log('Processing successful charge:', reference);
+
       // Update payment record
       const { error: updateError } = await supabaseClient
-        .from('payment_transactions')
+        .from('payments')
         .update({
-          status: 'completed',
-          payment_response: event.data,
-          updated_at: new Date().toISOString()
+          payment_status: 'completed',
+          metadata: {
+            ...event.data,
+            webhook_verified_at: new Date().toISOString()
+          }
         })
-        .eq('reference', reference);
+        .eq('payment_reference', reference);
 
       if (updateError) {
         console.error('Error updating payment:', updateError);
-        return new Response('Error updating payment', { status: 500 });
+        return new Response('Error updating payment', { 
+          status: 500,
+          headers: corsHeaders 
+        });
       }
 
-      console.log(`Payment completed: ${reference}`);
+      // Store transaction record
+      const { error: transactionError } = await supabaseClient
+        .from('payment_transactions')
+        .insert({
+          payment_id: null, // Will be updated by trigger
+          provider: 'paystack',
+          provider_reference: reference,
+          status: 'completed',
+          webhook_data: event.data,
+          verified_at: new Date().toISOString()
+        });
+
+      if (transactionError) {
+        console.error('Error storing transaction:', transactionError);
+      }
+
+      console.log(`Paystack payment completed: ${reference}`);
     }
 
     return new Response('Webhook processed', { 
@@ -62,10 +85,18 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error('Paystack webhook error:', error);
     return new Response('Webhook error', { 
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
+
+async function verifyPaystackSignature(body: string, secret: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(secret + body);
+  const hashBuffer = await crypto.subtle.digest('SHA-512', data);
+  const hashArray = new Uint8Array(hashBuffer);
+  return Array.from(hashArray).map(b => b.toString(16).padStart(2, '0')).join('');
+}
