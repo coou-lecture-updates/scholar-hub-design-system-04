@@ -182,6 +182,13 @@ export type Database = {
             referencedRelation: "anonymous_pages"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_anonymous_submissions_page"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "anonymous_pages"
+            referencedColumns: ["id"]
+          },
         ]
       }
       audit_logs: {
