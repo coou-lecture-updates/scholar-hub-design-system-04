@@ -163,7 +163,7 @@ function AppInner() {
       <Route path="/admin/timetables" element={<AdminRoute><TimetableManagement /></AdminRoute>} />
       <Route path="/admin/lectures" element={<AdminRoute><LectureManagement /></AdminRoute>} />
       <Route path="/admin/alerts" element={<AdminRoute><AlertManagement /></AdminRoute>} />
-      <Route path="/admin/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
+      <Route path="/admin/settings/*" element={<AdminRoute><SystemSettings /></AdminRoute>} />
       <Route path="/admin/faculties" element={<AdminRoute><FacultyManagement /></AdminRoute>} />
       <Route path="/admin/departments" element={<AdminRoute><DepartmentManagement /></AdminRoute>} />
       <Route path="/admin/messages" element={<AdminRoute><Messages /></AdminRoute>} />
