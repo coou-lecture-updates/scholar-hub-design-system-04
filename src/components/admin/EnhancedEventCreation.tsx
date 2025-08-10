@@ -55,7 +55,23 @@ const EnhancedEventCreation: React.FC<EnhancedEventCreationProps> = ({
 
   const isPaidEvent = formData.requiresTickets && parseFloat(formData.price) > 0;
   const needsWalletDeduction = isPaidEvent && !editEvent;
-  const eventCreationFee = 2000;
+  const [eventCreationFee, setEventCreationFee] = useState<number>(2000);
+
+  // Load event creation fee from system settings
+  React.useEffect(() => {
+    const loadFee = async () => {
+      const { data, error } = await supabase
+        .from('system_settings')
+        .select('value')
+        .eq('key', 'event_creation_fee')
+        .maybeSingle();
+      if (!error && data?.value) {
+        const fee = parseFloat(data.value as any);
+        if (!Number.isNaN(fee)) setEventCreationFee(fee);
+      }
+    };
+    loadFee();
+  }, []);
 
   const updateFormData = (key: string, value: any) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -150,32 +166,12 @@ const EnhancedEventCreation: React.FC<EnhancedEventCreationProps> = ({
         eventResult = data;
       }
 
-      // Handle wallet deduction for new paid events
-      if (needsWalletDeduction) {
-        try {
-          await addTransaction(
-            eventCreationFee,
-            'debit',
-            `Event creation fee - ${formData.title}`,
-            `EVENT_CREATE_${Date.now()}`,
-            eventResult.id,
-            { event_type: formData.eventType, event_title: formData.title }
-          );
-        } catch (walletError) {
-          console.error('Wallet deduction failed:', walletError);
-          toast({
-            title: "Event created with warning",
-            description: "Event created successfully, but wallet deduction failed. Please contact support.",
-            variant: "destructive",
-          });
-        }
-      }
+      // Wallet deduction handled server-side via database trigger for paid events
+
 
       toast({
         title: editEvent ? "Event updated" : "Event created",
-        description: needsWalletDeduction 
-          ? `Event created successfully. ₦${eventCreationFee.toLocaleString()} has been deducted from your wallet.`
-          : `Event ${editEvent ? 'updated' : 'created'} successfully.`,
+        description: "Event saved successfully.",
       });
 
       onSuccess();
