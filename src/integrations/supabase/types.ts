@@ -1702,6 +1702,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      migrate_payment_gateways: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
