@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -968,6 +968,42 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_gateway_config: {
+        Row: {
+          business_name: string | null
+          created_at: string | null
+          enabled: boolean
+          environment: string
+          id: string
+          provider: string
+          public_key: string
+          updated_at: string | null
+          webhook_url: string
+        }
+        Insert: {
+          business_name?: string | null
+          created_at?: string | null
+          enabled?: boolean
+          environment?: string
+          id?: string
+          provider: string
+          public_key: string
+          updated_at?: string | null
+          webhook_url: string
+        }
+        Update: {
+          business_name?: string | null
+          created_at?: string | null
+          enabled?: boolean
+          environment?: string
+          id?: string
+          provider?: string
+          public_key?: string
+          updated_at?: string | null
+          webhook_url?: string
+        }
+        Relationships: []
+      }
       payment_gateways: {
         Row: {
           business_name: string | null
@@ -1656,6 +1692,15 @@ export type Database = {
       has_role: {
         Args: { check_role: string; user_uuid?: string }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          action_type: string
+          details?: Json
+          record_id?: string
+          table_name: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
