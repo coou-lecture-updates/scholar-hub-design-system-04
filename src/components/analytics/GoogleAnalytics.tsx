@@ -42,7 +42,14 @@ const GoogleAnalytics: React.FC = () => {
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '${analyticsKey}');
+      gtag('config', '${analyticsKey}', {
+        page_title: document.title,
+        page_location: window.location.href,
+        send_page_view: true
+      });
+      
+      // Track page views on route changes
+      window.gtag = gtag;
     `;
     document.head.appendChild(script2);
 

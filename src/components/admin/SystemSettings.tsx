@@ -24,6 +24,7 @@ import EnhancedGeneralSettings from '@/components/admin/enhanced/EnhancedGeneral
 import EnhancedAnalyticsSettings from '@/components/admin/enhanced/EnhancedAnalyticsSettings';
 import EnhancedPaymentSettings from '@/components/admin/enhanced/EnhancedPaymentSettings';
 import EnhancedSecuritySettings from '@/components/admin/enhanced/EnhancedSecuritySettings';
+import SEOToolsPanel from '@/components/admin/SEOToolsPanel';
 
 interface SystemSetting {
   id: string;
@@ -134,6 +135,16 @@ const SystemSettings: React.FC = () => {
             path="seo" 
             element={
               <SEOSettings 
+                getSetting={getSetting} 
+                onUpdate={handleSettingUpdate}
+                isUpdating={updateSettingMutation.isPending}
+              />
+            } 
+          />
+          <Route 
+            path="seo-tools" 
+            element={
+              <SEOToolsPanel 
                 getSetting={getSetting} 
                 onUpdate={handleSettingUpdate}
                 isUpdating={updateSettingMutation.isPending}

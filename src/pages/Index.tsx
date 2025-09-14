@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useSEO } from '@/hooks/useSEO';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/home/HeroSection';
@@ -13,6 +14,15 @@ import FacultySection from '@/components/home/FacultySection';
 import LiveClock from '@/components/home/LiveClock';
 
 const Index = () => {
+  useSEO({
+    title: "COOU Updates - Chukwuemeka Odumegwu Ojukwu University Portal",
+    description: "Official updates portal for Chukwuemeka Odumegwu Ojukwu University. Access academic schedules, events, news, and campus resources.",
+    keywords: "COOU, Chukwuemeka Odumegwu Ojukwu University, student portal, academic updates, university events, course schedules, exam updates",
+    ogTitle: "COOU Updates - University Portal",
+    ogDescription: "Stay updated with the latest academic information from Chukwuemeka Odumegwu Ojukwu University",
+    canonicalUrl: window.location.origin
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Settings, Globe, CreditCard, Shield, Wrench, BarChart3, AlertTriangle, TestTube } from 'lucide-react';
+import { Settings, Globe, CreditCard, Shield, Wrench, BarChart3, AlertTriangle, TestTube, Search } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +20,12 @@ const SystemSettingsNavigation = () => {
       label: 'SEO & Meta',
       icon: Globe,
       description: 'Search engine optimization'
+    },
+    {
+      path: '/admin/settings/seo-tools',
+      label: 'SEO Tools',
+      icon: Search,
+      description: 'Sitemap generator and robots.txt'
     },
     {
       path: '/admin/settings/payments',

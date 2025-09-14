@@ -49,6 +49,7 @@ import SystemReportsPage from "./pages/admin/SystemReports";
 import { NotificationProvider } from "@/components/ui/notifications";
 import LovableBadge from '@/components/LovableBadge';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
+import SEOHeadManager from '@/components/seo/SEOHeadManager';
 import Contact from "./pages/Contact";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -185,6 +186,7 @@ function App() {
             <Toaster />
             <LovableBadge />
             <GoogleAnalytics />
+            <SEOHeadManager />
           </NotificationProvider>
         </AuthProvider>
       </QueryClientProvider>
