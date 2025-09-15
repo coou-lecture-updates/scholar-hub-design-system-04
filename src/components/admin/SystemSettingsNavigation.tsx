@@ -10,58 +10,16 @@ const SystemSettingsNavigation = () => {
 
   const navigationItems = [
     {
-      path: '/admin/settings/general',
-      label: 'General',
-      icon: Settings,
-      description: 'Site information and basic settings'
-    },
-    {
-      path: '/admin/settings/seo',
-      label: 'SEO & Meta',
-      icon: Globe,
-      description: 'Search engine optimization'
-    },
-    {
-      path: '/admin/settings/seo-tools',
-      label: 'SEO Tools',
-      icon: Search,
-      description: 'Sitemap generator and robots.txt'
-    },
-    {
       path: '/admin/settings/payments',
       label: 'Payment Gateways',
       icon: CreditCard,
       description: 'Configure payment methods'
     },
     {
-      path: '/admin/settings/events',
-      label: 'Event Settings',
-      icon: AlertTriangle,
-      description: 'Event creation and pricing'
-    },
-    {
       path: '/admin/settings/security',
       label: 'Security',
       icon: Shield,
       description: 'Password, MFA, and security settings'
-    },
-    {
-      path: '/admin/settings/analytics',
-      label: 'Analytics',
-      icon: BarChart3,
-      description: 'Google Analytics and tracking'
-    },
-    {
-      path: '/admin/settings/maintenance',
-      label: 'Maintenance',
-      icon: Wrench,
-      description: 'Site maintenance and downtime'
-    },
-    {
-      path: '/admin/settings/testing',
-      label: 'System Testing',
-      icon: TestTube,
-      description: 'Test system functionality'
     }
   ];
 
