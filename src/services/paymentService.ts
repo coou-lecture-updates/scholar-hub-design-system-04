@@ -72,7 +72,7 @@ export class EnhancedPaymentService {
   async getPaymentGateways(): Promise<any[]> {
     try {
       const { data, error } = await supabase
-        .from('payment_gateways')
+        .from('payment_gateway_config')
         .select('*')
         .eq('enabled', true)
         .order('provider');

@@ -33,7 +33,7 @@ serve(async (req) => {
 
     // Get payment gateway configuration
     const { data: gateway, error: gatewayError } = await supabaseClient
-      .from('payment_gateways')
+      .from('payment_gateway_config')
       .select('*')
       .eq('provider', paymentRequest.provider)
       .eq('enabled', true)
