@@ -193,8 +193,8 @@ const Dashboard = () => {
         
         <CreateEventCTA />
         
-        <UserProfileInfo userInfo={userInfo} />
         <UserRoleDisplay />
+        <UserProfileInfo userInfo={userInfo} />
         <DashboardStats stats={stats} loading={loading} />
         <RealUserStats />
         <UserLevelNotifications />

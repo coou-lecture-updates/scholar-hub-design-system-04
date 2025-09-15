@@ -121,43 +121,77 @@ const UserRoleDisplay = () => {
   }
 
   return (
-    <div className="bg-card border rounded-lg p-4">
-      <div className="flex items-center justify-between">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Shield className="h-5 w-5" />
+          Your Roles & Permissions
+        </CardTitle>
+        <CardDescription>
+          Current roles and permissions assigned to your account
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
         {userRoles.length > 0 ? (
-          <div className="flex items-center gap-3">
-            <div className="flex gap-2">
-              {userRoles.map((role) => (
-                <Badge key={role.id} variant={getRoleBadgeVariant(role.role)} className="text-xs">
-                  {role.role.replace('_', ' ')}
-                </Badge>
-              ))}
-            </div>
+          <div className="space-y-3">
+            {userRoles.map((role) => (
+              <div key={role.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  {getRoleIcon(role.role)}
+                  <div>
+                    <Badge variant={getRoleBadgeVariant(role.role)}>
+                      {role.role.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                    {role.role === 'course_rep' && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {role.faculties?.name && `Faculty: ${role.faculties.name}`}
+                        {role.departments?.name && ` • Department: ${role.departments.name}`}
+                        {role.level && ` • Level: ${role.level}`}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Standard user</span>
+          <div className="text-center py-4">
+            <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-muted-foreground">You have standard user permissions</p>
           </div>
         )}
 
         {requestableRoles.length > 0 && (
-          <div className="flex gap-1">
-            {requestableRoles.map((role) => (
-              <Button
-                key={role}
-                size="sm"
-                variant="outline"
-                className="h-7 px-2 text-xs"
-                onClick={() => requestRole(role)}
-                disabled={requestingRole}
-              >
-                Request {role.replace('_', ' ')}
-              </Button>
-            ))}
+          <div className="border-t pt-4">
+            <h4 className="font-medium mb-3 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              Request Additional Roles
+            </h4>
+            <div className="space-y-2">
+              {requestableRoles.map((role) => (
+                <div key={role} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {getRoleIcon(role)}
+                    <span className="capitalize">{role.replace('_', ' ')}</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => requestRole(role)}
+                    disabled={requestingRole}
+                  >
+                    Request
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Role requests will be reviewed by administrators
+            </p>
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
