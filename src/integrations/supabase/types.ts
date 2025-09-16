@@ -123,23 +123,32 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          expires_at: string | null
           id: string
           page_name: string
           page_token: string
+          public_link: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
           email: string
+          expires_at?: string | null
           id?: string
           page_name: string
           page_token: string
+          public_link?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
           email?: string
+          expires_at?: string | null
           id?: string
           page_name?: string
           page_token?: string
+          public_link?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1676,6 +1685,10 @@ export type Database = {
       custom_access_token_hook: {
         Args: { event: Json }
         Returns: Json
+      }
+      generate_short_link: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>

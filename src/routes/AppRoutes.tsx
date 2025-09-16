@@ -21,6 +21,7 @@ const ExamUpdates = React.lazy(() => import('@/pages/ExamUpdates'));
 const Community = React.lazy(() => import('@/pages/Community'));
 const Resources = React.lazy(() => import('@/pages/Resources'));
 const AnonymousMessage = React.lazy(() => import('@/pages/AnonymousMessage'));
+const AnonymousSubmission = React.lazy(() => import('@/pages/AnonymousSubmission'));
 const LostAndFound = React.lazy(() => import('@/pages/LostAndFound'));
 const Messages = React.lazy(() => import('@/pages/Messages'));
 const TicketPayments = React.lazy(() => import('@/pages/TicketPayments'));
@@ -89,6 +90,7 @@ const AppRoutes = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/anonymous-message" element={<AnonymousMessage />} />
+          <Route path="/anonymous/:link" element={<AnonymousSubmission />} />
           <Route path="/ticket-payments" element={<TicketPayments />} />
           <Route path="/payment-status" element={<PaymentStatus />} />
           <Route path="/unauthorized" element={<Unauthorized />} />

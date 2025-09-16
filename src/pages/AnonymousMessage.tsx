@@ -32,6 +32,8 @@ const AnonymousMessage = () => {
   const generateRandomToken = () => {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   };
+
+  const [publicLink, setPublicLink] = useState('');
   
   const handleGeneratePage = async () => {
     if (!pageInfo.name || !pageInfo.email || !pageInfo.pageName) {
@@ -49,18 +51,21 @@ const AnonymousMessage = () => {
       const newToken = generateRandomToken();
       
       // Create the anonymous page in the database
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('anonymous_pages')
         .insert({
           page_name: pageInfo.pageName,
           page_token: newToken,
           email: pageInfo.email
-        });
+        })
+        .select()
+        .single();
       
       if (error) throw error;
       
       setPageToken(newToken);
-      setGeneratedLink(`${window.location.origin}/anonymous/${newToken}`);
+      setPublicLink(data.public_link);
+      setGeneratedLink(`${window.location.origin}/anonymous/${data.public_link}`);
       
       toast({
         title: "Success",
@@ -270,18 +275,30 @@ const AnonymousMessage = () => {
                       </div>
                     </div>
                     
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Your Access Token (Save this!)</label>
-                      <div className="flex">
-                        <input
-                          type="text"
-                          value={pageToken}
-                          readOnly
-                          className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50 font-mono"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">You'll need this token to view messages later. Keep it safe!</p>
-                    </div>
+                     <div>
+                       <label className="block text-sm font-medium text-gray-700 mb-1">Your Access Token (Save this!)</label>
+                       <div className="flex">
+                         <input
+                           type="text"
+                           value={pageToken}
+                           readOnly
+                           className="flex-1 border border-gray-300 rounded-l-md px-3 py-2 text-sm bg-gray-50 font-mono"
+                         />
+                         <Button
+                           className="rounded-l-none bg-gray-600 hover:bg-gray-700"
+                           onClick={() => {
+                             navigator.clipboard.writeText(pageToken);
+                             toast({
+                               title: "Copied to clipboard",
+                               description: "Access token copied to clipboard",
+                             });
+                           }}
+                         >
+                           <Copy className="h-4 w-4" />
+                         </Button>
+                       </div>
+                       <p className="text-xs text-gray-500 mt-1">You'll need this token to view messages later. Keep it safe!</p>
+                     </div>
                     
                     <div className="flex justify-between">
                       <Button variant="outline" onClick={() => setGeneratedLink('')}>
@@ -378,30 +395,30 @@ const AnonymousMessage = () => {
                       <p className="text-sm text-gray-500 mt-1">Created on {formatDate(pageDetails.created_at)}</p>
                     </div>
                     
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Your Anonymous Link</label>
-                      <div className="flex">
-                        <input
-                          type="text"
-                          value={`${window.location.origin}/anonymous/${pageDetails.page_token}`}
-                          readOnly
-                          className="flex-1 border border-gray-300 rounded-l-md px-3 py-2 text-sm bg-gray-50"
-                        />
-                        <Button
-                          className="rounded-l-none bg-blue-700 hover:bg-blue-800"
-                          onClick={() => {
-                            navigator.clipboard.writeText(`${window.location.origin}/anonymous/${pageDetails.page_token}`);
-                            toast({
-                              title: "Copied to clipboard",
-                              description: "Link has been copied to your clipboard",
-                            });
-                          }}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">Share this link to receive more anonymous messages</p>
-                    </div>
+                     <div className="mb-6">
+                       <label className="block text-sm font-medium text-gray-700 mb-1">Your Anonymous Link</label>
+                       <div className="flex">
+                         <input
+                           type="text"
+                           value={`${window.location.origin}/anonymous/${pageDetails.public_link}`}
+                           readOnly
+                           className="flex-1 border border-gray-300 rounded-l-md px-3 py-2 text-sm bg-gray-50"
+                         />
+                         <Button
+                           className="rounded-l-none bg-blue-700 hover:bg-blue-800"
+                           onClick={() => {
+                             navigator.clipboard.writeText(`${window.location.origin}/anonymous/${pageDetails.public_link}`);
+                             toast({
+                               title: "Copied to clipboard",
+                               description: "Link has been copied to your clipboard",
+                             });
+                           }}
+                         >
+                           <Copy className="h-4 w-4" />
+                         </Button>
+                       </div>
+                       <p className="text-xs text-gray-500 mt-1">Share this link to receive more anonymous messages. Expires in 48 hours.</p>
+                     </div>
                     
                     <h3 className="text-lg font-medium mb-4">Your Messages ({messages.length})</h3>
                     
