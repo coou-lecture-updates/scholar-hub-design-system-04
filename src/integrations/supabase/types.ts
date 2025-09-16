@@ -1276,6 +1276,66 @@ export type Database = {
         }
         Relationships: []
       }
+      role_requests: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          faculty_id: string | null
+          id: string
+          justification: string | null
+          level: number | null
+          requested_role: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          faculty_id?: string | null
+          id?: string
+          justification?: string | null
+          level?: number | null
+          requested_role: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          faculty_id?: string | null
+          id?: string
+          justification?: string | null
+          level?: number | null
+          requested_role?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_requests_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_requests_faculty_id_fkey"
+            columns: ["faculty_id"]
+            isOneToOne: false
+            referencedRelation: "faculties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_configurations: {
         Row: {
           category: string

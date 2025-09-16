@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Send, MessageSquare, Loader2, Clock } from 'lucide-react';
+import { Send, MessageSquare, Loader2, Clock, Share2, MessageCircle, Facebook, Twitter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -118,6 +118,47 @@ const AnonymousSubmission = () => {
     return `${minutes}m left`;
   };
 
+  const shareUrl = window.location.href;
+  const shareText = `Send me an anonymous message on ${pageDetails?.page_name || 'Anonymous Messages'}`;
+
+  const handleShare = async (platform?: string) => {
+    if (platform === 'whatsapp') {
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank');
+    } else if (platform === 'facebook') {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+    } else if (platform === 'twitter') {
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+    } else if (platform === 'tiktok') {
+      // TikTok doesn't have a direct web share API, so we'll copy to clipboard
+      await navigator.clipboard.writeText(shareText + ' ' + shareUrl);
+      toast({
+        title: "Link copied!",
+        description: "Share link copied to clipboard for TikTok",
+      });
+    } else {
+      // Native share API
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: pageDetails?.page_name || 'Anonymous Messages',
+            text: shareText,
+            url: shareUrl,
+          });
+        } catch (error) {
+          // User cancelled or error occurred
+          console.log('Share cancelled or failed');
+        }
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        toast({
+          title: "Link copied!",
+          description: "Share link copied to clipboard",
+        });
+      }
+    }
+  };
+
   if (pageLoading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -168,6 +209,54 @@ const AnonymousSubmission = () => {
               <div className="flex items-center justify-center mt-3 text-sm text-orange-600">
                 <Clock className="h-4 w-4 mr-1" />
                 {formatTimeLeft()}
+              </div>
+              
+              {/* Share buttons */}
+              <div className="flex flex-wrap justify-center gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare()}
+                  className="text-xs"
+                >
+                  <Share2 className="h-3 w-3 mr-1" />
+                  Share
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('whatsapp')}
+                  className="text-xs text-green-600 hover:text-green-700"
+                >
+                  <MessageCircle className="h-3 w-3 mr-1" />
+                  WhatsApp
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('facebook')}
+                  className="text-xs text-blue-600 hover:text-blue-700"
+                >
+                  <Facebook className="h-3 w-3 mr-1" />
+                  Facebook
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('twitter')}
+                  className="text-xs text-sky-600 hover:text-sky-700"
+                >
+                  <Twitter className="h-3 w-3 mr-1" />
+                  X (Twitter)
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('tiktok')}
+                  className="text-xs text-pink-600 hover:text-pink-700"
+                >
+                  TikTok
+                </Button>
               </div>
             </div>
 
