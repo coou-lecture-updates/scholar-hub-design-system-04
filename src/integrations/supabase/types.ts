@@ -119,6 +119,41 @@ export type Database = {
         }
         Relationships: []
       }
+      anonymous_page_analytics: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          page_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          page_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          page_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anonymous_page_analytics_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "anonymous_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       anonymous_pages: {
         Row: {
           created_at: string
@@ -1742,11 +1777,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_anonymous_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       custom_access_token_hook: {
         Args: { event: Json }
         Returns: Json
       }
       generate_short_link: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_unique_public_link: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
