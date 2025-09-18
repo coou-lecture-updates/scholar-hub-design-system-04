@@ -7,9 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Send, Share2, Copy, Clock, MessageSquare, Shield, Heart, AlertCircle, CheckCircle } from "lucide-react";
+import { Send, Share2, Copy, Clock, MessageSquare, Shield, Heart, AlertCircle, CheckCircle, RefreshCw, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+
+type ErrorType = 'not_found' | 'expired' | 'network' | 'unknown' | null;
 
 const AnonymousSubmission = () => {
   const { link } = useParams();
@@ -18,43 +20,84 @@ const AnonymousSubmission = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [pageDetails, setPageDetails] = useState<any>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<ErrorType>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const fetchPageDetails = async () => {
-      if (!link) return;
+      if (!link) {
+        setError('not_found');
+        setPageLoading(false);
+        return;
+      }
+
+      console.log(`🔍 Fetching page for link: ${link}`);
+      setError(null);
 
       try {
-        const { data, error } = await supabase
+        // First, check if the page exists at all (regardless of expiry)
+        const { data: pageData, error: pageError } = await supabase
           .from("anonymous_pages")
           .select("*")
           .eq("public_link", link)
-          .gt("expires_at", new Date().toISOString())
           .maybeSingle();
 
-        if (error) throw error;
+        console.log(`📊 Query result:`, { data: pageData, error: pageError });
 
-        if (!data) {
-          console.error("Page not found or expired");
+        if (pageError) {
+          console.error("❌ Database error:", pageError);
+          throw new Error(`Database error: ${pageError.message}`);
+        }
+
+        if (!pageData) {
+          console.log("❌ Page not found");
+          setError('not_found');
           return;
         }
 
-        setPageDetails(data);
-
-        // Track page view analytics
-        await supabase.from("anonymous_page_analytics").insert({
-          page_id: data.id,
-          event_type: "view"
+        // Check if expired using consistent timezone handling
+        const now = new Date();
+        const expiresAt = new Date(pageData.expires_at);
+        const isExpired = expiresAt <= now;
+        
+        console.log(`⏰ Time check:`, {
+          now: now.toISOString(),
+          expires: pageData.expires_at,
+          expiresAt: expiresAt.toISOString(),
+          isExpired,
+          timeLeft: Math.floor((expiresAt.getTime() - now.getTime()) / 1000)
         });
 
+        if (isExpired) {
+          console.log("⏰ Page has expired");
+          setError('expired');
+          return;
+        }
+
+        console.log("✅ Page found and valid");
+        setPageDetails(pageData);
+
+        // Track page view analytics
+        try {
+          await supabase.from("anonymous_page_analytics").insert({
+            page_id: pageData.id,
+            event_type: "view"
+          });
+          console.log("📈 Analytics tracked");
+        } catch (analyticsError) {
+          console.warn("⚠️ Analytics tracking failed:", analyticsError);
+        }
+
       } catch (error) {
-        console.error("Error fetching page:", error);
+        console.error("❌ Error fetching page:", error);
+        setError('network');
       } finally {
         setPageLoading(false);
       }
     };
 
     fetchPageDetails();
-  }, [link]);
+  }, [link, retryCount]);
 
   const handleSubmit = async () => {
     if (!message.trim()) {
@@ -190,21 +233,90 @@ const AnonymousSubmission = () => {
     );
   }
 
-  if (!pageDetails) {
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+    setPageLoading(true);
+    setError(null);
+  };
+
+  const getErrorContent = () => {
+    switch (error) {
+      case 'expired':
+        return {
+          icon: <Clock className="h-12 w-12 text-amber-500 mx-auto mb-4" />,
+          title: "Page Expired",
+          description: "This anonymous message page has expired. Pages are only active for 48 hours after creation.",
+          showRetry: false
+        };
+      case 'not_found':
+        return {
+          icon: <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />,
+          title: "Page Not Found", 
+          description: `The link "${link}" doesn't exist. Please check if you copied the link correctly.`,
+          showRetry: false
+        };
+      case 'network':
+        return {
+          icon: <AlertCircle className="h-12 w-12 text-amber-500 mx-auto mb-4" />,
+          title: "Connection Error",
+          description: "Unable to load the page. Please check your internet connection and try again.",
+          showRetry: true
+        };
+      default:
+        return {
+          icon: <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />,
+          title: "Something went wrong",
+          description: "An unexpected error occurred while loading the page.",
+          showRetry: true
+        };
+    }
+  };
+
+  if (error) {
+    const errorContent = getErrorContent();
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
         <Navbar />
         <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
           <Card className="w-full max-w-md">
             <CardContent className="text-center p-6">
-              <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Page Not Found</h2>
+              {errorContent.icon}
+              <h2 className="text-xl font-semibold mb-2">{errorContent.title}</h2>
               <p className="text-muted-foreground mb-4">
-                This anonymous message page doesn't exist or has expired.
+                {errorContent.description}
               </p>
-              <Button variant="outline" onClick={() => window.location.href = '/anonymous-message'}>
-                Create Your Own Page
-              </Button>
+              <div className="flex flex-col gap-3">
+                {errorContent.showRetry && (
+                  <Button onClick={handleRetry} className="flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4" />
+                    Try Again
+                  </Button>
+                )}
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.location.href = '/anonymous-message'}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Create Your Own Page
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => window.history.back()}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Go Back
+                </Button>
+              </div>
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-left">
+                  <strong>Debug Info:</strong><br />
+                  Link: {link}<br />
+                  Error: {error}<br />
+                  Retry count: {retryCount}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
