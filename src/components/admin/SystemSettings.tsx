@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Settings, BarChart3, Globe, Shield, CreditCard, Wrench, Save, Loader2 } from 'lucide-react';
 import SystemTestPanel from '@/components/admin/SystemTestPanel';
+import BrandingSettings from '@/components/admin/BrandingSettings';
 import AdminSecuritySettings from '@/components/admin/AdminSecuritySettings';
 import SEOSettings from '@/components/admin/SEOSettings';
 import PaymentGatewaySettings from '@/components/admin/PaymentGatewaySettings';
@@ -204,6 +205,10 @@ const SystemSettings: React.FC = () => {
           <Route 
             path="testing" 
             element={<SystemTestPanel />} 
+          />
+          <Route 
+            path="branding" 
+            element={<BrandingSettings />} 
           />
         </Routes>
           </div>

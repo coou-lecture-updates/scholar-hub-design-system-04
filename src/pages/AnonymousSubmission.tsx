@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 type ErrorType = 'not_found' | 'expired' | 'network' | 'unknown' | null;
 
 const AnonymousSubmission = () => {
-  const { link } = useParams();
+  const { linkId } = useParams();
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -25,13 +25,13 @@ const AnonymousSubmission = () => {
 
   useEffect(() => {
     const fetchPageDetails = async () => {
-      if (!link) {
+      if (!linkId) {
         setError('not_found');
         setPageLoading(false);
         return;
       }
 
-      console.log(`🔍 Fetching page for link: ${link}`);
+      console.log(`🔍 Fetching page for link: ${linkId}`);
       setError(null);
 
       try {
@@ -39,7 +39,7 @@ const AnonymousSubmission = () => {
         const { data: pageData, error: pageError } = await supabase
           .from("anonymous_pages")
           .select("*")
-          .eq("public_link", link)
+          .eq("public_link", linkId)
           .maybeSingle();
 
         console.log(`📊 Query result:`, { data: pageData, error: pageError });
@@ -97,7 +97,7 @@ const AnonymousSubmission = () => {
     };
 
     fetchPageDetails();
-  }, [link, retryCount]);
+  }, [linkId, retryCount]);
 
   const handleSubmit = async () => {
     if (!message.trim()) {
@@ -252,7 +252,7 @@ const AnonymousSubmission = () => {
         return {
           icon: <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />,
           title: "Page Not Found", 
-          description: `The link "${link}" doesn't exist. Please check if you copied the link correctly.`,
+          description: `The link "${linkId}" doesn't exist. Please check if you copied the link correctly.`,
           showRetry: false
         };
       case 'network':
@@ -312,7 +312,7 @@ const AnonymousSubmission = () => {
               {process.env.NODE_ENV === 'development' && (
                 <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-left">
                   <strong>Debug Info:</strong><br />
-                  Link: {link}<br />
+                  Link: {linkId}<br />
                   Error: {error}<br />
                   Retry count: {retryCount}
                 </div>

@@ -90,7 +90,7 @@ const AppRoutes = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/anonymous-message" element={<AnonymousMessage />} />
-          <Route path="/anonymous/:link" element={<AnonymousSubmission />} />
+          <Route path="/anonymous/:linkId" element={<AnonymousSubmission />} />
           <Route path="/ticket-payments" element={<TicketPayments />} />
           <Route path="/payment-status" element={<PaymentStatus />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
