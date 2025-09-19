@@ -1,8 +1,8 @@
-// Complete production setup for CouConnect Online
+// Complete production setup for CoouConnect Online
 import { supabase } from '@/integrations/supabase/client';
 
 export const runProductionSetup = async () => {
-  console.log('🚀 Setting up CouConnect Online for production...');
+  console.log('🚀 Setting up CoouConnect Online for production...');
   
   try {
     // Setup system settings
@@ -27,7 +27,7 @@ export const runProductionSetup = async () => {
 const setupSystemSettings = async () => {
   const productionSettings = [
     // Core site settings
-    { key: 'site_name', value: 'CouConnect Online', description: 'Website name' },
+    { key: 'site_name', value: 'CoouConnect Online', description: 'Website name' },
     { key: 'site_description', value: 'Connect, Learn, and Grow with Your University Community', description: 'Website description' },
     { key: 'site_url', value: 'https://www.coouconnect.online', description: 'Production site URL' },
     { key: 'maintenance_mode', value: 'false', description: 'Maintenance mode toggle' },
@@ -37,10 +37,10 @@ const setupSystemSettings = async () => {
     { key: 'currency', value: 'NGN', description: 'Default currency' },
     
     // SEO Settings - Production ready
-    { key: 'seo_title', value: 'CouConnect Online - University Community Platform', description: 'SEO title' },
+    { key: 'seo_title', value: 'CoouConnect Online - University Community Platform', description: 'SEO title' },
     { key: 'seo_description', value: 'Connect with your university community, access courses, events, and resources in one place. Join thousands of students and faculty members.', description: 'SEO description' },
     { key: 'seo_keywords', value: 'university, education, community, courses, events, students, faculty, learning, academic, campus', description: 'SEO keywords' },
-    { key: 'og_title', value: 'CouConnect Online - University Community Platform', description: 'Open Graph title' },
+    { key: 'og_title', value: 'CoouConnect Online - University Community Platform', description: 'Open Graph title' },
     { key: 'og_description', value: 'Your premier university community platform connecting students, faculty, and resources', description: 'Open Graph description' },
     { key: 'og_image', value: '/lovable-uploads/og-image.png', description: 'Open Graph image URL' },
     { key: 'twitter_card', value: 'summary_large_image', description: 'Twitter card type' },
@@ -130,20 +130,20 @@ const setupSEODefaults = async () => {
   console.log('🔍 Setting up SEO defaults for production...');
   
   // Update document title
-  document.title = 'CouConnect Online - University Community Platform';
+  document.title = 'CoouConnect Online - University Community Platform';
   
   // Add meta tags
   const metaTags = [
     { name: 'description', content: 'Connect with your university community, access courses, events, and resources in one place. Join thousands of students and faculty members.' },
     { name: 'keywords', content: 'university, education, community, courses, events, students, faculty, learning, academic, campus' },
-    { name: 'author', content: 'CouConnect Online' },
+    { name: 'author', content: 'CoouConnect Online' },
     { name: 'robots', content: 'index, follow' },
-    { property: 'og:title', content: 'CouConnect Online - University Community Platform' },
+    { property: 'og:title', content: 'CoouConnect Online - University Community Platform' },
     { property: 'og:description', content: 'Your premier university community platform connecting students, faculty, and resources' },
     { property: 'og:type', content: 'website' },
     { property: 'og:url', content: 'https://www.coouconnect.online' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'CouConnect Online' },
+    { name: 'twitter:title', content: 'CoouConnect Online' },
     { name: 'twitter:description', content: 'University Community Platform' },
   ];
 
@@ -164,7 +164,7 @@ const setupSEODefaults = async () => {
 // Auto-run setup on import
 runProductionSetup().then(success => {
   if (success) {
-    console.log('🎉 CouConnect Online is production-ready!');
+    console.log('🎉 CoouConnect Online is production-ready!');
     console.log('🌐 Domain: www.coouconnect.online');
     console.log('🚀 Ready for launch!');
   }

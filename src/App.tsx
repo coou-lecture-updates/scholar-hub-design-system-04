@@ -12,6 +12,9 @@ import BlogDetail from "./pages/BlogDetail";
 import Community from "./pages/Community";
 import LostAndFound from "./pages/LostAndFound";
 import AnonymousMessage from "./pages/AnonymousMessage";
+import AnonymousSubmission from "./pages/AnonymousSubmission";
+import FundWallet from "./pages/FundWallet";
+import Wallet from "./pages/Wallet";
 import TicketPayments from "./pages/TicketPayments";
 import Events from "./pages/Events";
 import Tools from "./pages/Tools";
@@ -138,6 +141,9 @@ function AppInner() {
       <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
       <Route path="/lost-and-found" element={<ProtectedRoute><LostAndFound /></ProtectedRoute>} />
       <Route path="/anonymous-message" element={<ProtectedRoute><AnonymousMessage /></ProtectedRoute>} />
+      <Route path="/anonymous/:linkId" element={<AnonymousSubmission />} />
+      <Route path="/fund-wallet" element={<ProtectedRoute><FundWallet /></ProtectedRoute>} />
+      <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/ticket-payments" element={<ProtectedRoute><TicketPayments /></ProtectedRoute>} />
       <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
       <Route path="/timetable" element={<ProtectedRoute><Timetable /></ProtectedRoute>} />

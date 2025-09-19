@@ -46,6 +46,57 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+// Dynamic Logo Component that reads from system settings
+const LogoComponent = () => {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [siteName, setSiteName] = useState<string>('CoouConnect Online');
+
+  useEffect(() => {
+    const fetchBranding = async () => {
+      const { data } = await supabase
+        .from('system_settings')
+        .select('key, value')
+        .in('key', ['site_logo', 'site_name']);
+        
+      if (data) {
+        const logoSetting = data.find(item => item.key === 'site_logo');
+        const nameSetting = data.find(item => item.key === 'site_name');
+        
+        if (logoSetting?.value) setLogoUrl(logoSetting.value);
+        if (nameSetting?.value) setSiteName(nameSetting.value);
+      }
+    };
+
+    fetchBranding();
+
+    // Subscribe to real-time changes
+    const subscription = supabase
+      .channel('navbar-branding')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'system_settings' },
+        () => fetchBranding()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
+
+  return (
+    <Link to="/" className="flex items-center space-x-2">
+      <img 
+        src={logoUrl || "/lovable-uploads/a34f47d0-282f-46f8-81d5-70c52d2809b3.png"} 
+        alt="COOU Logo" 
+        className="h-10 w-auto"
+      />
+      <span className="text-xl font-bold text-blue-700 hidden sm:block">
+        {siteName}
+      </span>
+    </Link>
+  );
+};
+
 const Navbar = () => {
   const { user, userProfile, signOut, loading } = useAuth();
   const navigate = useNavigate();
@@ -119,16 +170,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/a34f47d0-282f-46f8-81d5-70c52d2809b3.png" 
-              alt="COOU Logo" 
-              className="h-10 w-auto"
-            />
-            <span className="text-xl font-bold text-blue-700 hidden sm:block">
-              COOU Updates
-            </span>
-          </Link>
+          <LogoComponent />
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6">
