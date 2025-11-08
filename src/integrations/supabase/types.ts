@@ -20,7 +20,7 @@ export type Database = {
           data: Json | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           session_id: string | null
           user_agent: string | null
           user_id: string | null
@@ -30,7 +30,7 @@ export type Database = {
           data?: Json | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           session_id?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -40,7 +40,7 @@ export type Database = {
           data?: Json | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           session_id?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -124,7 +124,7 @@ export type Database = {
           created_at: string | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           page_id: string | null
           user_agent: string | null
         }
@@ -132,7 +132,7 @@ export type Database = {
           created_at?: string | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           page_id?: string | null
           user_agent?: string | null
         }
@@ -140,7 +140,7 @@ export type Database = {
           created_at?: string | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           page_id?: string | null
           user_agent?: string | null
         }
@@ -336,6 +336,56 @@ export type Database = {
           url?: string
         }
         Relationships: []
+      }
+      community_messages: {
+        Row: {
+          content: string
+          created_at: string
+          edited_at: string | null
+          id: string
+          is_anonymous: boolean | null
+          is_pinned: boolean | null
+          mentions: string[] | null
+          parent_id: string | null
+          topic: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          is_pinned?: boolean | null
+          mentions?: string[] | null
+          parent_id?: string | null
+          topic?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          is_pinned?: boolean | null
+          mentions?: string[] | null
+          parent_id?: string | null
+          topic?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_messages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_messages: {
         Row: {
@@ -889,38 +939,66 @@ export type Database = {
           },
         ]
       }
-      messages: {
+      message_reactions: {
         Row: {
-          content: string
           created_at: string
           id: string
-          read: boolean | null
-          recipient_id: string
-          sender_id: string
-          subject: string
-          updated_at: string
+          message_id: string
+          reaction_type: string
+          user_id: string
         }
         Insert: {
-          content: string
           created_at?: string
           id?: string
-          read?: boolean | null
-          recipient_id: string
-          sender_id: string
-          subject: string
-          updated_at?: string
+          message_id: string
+          reaction_type: string
+          user_id: string
         }
         Update: {
-          content?: string
           created_at?: string
           id?: string
-          read?: boolean | null
-          recipient_id?: string
-          sender_id?: string
-          subject?: string
-          updated_at?: string
+          message_id?: string
+          reaction_type?: string
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "message_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_read_status: {
+        Row: {
+          id: string
+          message_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          message_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          message_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_read_status_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -1777,34 +1855,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_anonymous_data: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      custom_access_token_hook: {
-        Args: { event: Json }
-        Returns: Json
-      }
-      generate_short_link: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_unique_public_link: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_faculty_id: {
-        Args: { faculty_name: string }
-        Returns: string
-      }
-      get_user_roles: {
-        Args: { user_uuid?: string }
-        Returns: string[]
-      }
+      cleanup_expired_anonymous_data: { Args: never; Returns: undefined }
+      custom_access_token_hook: { Args: { event: Json }; Returns: Json }
+      generate_short_link: { Args: never; Returns: string }
+      generate_unique_public_link: { Args: never; Returns: string }
+      get_current_user_role: { Args: never; Returns: string }
+      get_faculty_id: { Args: { faculty_name: string }; Returns: string }
+      get_user_roles: { Args: { user_uuid?: string }; Returns: string[] }
       has_role: {
         Args: { check_role: string; user_uuid?: string }
         Returns: boolean
@@ -1818,10 +1875,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      migrate_payment_gateways: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      migrate_payment_gateways: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

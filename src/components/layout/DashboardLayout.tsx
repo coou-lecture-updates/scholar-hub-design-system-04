@@ -86,12 +86,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
   
   const navItems = role === 'admin' ? adminNavItems : studentNavItems;
 
-  // Bottom nav for student: Dashboard, Timetable, Events, Tools, Settings only
+  // Bottom nav for student: Dashboard, Timetable, Events, Messages, Settings only
   const mobileStudentNavItems = [
     { name: 'Dashboard', icon: <Layers size={18} />, path: '/dashboard' },
     { name: 'Timetable', icon: <Calendar size={18} />, path: '/timetable' },
     { name: 'Events', icon: <Calendar size={18} />, path: '/events' },
-    { name: 'Tools', icon: <Settings size={18} />, path: '/tools' },
+    { name: 'Messages', icon: <MessageSquare size={18} />, path: '/messages' },
     { name: 'Settings', icon: <Settings size={18} />, path: '/user-settings' }
   ];
 
@@ -217,7 +217,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
             {children}
           </main>
 
-          {/* Mobile Nav - Only allowed 5 items: Dashboard, Timetable, Events, Tools, Settings */}
+          {/* Mobile Nav - Only allowed 5 items: Dashboard, Timetable, Events, Messages, Settings */}
           <div className="md:hidden w-full fixed bottom-0 bg-white border-t z-20 shadow-lg">
             <div className="grid grid-cols-5 overflow-x-auto">
               {mobileNavItems.map((item) => (

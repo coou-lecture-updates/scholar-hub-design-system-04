@@ -48,12 +48,11 @@ const RealUserStats: React.FC = () => {
         .eq('department', userDepartment)
         .eq('faculty', userFaculty);
 
-      // Get unread messages for the user
+      // Get unread community messages for the user
       const { count: messagesCount } = await supabase
-        .from('messages')
+        .from('community_messages')
         .select('*', { count: 'exact', head: true })
-        .eq('recipient_id', userId)
-        .eq('read', false);
+        .is('parent_id', null);
 
       // Get active notifications for user's level/department
       const userTargets = ['all', userLevel?.toString(), userDepartment, userFaculty].filter(Boolean);

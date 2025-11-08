@@ -60,7 +60,7 @@ const Dashboard = () => {
                 .eq('level', userProfile.level)
                 .eq('department', userProfile.department)
             : Promise.resolve({ count: 0 });
-        const messagesPromise = supabase.from('messages').select('*', { count: 'exact', head: true }).eq('recipient_id', userProfile.id);
+        const messagesPromise = supabase.from('community_messages').select('*', { count: 'exact', head: true }).is('parent_id', null);
         const eventsPromise = supabase.from('events').select('*', { count: 'exact', head: true }).eq('published', true);
 
         const [lecturesResult, examsResult, messagesResult, eventsResult] = await Promise.all([
