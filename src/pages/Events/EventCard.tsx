@@ -58,7 +58,7 @@ const formatTime = (dateString: string) => {
 };
 
 const EventCard: React.FC<{ event: import('../Events').Event; onBuyTickets?: (event: import('../Events').Event) => void }> = ({ event, onBuyTickets }) => (
-  <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+  <Card className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
     {event.gallery && event.gallery.length > 0 ? (
       <GallerySlider images={event.gallery} />
     ) : event.image_url ? (
@@ -74,13 +74,13 @@ const EventCard: React.FC<{ event: import('../Events').Event; onBuyTickets?: (ev
         <Image className="h-10 w-10 text-gray-400" />
       </div>
     )}
-    <CardHeader>
+    <CardHeader className="pb-3">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <CardTitle className="text-lg">{event.title}</CardTitle>
-          <CardDescription className="mt-1 flex flex-wrap gap-2">
-            <Badge variant="outline">{event.event_type}</Badge>
-            <Badge variant={event.type === 'paid' ? 'default' : 'secondary'}>
+          <CardTitle className="text-base md:text-lg line-clamp-2">{event.title}</CardTitle>
+          <CardDescription className="mt-1 flex flex-wrap gap-1 md:gap-2">
+            <Badge variant="outline" className="text-xs">{event.event_type}</Badge>
+            <Badge variant={event.type === 'paid' ? 'default' : 'secondary'} className="text-xs">
               {event.type === 'paid' ? 'Paid' : 'Scheduled'}
             </Badge>
             {event.slug && (
@@ -90,35 +90,35 @@ const EventCard: React.FC<{ event: import('../Events').Event; onBuyTickets?: (ev
         </div>
       </div>
     </CardHeader>
-    <CardContent className="space-y-4">
-      <p className="text-sm text-gray-600 line-clamp-3">{event.description}</p>
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Calendar className="h-4 w-4" />
-          <span>{formatDate(event.event_date)}</span>
+    <CardContent className="space-y-4 flex-1 flex flex-col">
+      <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3">{event.description}</p>
+      <div className="space-y-1.5 md:space-y-2 flex-1">
+        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+          <Calendar className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
+          <span className="truncate">{formatDate(event.event_date)}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Clock className="h-4 w-4" />
+        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+          <Clock className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
           <span>{formatTime(event.event_date)}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <MapPin className="h-4 w-4" />
-          <span>{event.location}</span>
+        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+          <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
+          <span className="truncate">{event.location}</span>
         </div>
       </div>
       {event.type === 'paid' ? (
-        <div className="pt-4 border-t">
+        <div className="pt-3 md:pt-4 border-t mt-auto">
           <Button 
             onClick={() => onBuyTickets?.(event)}
-            className="w-full"
+            className="w-full text-sm md:text-base h-9 md:h-10"
           >
-            <Users className="h-4 w-4 mr-2" />
-            Buy Tickets {event.price && event.price > 0 ? `- ₦${event.price}` : 'FREE'}
+            <Users className="h-3 w-3 md:h-4 md:w-4 mr-2" />
+            <span className="truncate">Buy Tickets {event.price && event.price > 0 ? `- ₦${event.price}` : 'FREE'}</span>
           </Button>
         </div>
       ) : (
-        <div className="pt-4 border-t text-center">
-          <Badge variant="secondary">Registration not required</Badge>
+        <div className="pt-3 md:pt-4 border-t text-center mt-auto">
+          <Badge variant="secondary" className="text-xs">Registration not required</Badge>
         </div>
       )}
     </CardContent>

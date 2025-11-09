@@ -72,6 +72,19 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   showReplies = true,
 }) => {
   const [showReactions, setShowReactions] = useState(false);
+  const [showHeartAnimation, setShowHeartAnimation] = useState(false);
+  
+  // Double-click handler for quick reactions
+  const handleDoubleClick = () => {
+    if (!currentUserId) return;
+    
+    // Trigger heart reaction on double-click
+    onReact(message.id, 'heart');
+    
+    // Show visual feedback
+    setShowHeartAnimation(true);
+    setTimeout(() => setShowHeartAnimation(false), 800);
+  };
   
   const isOwnMessage = message.user_id === currentUserId;
   const isAdmin = currentUserRoles.includes('admin');
@@ -120,11 +133,26 @@ export const MessageItem: React.FC<MessageItemProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
+      onDoubleClick={handleDoubleClick}
       className={cn(
-        'group relative p-3 md:p-4 rounded-lg transition-all hover:bg-muted/30',
+        'group relative p-3 md:p-4 rounded-lg transition-all hover:bg-muted/30 cursor-pointer select-none',
         message.is_pinned && 'bg-accent/10 border-l-4 border-l-primary'
       )}
     >
+      {/* Double-click heart animation */}
+      <AnimatePresence>
+        {showHeartAnimation && (
+          <motion.div
+            initial={{ scale: 0, opacity: 1 }}
+            animate={{ scale: 1.5, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+          >
+            <Heart className="h-16 w-16 text-red-500 fill-red-500" />
+          </motion.div>
+        )}
+      </AnimatePresence>
       {message.is_pinned && (
         <div className="absolute top-2 right-2">
           <Pin className="h-4 w-4 text-primary fill-primary" />

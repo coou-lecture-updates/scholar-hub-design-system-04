@@ -102,71 +102,75 @@ const Events = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-4 md:space-y-8 px-2 md:px-0">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-lg p-8 text-white">
-          <h1 className="text-3xl font-bold mb-2">Campus Events</h1>
-          <p className="text-blue-100 text-lg">Discover and join exciting events happening around campus</p>
+        <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-lg p-4 md:p-8 text-white">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Campus Events</h1>
+          <p className="text-blue-100 text-sm md:text-lg">Discover and join exciting events happening around campus</p>
         </div>
 
         {/* Wallet Section - Only on Events Page */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
           <WalletBalance showActions={false} />
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <EnhancedFundWallet>
-              <Button className="flex-1 gap-2">
+              <Button className="flex-1 gap-2 text-sm md:text-base">
                 <Plus className="h-4 w-4" />
-                Add Funds to Wallet
+                <span className="hidden sm:inline">Add Funds to Wallet</span>
+                <span className="sm:hidden">Add Funds</span>
               </Button>
             </EnhancedFundWallet>
-            <Button variant="outline" asChild className="flex-1">
+            <Button variant="outline" asChild className="flex-1 text-sm md:text-base">
               <a href="/dashboard">
                 <Wallet className="h-4 w-4 mr-2" />
-                View Wallet History
+                <span className="hidden sm:inline">View Wallet History</span>
+                <span className="sm:hidden">History</span>
               </a>
             </Button>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-full sm:w-fit overflow-x-auto">
           <button
-            className={`px-6 py-3 rounded-md font-medium transition-all flex items-center gap-2 ${
+            className={`px-3 md:px-6 py-2 md:py-3 rounded-md font-medium transition-all flex items-center gap-1 md:gap-2 text-xs md:text-base whitespace-nowrap flex-1 sm:flex-initial ${
               activeTab === 'paid' 
                 ? 'bg-white text-blue-700 shadow-sm' 
                 : 'text-gray-600 hover:text-gray-800'
             }`}
             onClick={() => setActiveTab('paid')}
           >
-            <Ticket className="h-4 w-4" />
-            Ticketed Events
-            <Badge variant="secondary" className="ml-1">
+            <Ticket className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Ticketed Events</span>
+            <span className="sm:hidden">Ticketed</span>
+            <Badge variant="secondary" className="ml-1 text-xs">
               {paidEvents.length}
             </Badge>
           </button>
           <button
-            className={`px-6 py-3 rounded-md font-medium transition-all flex items-center gap-2 ${
+            className={`px-3 md:px-6 py-2 md:py-3 rounded-md font-medium transition-all flex items-center gap-1 md:gap-2 text-xs md:text-base whitespace-nowrap flex-1 sm:flex-initial ${
               activeTab === 'scheduled' 
                 ? 'bg-white text-blue-700 shadow-sm' 
                 : 'text-gray-600 hover:text-gray-800'
             }`}
             onClick={() => setActiveTab('scheduled')}
           >
-            <Calendar className="h-4 w-4" />
-            Scheduled Events
-            <Badge variant="secondary" className="ml-1">
+            <Calendar className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Scheduled Events</span>
+            <span className="sm:hidden">Scheduled</span>
+            <Badge variant="secondary" className="ml-1 text-xs">
               {scheduledEvents.length}
             </Badge>
           </button>
         </div>
 
         {/* Events Content */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {activeTab === 'paid' && (
             <div>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Ticketed Events</h2>
-                <p className="text-gray-600">Events that require tickets (both free and paid)</p>
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Ticketed Events</h2>
+                <p className="text-gray-600 text-sm md:text-base">Events that require tickets (both free and paid)</p>
               </div>
               
               {paidEvents.length === 0 ? (
@@ -187,9 +191,9 @@ const Events = () => {
 
           {activeTab === 'scheduled' && (
             <div>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Scheduled Events</h2>
-                <p className="text-gray-600">General events and announcements</p>
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Scheduled Events</h2>
+                <p className="text-gray-600 text-sm md:text-base">General events and announcements</p>
               </div>
               
               {scheduledEvents.length === 0 ? (
