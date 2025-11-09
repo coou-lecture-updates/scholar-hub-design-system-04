@@ -56,8 +56,8 @@ export const MessageList: React.FC<MessageListProps> = ({
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-20rem)]" ref={scrollRef}>
-      <div className="space-y-2 pr-4">
+    <ScrollArea className="h-[calc(100vh-25rem)] md:h-[calc(100vh-20rem)]" ref={scrollRef}>
+      <div className="space-y-2 pr-2 md:pr-4">
         <AnimatePresence mode="popLayout">
           {messages.map((message) => (
             <MessageItem

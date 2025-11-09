@@ -44,7 +44,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   const hasActiveFilters = searchQuery || selectedTopic !== 'all' || selectedRole !== 'all' || sortBy !== 'recent';
 
   return (
-    <div className="bg-card border rounded-lg p-4 space-y-4">
+    <div className="bg-card border-0 md:border rounded-none md:rounded-lg p-3 md:p-4 space-y-3 md:space-y-4">
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -52,7 +52,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           placeholder="Search messages..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9 pr-9"
+          className="pl-9 pr-9 h-9 text-sm"
         />
         {searchQuery && (
           <Button
@@ -71,11 +71,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         {/* Topic Filter */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Hash className="h-4 w-4" />
-              Topic
+            <Button variant="outline" size="sm" className="gap-1 md:gap-2 h-8 text-xs md:text-sm">
+              <Hash className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="hidden sm:inline">Topic</span>
               {selectedTopic !== 'all' && (
-                <Badge variant="secondary" className="ml-1">
+                <Badge variant="secondary" className="ml-0 md:ml-1 h-4 w-4 p-0 flex items-center justify-center text-xs">
                   1
                 </Badge>
               )}
@@ -104,11 +104,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         {/* Role Filter */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Users className="h-4 w-4" />
-              Role
+            <Button variant="outline" size="sm" className="gap-1 md:gap-2 h-8 text-xs md:text-sm">
+              <Users className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="hidden sm:inline">Role</span>
               {selectedRole !== 'all' && (
-                <Badge variant="secondary" className="ml-1">
+                <Badge variant="secondary" className="ml-0 md:ml-1 h-4 w-4 p-0 flex items-center justify-center text-xs">
                   1
                 </Badge>
               )}
@@ -136,14 +136,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
         {/* Sort By */}
         <Select value={sortBy} onValueChange={onSortByChange}>
-          <SelectTrigger className="w-[140px]">
-            <Clock className="h-4 w-4 mr-2" />
+          <SelectTrigger className="w-auto md:w-[140px] h-8 text-xs md:text-sm gap-1">
+            <Clock className="h-3 w-3 md:h-4 md:w-4" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="recent">Most Recent</SelectItem>
-            <SelectItem value="oldest">Oldest First</SelectItem>
-            <SelectItem value="popular">Most Popular</SelectItem>
+            <SelectItem value="recent">Recent</SelectItem>
+            <SelectItem value="oldest">Oldest</SelectItem>
+            <SelectItem value="popular">Popular</SelectItem>
           </SelectContent>
         </Select>
 
@@ -153,10 +153,10 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="gap-2"
+            className="gap-1 md:gap-2 h-8 text-xs md:text-sm ml-auto"
           >
-            <X className="h-4 w-4" />
-            Clear
+            <X className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Clear</span>
           </Button>
         )}
       </div>

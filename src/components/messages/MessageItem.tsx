@@ -121,7 +121,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        'group relative p-4 rounded-lg transition-all hover:bg-muted/30',
+        'group relative p-3 md:p-4 rounded-lg transition-all hover:bg-muted/30',
         message.is_pinned && 'bg-accent/10 border-l-4 border-l-primary'
       )}
     >
@@ -131,8 +131,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         </div>
       )}
 
-      <div className="flex gap-3">
-        <Avatar className="h-10 w-10 shrink-0">
+      <div className="flex gap-2 md:gap-3">
+        <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0">
           <AvatarFallback className={cn(
             message.is_anonymous ? 'bg-muted' : 'bg-primary/10 text-primary'
           )}>
@@ -141,8 +141,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         </Avatar>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="font-medium text-sm">{userName}</span>
+          <div className="flex items-center gap-1 md:gap-2 mb-1 flex-wrap">
+            <span className="font-medium text-xs md:text-sm">{userName}</span>
             {getRoleBadge()}
             {message.topic && (
               <Badge variant="outline" className="text-xs">
@@ -157,7 +157,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
             )}
           </div>
 
-          <p className="text-sm whitespace-pre-wrap break-words mb-3">{message.content}</p>
+          <p className="text-xs md:text-sm whitespace-pre-wrap break-words mb-2 md:mb-3">{message.content}</p>
 
           <div className="flex items-center gap-2 flex-wrap">
             {/* Reaction Buttons */}

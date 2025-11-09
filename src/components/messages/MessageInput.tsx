@@ -61,16 +61,16 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <div className="border rounded-lg bg-background/50 backdrop-blur-sm p-4 space-y-3">
+    <div className="border-0 md:border rounded-none md:rounded-lg bg-background/50 backdrop-blur-sm p-3 md:p-4 space-y-3">
       {!parentId && (
         <div className="flex items-center gap-2">
-          <Hash className="h-4 w-4 text-muted-foreground" />
+          <Hash className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           <Input
             placeholder="Topic (optional)"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             list="topics-list"
-            className="max-w-xs"
+            className="max-w-xs h-8 md:h-9 text-xs md:text-sm"
           />
           <datalist id="topics-list">
             {TOPICS.map((t) => (
@@ -87,14 +87,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="min-h-[80px] pr-24 resize-none"
+          className="min-h-[60px] md:min-h-[80px] pr-20 md:pr-24 resize-none text-xs md:text-sm"
           maxLength={1000}
         />
         <div className="absolute bottom-2 right-2 flex items-center gap-1">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Smile className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-7 w-7 md:h-8 md:w-8">
+                <Smile className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-2">
@@ -105,7 +105,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => insertEmoji(emoji)}
-                    className="h-8 w-8 p-0 text-lg"
+                    className="h-7 w-7 md:h-8 md:w-8 p-0 text-base md:text-lg"
                   >
                     {emoji}
                   </Button>
@@ -116,28 +116,29 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-0">
         <div className="flex items-center gap-2">
           <Switch
             id="anonymous-mode"
             checked={isAnonymous}
             onCheckedChange={setIsAnonymous}
+            className="scale-90 md:scale-100"
           />
-          <Label htmlFor="anonymous-mode" className="text-sm cursor-pointer">
+          <Label htmlFor="anonymous-mode" className="text-xs md:text-sm cursor-pointer">
             Post anonymously
           </Label>
         </div>
         
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <span className="text-xs text-muted-foreground ml-auto sm:ml-0">
             {content.length}/1000
           </span>
           <Button
             onClick={handleSend}
             disabled={!content.trim()}
-            className="gap-2"
+            className="gap-1 md:gap-2 h-8 md:h-9 text-xs md:text-sm"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-3 w-3 md:h-4 md:w-4" />
             {parentId ? 'Reply' : 'Send'}
           </Button>
         </div>

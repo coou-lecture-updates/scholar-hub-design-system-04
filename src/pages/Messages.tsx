@@ -317,48 +317,50 @@ const Messages = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto space-y-6 p-4">
-        <div className="flex items-center justify-between">
+      <div className="w-full space-y-3 md:space-y-6 px-0 md:px-4 md:max-w-5xl md:mx-auto">
+        <div className="flex items-center justify-between px-4 md:px-0 pt-4 md:pt-0">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <MessageCircle className="h-8 w-8" />
+            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+              <MessageCircle className="h-6 w-6 md:h-8 md:w-8" />
               Community Messages
             </h1>
-            <p className="text-muted-foreground mt-1">Connect with students and staff</p>
+            <p className="text-muted-foreground mt-1 text-sm md:text-base">Connect with students and staff</p>
           </div>
           {unreadCount > 0 && (
-            <Badge variant="destructive" className="gap-1">
+            <Badge variant="destructive" className="gap-1 text-xs">
               <Bell className="h-3 w-3" />
-              {unreadCount} unread
+              {unreadCount}
             </Badge>
           )}
         </div>
 
         <AnnouncementBanner announcements={pinnedMessages} />
 
-        <FilterPanel
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedTopic={selectedTopic}
-          onTopicChange={setSelectedTopic}
-          selectedRole={selectedRole}
-          onRoleChange={setSelectedRole}
-          sortBy={sortBy}
-          onSortByChange={setSortBy}
-          topics={topics}
-          onClearFilters={() => {
-            setSearchQuery('');
-            setSelectedTopic('all');
-            setSelectedRole('all');
-            setSortBy('recent');
-          }}
-        />
+        <div className="px-4 md:px-0">
+          <FilterPanel
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedTopic={selectedTopic}
+            onTopicChange={setSelectedTopic}
+            selectedRole={selectedRole}
+            onRoleChange={setSelectedRole}
+            sortBy={sortBy}
+            onSortByChange={setSortBy}
+            topics={topics}
+            onClearFilters={() => {
+              setSearchQuery('');
+              setSelectedTopic('all');
+              setSelectedRole('all');
+              setSortBy('recent');
+            }}
+          />
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Messages</CardTitle>
+        <Card className="border-0 md:border rounded-none md:rounded-lg shadow-none md:shadow-sm">
+          <CardHeader className="px-4 md:px-6">
+            <CardTitle className="text-lg md:text-xl">Messages</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="px-2 md:px-6 space-y-4">
             <MessageList
               messages={regularMessages}
               loading={loading}
@@ -370,7 +372,9 @@ const Messages = () => {
               onPin={handlePin}
             />
 
-            <MessageInput onSend={handleSendMessage} />
+            <div className="px-2 md:px-0">
+              <MessageInput onSend={handleSendMessage} />
+            </div>
           </CardContent>
         </Card>
 

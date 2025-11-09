@@ -213,7 +213,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-white via-purple-50 to-blue-100 p-4 md:p-6 pb-20 md:pb-6">
+          <main className={`flex-1 overflow-y-auto bg-gradient-to-br from-white via-purple-50 to-blue-100 ${
+            location.pathname === '/messages' ? 'p-0 md:p-6' : 'p-4 md:p-6'
+          } pb-20 md:pb-6`}>
             {children}
           </main>
 
