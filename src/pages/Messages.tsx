@@ -7,12 +7,10 @@ import { MessageInput } from '@/components/messages/MessageInput';
 import { MessageList } from '@/components/messages/MessageList';
 import { FilterPanel } from '@/components/messages/FilterPanel';
 import { AnnouncementBanner } from '@/components/messages/AnnouncementBanner';
+import { ThreadedReplies } from '@/components/messages/ThreadedReplies';
 import { Message } from '@/components/messages/MessageItem';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { MessageCircle, Bell } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const Messages = () => {
   const { user } = useAuth();
@@ -317,26 +315,26 @@ const Messages = () => {
 
   return (
     <DashboardLayout>
-      <div className="w-full space-y-3 md:space-y-6 px-0 md:px-4 md:max-w-5xl md:mx-auto">
-        <div className="flex items-center justify-between px-4 md:px-0 pt-4 md:pt-0">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-              <MessageCircle className="h-6 w-6 md:h-8 md:w-8" />
-              Community Messages
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm md:text-base">Connect with students and staff</p>
+      <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-5xl md:mx-auto">
+        <div className="flex-none px-4 md:px-0 pt-4 md:pt-0 space-y-3 md:space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+                <MessageCircle className="h-6 w-6 md:h-8 md:w-8" />
+                Community Messages
+              </h1>
+              <p className="text-muted-foreground mt-1 text-sm md:text-base">Connect with students and staff</p>
+            </div>
+            {unreadCount > 0 && (
+              <Badge variant="destructive" className="gap-1 text-xs">
+                <Bell className="h-3 w-3" />
+                {unreadCount}
+              </Badge>
+            )}
           </div>
-          {unreadCount > 0 && (
-            <Badge variant="destructive" className="gap-1 text-xs">
-              <Bell className="h-3 w-3" />
-              {unreadCount}
-            </Badge>
-          )}
-        </div>
 
-        <AnnouncementBanner announcements={pinnedMessages} />
+          <AnnouncementBanner announcements={pinnedMessages} />
 
-        <div className="px-4 md:px-0">
           <FilterPanel
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
@@ -356,51 +354,33 @@ const Messages = () => {
           />
         </div>
 
-        <Card className="border-0 md:border rounded-none md:rounded-lg shadow-none md:shadow-sm">
-          <CardHeader className="px-4 md:px-6">
-            <CardTitle className="text-lg md:text-xl">Messages</CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 md:px-6 space-y-4">
-            <MessageList
-              messages={regularMessages}
-              loading={loading}
-              currentUserId={user?.id}
-              currentUserRoles={userRoles}
-              onReply={setReplyingTo}
-              onReact={handleReact}
-              onDelete={handleDelete}
-              onPin={handlePin}
-            />
+        <div className="flex-1 overflow-y-auto px-4 md:px-0 mt-4">
+          <MessageList
+            messages={regularMessages}
+            loading={loading}
+            currentUserId={user?.id}
+            currentUserRoles={userRoles}
+            onReply={setReplyingTo}
+            onReact={handleReact}
+            onDelete={handleDelete}
+            onPin={handlePin}
+          />
+        </div>
 
-            <div className="px-2 md:px-0">
-              <MessageInput onSend={handleSendMessage} />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex-none border-t bg-background px-4 md:px-0 py-3 md:py-4 sticky bottom-0">
+          <MessageInput onSend={handleSendMessage} />
+        </div>
 
-        {/* Reply Dialog */}
-        <Dialog open={!!replyingTo} onOpenChange={(open) => !open && setReplyingTo(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Reply to Message</DialogTitle>
-            </DialogHeader>
-            {replyingMessage && (
-              <div className="space-y-4">
-                <div className="p-3 bg-muted rounded-lg text-sm">
-                  <p className="font-medium mb-1">
-                    {replyingMessage.is_anonymous ? 'Anonymous' : replyingMessage.users?.full_name}
-                  </p>
-                  <p className="text-muted-foreground">{replyingMessage.content}</p>
-                </div>
-                <MessageInput
-                  onSend={handleSendMessage}
-                  parentId={replyingTo || undefined}
-                  placeholder="Write your reply..."
-                />
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        {/* Threaded Replies Dialog */}
+        {replyingMessage && (
+          <ThreadedReplies
+            parentMessage={replyingMessage}
+            isOpen={!!replyingTo}
+            onClose={() => setReplyingTo(null)}
+            currentUserId={user?.id}
+            currentUserRoles={userRoles}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

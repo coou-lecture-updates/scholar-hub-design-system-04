@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { Send, Share2, Copy, Clock, MessageSquare, Shield, Heart, AlertCircle, CheckCircle, RefreshCw, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -218,17 +217,16 @@ const AnonymousSubmission = () => {
 
   if (pageLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
         <Navbar />
         <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
           <Card className="w-full max-w-md">
             <CardContent className="text-center p-6">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-muted-foreground">Loading anonymous page...</p>
             </CardContent>
           </Card>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -275,7 +273,7 @@ const AnonymousSubmission = () => {
   if (error) {
     const errorContent = getErrorContent();
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
         <Navbar />
         <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
           <Card className="w-full max-w-md">
@@ -310,7 +308,7 @@ const AnonymousSubmission = () => {
                 </Button>
               </div>
               {process.env.NODE_ENV === 'development' && (
-                <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-left">
+                <div className="mt-4 p-3 bg-muted rounded text-xs text-left">
                   <strong>Debug Info:</strong><br />
                   Link: {linkId}<br />
                   Error: {error}<br />
@@ -320,131 +318,164 @@ const AnonymousSubmission = () => {
             </CardContent>
           </Card>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="space-y-6">
-            <Card className="border-2 border-purple-200 shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl font-bold">{pageDetails.page_name}</CardTitle>
-                    <CardDescription className="text-purple-100">
-                      Send an anonymous message
-                    </CardDescription>
+      <div className="container mx-auto px-4 py-6 md:py-12">
+        <div className="max-w-3xl mx-auto">
+          <div className="space-y-6 md:space-y-8">
+            {/* Hero Section */}
+            <div className="text-center space-y-3 px-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-primary to-secondary mb-4">
+                <MessageSquare className="h-8 w-8 md:h-10 md:w-10 text-primary-foreground" />
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                {pageDetails.page_name}
+              </h1>
+              <p className="text-base md:text-lg text-muted-foreground">
+                Send an anonymous message safely and securely
+              </p>
+            </div>
+
+            {/* Time and Share Section */}
+            <Card className="border-2 shadow-lg">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Time Remaining</p>
+                      <p className="font-semibold text-lg">{formatTimeLeft()}</p>
+                    </div>
                   </div>
-                  <MessageSquare className="h-8 w-8" />
-                </div>
-                <div className="flex items-center justify-between mt-4">
-                  <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                    <Clock className="h-3 w-3 mr-1" />
-                    {formatTimeLeft()} left
-                  </Badge>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => handleShare('whatsapp')}
-                      className="text-purple-100 hover:text-white hover:bg-purple-700"
+                      className="gap-2"
                     >
                       WhatsApp
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => handleShare('twitter')}
-                      className="text-purple-100 hover:text-white hover:bg-purple-700"
+                      className="gap-2"
                     >
                       Twitter
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="icon"
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleShare()}
-                      className="text-purple-100 hover:text-white hover:bg-purple-700"
+                      className="gap-2"
                     >
                       <Copy className="h-4 w-4" />
+                      Copy Link
                     </Button>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="p-6">
+              </CardContent>
+            </Card>
+
+            {/* Message Input Section */}
+            <Card className="border-2 shadow-xl">
+              <CardContent className="p-6 md:p-8">
                 {!submitted ? (
-                  <div className="space-y-4">
-                    <Textarea
-                      placeholder="Type your anonymous message here... Be kind and respectful."
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      className="min-h-[120px] border-2 border-purple-200 focus:border-purple-400"
-                      maxLength={1000}
-                    />
-                    <div className="flex justify-between items-center">
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium mb-3">
+                        Your Anonymous Message
+                      </label>
+                      <Textarea
+                        placeholder="Type your message here... Remember to be kind and respectful."
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        className="min-h-[180px] text-base resize-none"
+                        maxLength={1000}
+                      />
+                    </div>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                       <span className="text-sm text-muted-foreground">
                         {message.length}/1000 characters
                       </span>
                       <Button 
                         onClick={handleSubmit} 
                         disabled={submitting || !message.trim()}
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        size="lg"
+                        className="w-full sm:w-auto"
                       >
                         {submitting ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
                             Sending...
                           </>
                         ) : (
                           <>
                             <Send className="h-4 w-4 mr-2" />
-                            Send Message
+                            Send Anonymous Message
                           </>
                         )}
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <Alert className="border-success bg-success/10">
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertDescription className="space-y-3">
-                      <div>
-                        <strong>Message sent successfully!</strong>
-                        <br />
+                  <div className="text-center space-y-6 py-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/10">
+                      <CheckCircle className="h-8 w-8 text-success" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold">Message sent successfully!</h3>
+                      <p className="text-muted-foreground">
                         Your anonymous message has been delivered.
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setSubmitted(false);
-                          setMessage("");
-                        }}
-                        variant="outline"
-                        size="sm"
-                        className="border-success text-success hover:bg-success/10"
-                      >
-                        Send Another Message
-                      </Button>
-                    </AlertDescription>
-                  </Alert>
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setSubmitted(false);
+                        setMessage("");
+                      }}
+                      variant="outline"
+                      size="lg"
+                    >
+                      Send Another Message
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-              <CardContent className="p-6">
-                <div className="flex items-start space-x-3">
-                  <Shield className="h-6 w-6 text-blue-600 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-blue-900 mb-2">Privacy & Safety</h3>
-                    <div className="space-y-1 text-sm text-blue-800">
-                      <p>• Your identity is completely anonymous</p>
-                      <p>• No personal information is collected</p>
-                      <p>• Messages are only visible to the page owner</p>
-                      <p>• Be respectful and kind in your messages</p>
+            {/* Privacy & Safety Section */}
+            <Card className="border-2 bg-gradient-to-br from-primary/5 to-secondary/5">
+              <CardContent className="p-6 md:p-8">
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Shield className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-lg">Privacy & Safety</h3>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="flex items-start gap-2">
+                        <Heart className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                        <p>Your identity is completely anonymous and protected</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                        <p>No personal information is collected or stored</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <MessageSquare className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                        <p>Messages are only visible to the page owner</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                        <p>Please be respectful and kind in your messages</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -453,7 +484,6 @@ const AnonymousSubmission = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

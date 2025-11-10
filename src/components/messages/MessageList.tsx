@@ -56,24 +56,22 @@ export const MessageList: React.FC<MessageListProps> = ({
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-25rem)] md:h-[calc(100vh-20rem)]" ref={scrollRef}>
-      <div className="space-y-2 pr-2 md:pr-4">
-        <AnimatePresence mode="popLayout">
-          {messages.map((message) => (
-            <MessageItem
-              key={message.id}
-              message={message}
-              currentUserId={currentUserId}
-              currentUserRoles={currentUserRoles}
-              onReply={onReply}
-              onReact={onReact}
-              onDelete={onDelete}
-              onPin={onPin}
-            />
-          ))}
-        </AnimatePresence>
-        <div ref={bottomRef} />
-      </div>
-    </ScrollArea>
+    <div className="space-y-2">
+      <AnimatePresence mode="popLayout">
+        {messages.map((message) => (
+          <MessageItem
+            key={message.id}
+            message={message}
+            currentUserId={currentUserId}
+            currentUserRoles={currentUserRoles}
+            onReply={onReply}
+            onReact={onReact}
+            onDelete={onDelete}
+            onPin={onPin}
+          />
+        ))}
+      </AnimatePresence>
+      <div ref={bottomRef} />
+    </div>
   );
 };

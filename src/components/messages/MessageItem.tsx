@@ -239,8 +239,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                 onClick={() => onReply(message.id)}
               >
                 <MessageSquare className="h-3 w-3" />
-                Reply
-                {message.reply_count ? ` (${message.reply_count})` : ''}
+                {message.reply_count ? `View ${message.reply_count} ${message.reply_count === 1 ? 'Reply' : 'Replies'}` : 'Reply'}
               </Button>
             )}
 
