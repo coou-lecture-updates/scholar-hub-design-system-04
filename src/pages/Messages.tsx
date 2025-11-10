@@ -316,10 +316,10 @@ const Messages = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-5xl md:mx-auto">
-        <div className="flex-none px-4 md:px-0 pt-4 md:pt-0 space-y-3 md:space-y-4">
+        <div className="flex-none px-4 md:px-0 pt-4 pb-2 md:pt-0 space-y-3 md:space-y-4 bg-background border-b">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+              <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 text-primary">
                 <MessageCircle className="h-6 w-6 md:h-8 md:w-8" />
                 Community Messages
               </h1>
@@ -354,7 +354,7 @@ const Messages = () => {
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 md:px-0 mt-4">
+        <div className="flex-1 overflow-y-auto px-4 md:px-0 py-4 pb-24 md:pb-32">
           <MessageList
             messages={regularMessages}
             loading={loading}
@@ -367,7 +367,7 @@ const Messages = () => {
           />
         </div>
 
-        <div className="flex-none border-t bg-background px-4 md:px-0 py-3 md:py-4 sticky bottom-0">
+        <div className="fixed bottom-0 left-0 right-0 md:left-auto md:right-auto md:max-w-5xl md:mx-auto border-t bg-background/95 backdrop-blur-sm px-4 md:px-0 py-3 md:py-4 shadow-lg z-50">
           <MessageInput onSend={handleSendMessage} />
         </div>
 

@@ -61,7 +61,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <div className="border-0 md:border rounded-none md:rounded-lg bg-background/50 backdrop-blur-sm p-3 md:p-4 space-y-3">
+    <div className="border rounded-lg bg-card p-3 md:p-4 space-y-3 shadow-sm">
       {!parentId && (
         <div className="flex items-center gap-2">
           <Hash className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />

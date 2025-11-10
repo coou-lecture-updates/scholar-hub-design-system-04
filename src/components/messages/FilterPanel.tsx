@@ -44,7 +44,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   const hasActiveFilters = searchQuery || selectedTopic !== 'all' || selectedRole !== 'all' || sortBy !== 'recent';
 
   return (
-    <div className="bg-card border-0 md:border rounded-none md:rounded-lg p-3 md:p-4 space-y-3 md:space-y-4">
+    <div className="bg-card border rounded-lg p-3 md:p-4 space-y-3 md:space-y-4 shadow-sm">
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
