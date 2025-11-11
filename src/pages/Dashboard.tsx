@@ -188,7 +188,7 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 p-4 md:p-6">
         <DashboardHeader fullName={userProfile?.full_name} />
         
         <CreateEventCTA />

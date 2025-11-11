@@ -315,46 +315,54 @@ const Messages = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-5xl md:mx-auto">
-        <div className="flex-none px-4 md:px-0 pt-4 pb-2 md:pt-0 space-y-3 md:space-y-4 bg-background border-b">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 text-primary">
-                <MessageCircle className="h-6 w-6 md:h-8 md:w-8" />
-                Community Messages
-              </h1>
-              <p className="text-muted-foreground mt-1 text-sm md:text-base">Connect with students and staff</p>
+      <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-6xl md:mx-auto bg-background">
+        {/* Fixed Header */}
+        <div className="flex-none bg-card border-b border-border shadow-sm sticky top-0 z-40">
+          <div className="px-4 md:px-6 pt-5 pb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3 text-foreground">
+                  <div className="p-2 bg-primary/10 rounded-xl">
+                    <MessageCircle className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+                  </div>
+                  Community Forum
+                </h1>
+                <p className="text-muted-foreground mt-1.5 text-sm md:text-base">Connect, discuss, and collaborate with the COOU community</p>
+              </div>
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="gap-1.5 text-xs px-3 py-1.5 shadow-sm">
+                  <Bell className="h-3.5 w-3.5" />
+                  {unreadCount} new
+                </Badge>
+              )}
             </div>
-            {unreadCount > 0 && (
-              <Badge variant="destructive" className="gap-1 text-xs">
-                <Bell className="h-3 w-3" />
-                {unreadCount}
-              </Badge>
-            )}
+
+            <AnnouncementBanner announcements={pinnedMessages} />
+
+            <div className="mt-3">
+              <FilterPanel
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                selectedTopic={selectedTopic}
+                onTopicChange={setSelectedTopic}
+                selectedRole={selectedRole}
+                onRoleChange={setSelectedRole}
+                sortBy={sortBy}
+                onSortByChange={setSortBy}
+                topics={topics}
+                onClearFilters={() => {
+                  setSearchQuery('');
+                  setSelectedTopic('all');
+                  setSelectedRole('all');
+                  setSortBy('recent');
+                }}
+              />
+            </div>
           </div>
-
-          <AnnouncementBanner announcements={pinnedMessages} />
-
-          <FilterPanel
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            selectedTopic={selectedTopic}
-            onTopicChange={setSelectedTopic}
-            selectedRole={selectedRole}
-            onRoleChange={setSelectedRole}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
-            topics={topics}
-            onClearFilters={() => {
-              setSearchQuery('');
-              setSelectedTopic('all');
-              setSelectedRole('all');
-              setSortBy('recent');
-            }}
-          />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 md:px-0 py-4 pb-24 md:pb-32">
+        {/* Messages Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 pb-28 md:pb-32">
           <MessageList
             messages={regularMessages}
             loading={loading}
@@ -367,7 +375,8 @@ const Messages = () => {
           />
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 md:left-auto md:right-auto md:max-w-5xl md:mx-auto border-t bg-background/95 backdrop-blur-sm px-4 md:px-0 py-3 md:py-4 shadow-lg z-50">
+        {/* Fixed Message Input - Sticky at bottom */}
+        <div className="fixed bottom-0 left-0 right-0 md:left-auto md:right-auto md:max-w-6xl md:mx-auto border-t border-border bg-card/98 backdrop-blur-md px-4 md:px-6 py-4 shadow-2xl z-50">
           <MessageInput onSend={handleSendMessage} />
         </div>
 

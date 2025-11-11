@@ -14,20 +14,23 @@ interface Props {
 }
 
 const UserProfileInfo: React.FC<Props> = ({ userInfo }) => (
-  <Card className="border-l-4 border-purple-300 bg-white mb-2">
+  <Card className="border-l-4 border-primary/60 bg-card shadow-sm hover:shadow-md transition-all">
     <CardContent className="p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Profile Information</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-5 flex items-center gap-2">
+        <User className="h-5 w-5 text-primary" />
+        Your Profile Information
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {userInfo.map((info, index) => (
-          <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 border">
-            <div className="flex-shrink-0 text-purple-600 mt-1">
+          <div key={index} className="flex items-start space-x-3 p-4 rounded-lg bg-accent/30 border border-border/50 hover:border-primary/30 transition-all">
+            <div className="flex-shrink-0 text-primary mt-1">
               {info.icon}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs uppercase text-gray-500 tracking-wider font-bold">
+              <p className="text-xs uppercase text-muted-foreground tracking-wider font-semibold">
                 {info.label}
               </p>
-              <p className="text-sm font-semibold text-gray-800 mt-1">
+              <p className="text-sm font-semibold text-foreground mt-1 break-words">
                 {info.value}
               </p>
             </div>

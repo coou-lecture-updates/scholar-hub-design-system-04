@@ -61,16 +61,16 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <div className="border rounded-lg bg-card p-3 md:p-4 space-y-3 shadow-sm">
+    <div className="space-y-3">
       {!parentId && (
-        <div className="flex items-center gap-2">
-          <Hash className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 bg-accent/20 p-2 rounded-lg border border-border/30">
+          <Hash className="h-4 w-4 text-primary ml-1" />
           <Input
-            placeholder="Topic (optional)"
+            placeholder="Add a topic (e.g., Academics, Events, Campus Life)"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             list="topics-list"
-            className="max-w-xs h-8 md:h-9 text-xs md:text-sm"
+            className="flex-1 h-9 text-sm border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
           />
           <datalist id="topics-list">
             {TOPICS.map((t) => (
@@ -80,21 +80,21 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         </div>
       )}
       
-      <div className="relative">
+      <div className="relative bg-card border border-border/50 rounded-xl overflow-hidden focus-within:border-primary/50 transition-all">
         <Textarea
           ref={textareaRef}
           placeholder={placeholder}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="min-h-[60px] md:min-h-[80px] pr-20 md:pr-24 resize-none text-xs md:text-sm"
+          className="min-h-[70px] md:min-h-[90px] pr-12 resize-none text-sm md:text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent p-4"
           maxLength={1000}
         />
-        <div className="absolute bottom-2 right-2 flex items-center gap-1">
+        <div className="absolute bottom-3 right-3 flex items-center gap-1">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7 md:h-8 md:w-8">
-                <Smile className="h-3 w-3 md:h-4 md:w-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/50">
+                <Smile className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-2">
@@ -105,7 +105,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => insertEmoji(emoji)}
-                    className="h-7 w-7 md:h-8 md:w-8 p-0 text-base md:text-lg"
+                    className="h-8 w-8 p-0 text-lg hover:bg-accent/50"
                   >
                     {emoji}
                   </Button>
@@ -116,30 +116,29 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-accent/10 p-3 rounded-lg">
         <div className="flex items-center gap-2">
           <Switch
             id="anonymous-mode"
             checked={isAnonymous}
             onCheckedChange={setIsAnonymous}
-            className="scale-90 md:scale-100"
           />
-          <Label htmlFor="anonymous-mode" className="text-xs md:text-sm cursor-pointer">
+          <Label htmlFor="anonymous-mode" className="text-sm cursor-pointer font-medium">
             Post anonymously
           </Label>
         </div>
         
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <span className="text-xs text-muted-foreground ml-auto sm:ml-0">
             {content.length}/1000
           </span>
           <Button
             onClick={handleSend}
             disabled={!content.trim()}
-            className="gap-1 md:gap-2 h-8 md:h-9 text-xs md:text-sm"
+            className="gap-2 h-10 px-5 shadow-sm font-medium"
           >
-            <Send className="h-3 w-3 md:h-4 md:w-4" />
-            {parentId ? 'Reply' : 'Send'}
+            <Send className="h-4 w-4" />
+            {parentId ? 'Reply' : 'Post Message'}
           </Button>
         </div>
       </div>

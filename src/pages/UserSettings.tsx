@@ -366,14 +366,17 @@ const UserSettings = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8" id="user-settings-page">
-        <h1 className="text-2xl font-bold mb-6">Account Settings</h1>
-        <Tabs defaultValue="profile">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
+      <div className="container mx-auto px-4 py-8 max-w-4xl" id="user-settings-page">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Account Settings</h1>
+          <p className="text-muted-foreground">Manage your profile and security preferences</p>
+        </div>
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2 h-11 bg-accent/30">
+            <TabsTrigger value="profile" className="data-[state=active]:bg-card">Profile Information</TabsTrigger>
+            <TabsTrigger value="security" className="data-[state=active]:bg-card">Security</TabsTrigger>
           </TabsList>
-          <TabsContent value="profile">
+          <TabsContent value="profile" className="space-y-4">
             <ProfileInfoForm
               profile={userProfile}
               onUpdate={updateProfile}
@@ -381,7 +384,7 @@ const UserSettings = () => {
               user={user}
             />
           </TabsContent>
-          <TabsContent value="security">
+          <TabsContent value="security" className="space-y-4">
             <ChangePasswordForm user={user} />
           </TabsContent>
         </Tabs>
