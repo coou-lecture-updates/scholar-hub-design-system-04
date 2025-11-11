@@ -111,16 +111,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50 overflow-hidden">
+      <div className="min-h-screen flex w-full bg-background overflow-hidden">
         <Sidebar>
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>
                 <Link to="/" className="flex items-center space-x-3">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-lg">C</span>
+                  <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg">
+                    <span className="text-primary-foreground font-bold text-lg">C</span>
                   </div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  <span className="text-xl font-bold text-primary">
                     COOU Updates
                   </span>
                 </Link>
@@ -136,8 +136,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
                         <Link to={item.path} className={
                           `flex items-center w-full px-3 py-2 rounded-lg transition-colors ${
                             location.pathname === item.path
-                              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md'
-                              : 'text-gray-800 hover:bg-purple-50 hover:text-purple-700'
+                              ? 'bg-primary text-primary-foreground shadow-md'
+                              : 'text-foreground hover:bg-accent hover:text-accent-foreground'
                           }`
                         }>
                           {item.icon}
@@ -150,10 +150,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className="p-4 border-t border-border bg-background">
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-3 px-3 py-3 rounded-xl text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 w-full transition-all duration-200 group"
+              className="flex items-center space-x-3 px-3 py-3 rounded-xl text-sm text-foreground hover:bg-destructive/10 hover:text-destructive w-full transition-all duration-200 group"
             >
               <LogOut size={20} className="group-hover:scale-110 transition-transform" />
               <span className="font-medium">Logout</span>
@@ -163,11 +163,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
         
         {/* Main Content */}
         <div className="flex-1 flex flex-col w-full">
-          <header className="bg-white shadow-sm border-b border-gray-100">
+          <header className="bg-card shadow-sm border-b border-border">
             <div className="px-4 py-3 flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <SidebarTrigger className="md:hidden" />
-                <h1 className="text-lg font-semibold text-gray-900">
+                <h1 className="text-lg font-semibold text-foreground">
                   {navItems.find((item) => item.path === location.pathname)?.name || 'Dashboard'}
                 </h1>
               </div>
@@ -175,7 +175,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="p-2 rounded-lg text-gray-500 hover:text-purple-700 hover:bg-purple-100 transition-colors"
+                  className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-accent transition-colors"
                   onClick={() => navigate(role === 'admin' ? '/admin/alerts' : '/messages')}
                 >
                   <Bell size={20} />
@@ -183,7 +183,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="p-1 rounded-full">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 text-white flex items-center justify-center font-semibold shadow-md">
+                      <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold shadow-md">
                         {role === 'admin' ? 'A' : userProfile?.full_name?.charAt(0) || 'S'}
                       </div>
                     </Button>
@@ -191,7 +191,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
                   <DropdownMenuContent align="end" className="w-56">
                     <div className="px-2 py-1.5 text-sm font-medium">
                       {userProfile?.full_name || (role === 'admin' ? 'Admin User' : 'Student')}
-                      <p className="text-xs text-gray-500">{userProfile?.email || 'user@example.com'}</p>
+                      <p className="text-xs text-muted-foreground">{userProfile?.email || 'user@example.com'}</p>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate(role === 'admin' ? '/admin/settings' : '/user-settings')}>
@@ -213,14 +213,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
             </div>
           </header>
 
-          <main className={`flex-1 overflow-y-auto bg-gradient-to-br from-white via-purple-50 to-blue-100 ${
+          <main className={`flex-1 overflow-y-auto bg-background ${
             location.pathname === '/messages' ? 'p-0 md:p-6' : 'p-4 md:p-6'
           } pb-20 md:pb-6`}>
             {children}
           </main>
 
           {/* Mobile Nav - Only allowed 5 items: Dashboard, Timetable, Events, Messages, Settings */}
-          <div className="md:hidden w-full fixed bottom-0 bg-white border-t z-20 shadow-lg">
+          <div className="md:hidden w-full fixed bottom-0 bg-card border-t border-border z-20 shadow-lg">
             <div className="grid grid-cols-5 overflow-x-auto">
               {mobileNavItems.map((item) => (
                 <Link
@@ -228,10 +228,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
                   to={item.path}
                   className="flex flex-col items-center py-2 px-1 hover:scale-105 transition-transform"
                 >
-                  <div className={`p-1 rounded-md mb-1 ${location.pathname === item.path ? 'bg-purple-700/10' : ''}`}>
-                    {item.icon}
+                  <div className={`p-1 rounded-md mb-1 ${location.pathname === item.path ? 'bg-primary/10' : ''}`}>
+                    <div className={location.pathname === item.path ? 'text-primary' : 'text-muted-foreground'}>
+                      {item.icon}
+                    </div>
                   </div>
-                  <span className={`${location.pathname === item.path ? 'text-purple-700' : 'text-gray-500'} text-xs truncate max-w-full text-center`}>
+                  <span className={`${location.pathname === item.path ? 'text-primary' : 'text-muted-foreground'} text-xs truncate max-w-full text-center`}>
                     {item.name}
                   </span>
                 </Link>
