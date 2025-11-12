@@ -318,28 +318,27 @@ const Messages = () => {
       <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-6xl md:mx-auto bg-background">
         {/* Fixed Header */}
         <div className="flex-none bg-card border-b border-border shadow-sm sticky top-0 z-40">
-          <div className="px-4 md:px-6 pt-5 pb-4">
-            <div className="flex items-center justify-between mb-4">
+          <div className="px-3 md:px-6 pt-4 pb-3">
+            <div className="flex items-center justify-between mb-3">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3 text-foreground">
-                  <div className="p-2 bg-primary/10 rounded-xl">
-                    <MessageCircle className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+                <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2 text-foreground">
+                  <div className="p-1.5 bg-primary/10 rounded-lg">
+                    <MessageCircle className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                   </div>
-                  Community Forum
+                  Forum
                 </h1>
-                <p className="text-muted-foreground mt-1.5 text-sm md:text-base">Connect, discuss, and collaborate with the COOU community</p>
               </div>
               {unreadCount > 0 && (
-                <Badge variant="destructive" className="gap-1.5 text-xs px-3 py-1.5 shadow-sm">
-                  <Bell className="h-3.5 w-3.5" />
-                  {unreadCount} new
+                <Badge variant="destructive" className="gap-1 text-xs px-2 py-1">
+                  <Bell className="h-3 w-3" />
+                  {unreadCount}
                 </Badge>
               )}
             </div>
 
             <AnnouncementBanner announcements={pinnedMessages} />
 
-            <div className="mt-3">
+            <div className="mt-2">
               <FilterPanel
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
@@ -375,8 +374,8 @@ const Messages = () => {
           />
         </div>
 
-        {/* Fixed Message Input - Sticky at bottom */}
-        <div className="fixed bottom-0 left-0 right-0 md:left-auto md:right-auto md:max-w-6xl md:mx-auto border-t border-border bg-card/98 backdrop-blur-md px-4 md:px-6 py-4 shadow-2xl z-50">
+        {/* Fixed Message Input - Sticky at bottom, above mobile nav */}
+        <div className="fixed bottom-14 md:bottom-0 left-0 right-0 md:left-auto md:right-auto md:max-w-6xl md:mx-auto border-t border-border bg-card/98 backdrop-blur-md px-3 md:px-6 py-3 shadow-2xl z-40">
           <MessageInput onSend={handleSendMessage} />
         </div>
 
