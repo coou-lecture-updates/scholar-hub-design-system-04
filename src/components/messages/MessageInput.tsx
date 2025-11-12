@@ -62,9 +62,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-0 bg-card rounded-lg border border-border/50 overflow-hidden focus-within:border-primary/50 transition-all">
       {!parentId && showTopic && (
-        <div className="flex items-center gap-2 bg-accent/20 p-2 rounded-lg border border-border/30">
+        <div className="flex items-center gap-2 p-2 border-b border-border/30">
           <Hash className="h-3.5 w-3.5 text-primary ml-1" />
           <Input
             placeholder="Add topic"
@@ -81,7 +81,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         </div>
       )}
       
-      <div className="relative bg-card border border-border/50 rounded-lg overflow-hidden focus-within:border-primary/50 transition-all">
+      <div className="relative">
         <Textarea
           ref={textareaRef}
           placeholder={placeholder}
@@ -117,7 +117,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-accent/10 p-2 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 border-t border-border/30">
         <div className="flex items-center gap-3">
           {!parentId && (
             <Button
