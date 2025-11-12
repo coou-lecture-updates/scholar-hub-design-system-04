@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 import { 
   Menu, 
@@ -45,6 +46,53 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+
+// Message Notification Badge Component
+const MessageNotificationBadge = () => {
+  const { user } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUnread = async () => {
+      const { data: messages } = await supabase
+        .from('community_messages')
+        .select('id')
+        .is('parent_id', null);
+
+      if (messages) {
+        const { data: readStatus } = await supabase
+          .from('message_read_status')
+          .select('message_id')
+          .eq('user_id', user.id);
+
+        const readIds = new Set(readStatus?.map(r => r.message_id) || []);
+        const unread = messages.filter(m => !readIds.has(m.id)).length;
+        setUnreadCount(unread);
+      }
+    };
+
+    fetchUnread();
+
+    const channel = supabase
+      .channel('message_notifications')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'community_messages' }, fetchUnread)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  if (unreadCount === 0) return null;
+
+  return (
+    <Badge variant="destructive" className="ml-auto text-xs h-5 w-5 p-0 flex items-center justify-center rounded-full">
+      {unreadCount > 9 ? '9+' : unreadCount}
+    </Badge>
+  );
+};
 
 // Dynamic Logo Component that reads from system settings
 const LogoComponent = () => {
@@ -242,9 +290,10 @@ const Navbar = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/messages" className="flex items-center">
+                      <Link to="/messages" className="flex items-center relative">
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Messages
+                        <MessageNotificationBadge />
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

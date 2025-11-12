@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   onPin,
   showReplies = true,
 }) => {
+  const navigate = useNavigate();
   const [showReactions, setShowReactions] = useState(false);
   const [showHeartAnimation, setShowHeartAnimation] = useState(false);
   
@@ -160,7 +162,13 @@ export const MessageItem: React.FC<MessageItemProps> = ({
       )}
 
       <div className="flex gap-2 md:gap-3">
-        <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0">
+        <Avatar 
+          className={cn(
+            "h-8 w-8 md:h-10 md:w-10 shrink-0",
+            !message.is_anonymous && "cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+          )}
+          onClick={() => !message.is_anonymous && message.user_id && navigate(`/user/${message.user_id}`)}
+        >
           <AvatarFallback className={cn(
             message.is_anonymous ? 'bg-muted' : 'bg-primary/10 text-primary'
           )}>
@@ -170,7 +178,15 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 md:gap-2 mb-1 flex-wrap">
-            <span className="font-medium text-xs md:text-sm">{userName}</span>
+            <span 
+              className={cn(
+                "font-medium text-xs md:text-sm",
+                !message.is_anonymous && "cursor-pointer hover:text-primary transition-colors"
+              )}
+              onClick={() => !message.is_anonymous && message.user_id && navigate(`/user/${message.user_id}`)}
+            >
+              {userName}
+            </span>
             {getRoleBadge()}
             {message.topic && (
               <Badge variant="outline" className="text-xs">

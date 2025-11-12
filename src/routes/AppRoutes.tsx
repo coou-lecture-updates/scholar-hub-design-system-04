@@ -37,6 +37,7 @@ const Departments = React.lazy(() => import('@/pages/Departments'));
 const Wallet = React.lazy(() => import('@/pages/Wallet'));
 const FundWallet = React.lazy(() => import('@/pages/FundWallet'));
 const TicketRecovery = React.lazy(() => import('@/pages/TicketRecovery'));
+const UserProfile = React.lazy(() => import('@/pages/UserProfile'));
 
 // Admin Pages
 
@@ -115,6 +116,7 @@ const AppRoutes = () => {
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/wallet/fund" element={<FundWallet />} />
               <Route path="/ticket-recovery" element={<TicketRecovery />} />
+              <Route path="/user/:userId" element={<UserProfile />} />
             </>
           )}
 
