@@ -147,7 +147,7 @@ const Messages = () => {
     };
   }, [fetchMessages]);
 
-  const handleSendMessage = async (content: string, isAnonymous: boolean, topic?: string, parentId?: string) => {
+  const handleSendMessage = async (content: string, isAnonymous: boolean, topic?: string, parentId?: string, imageUrl?: string) => {
     if (!user && !isAnonymous) {
       toast({
         title: 'Error',
@@ -164,6 +164,7 @@ const Messages = () => {
         is_anonymous: isAnonymous,
         topic,
         parent_id: parentId,
+        image_url: imageUrl || null,
       });
 
       if (error) throw error;
@@ -358,8 +359,8 @@ const Messages = () => {
         </div>
 
         {/* Fixed Message Input - Sticky at bottom, above mobile nav */}
-        <div className="fixed bottom-14 md:bottom-0 left-0 right-0 border-t border-border bg-card/98 backdrop-blur-md shadow-2xl z-40">
-          <div className="max-w-6xl mx-auto px-3 md:px-6 py-3">
+        <div className="fixed bottom-16 md:bottom-0 left-0 right-0 border-t border-border bg-card/98 backdrop-blur-md shadow-2xl z-40">
+          <div className="max-w-6xl mx-auto px-3 md:px-6 py-2">
             <MessageInput onSend={handleSendMessage} />
           </div>
         </div>

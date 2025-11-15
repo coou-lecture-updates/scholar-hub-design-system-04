@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_settings: {
+        Row: {
+          ad_cost_banner: number | null
+          ad_cost_native: number | null
+          ad_cost_slider: number | null
+          created_at: string | null
+          id: string
+          max_ads_per_user: number | null
+          min_wallet_balance: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          ad_cost_banner?: number | null
+          ad_cost_native?: number | null
+          ad_cost_slider?: number | null
+          created_at?: string | null
+          id?: string
+          max_ads_per_user?: number | null
+          min_wallet_balance?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          ad_cost_banner?: number | null
+          ad_cost_native?: number | null
+          ad_cost_slider?: number | null
+          created_at?: string | null
+          id?: string
+          max_ads_per_user?: number | null
+          min_wallet_balance?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string | null
@@ -343,6 +376,7 @@ export type Database = {
           created_at: string
           edited_at: string | null
           id: string
+          image_url: string | null
           is_anonymous: boolean | null
           is_pinned: boolean | null
           mentions: string[] | null
@@ -356,6 +390,7 @@ export type Database = {
           created_at?: string
           edited_at?: string | null
           id?: string
+          image_url?: string | null
           is_anonymous?: boolean | null
           is_pinned?: boolean | null
           mentions?: string[] | null
@@ -369,6 +404,7 @@ export type Database = {
           created_at?: string
           edited_at?: string | null
           id?: string
+          image_url?: string | null
           is_anonymous?: boolean | null
           is_pinned?: boolean | null
           mentions?: string[] | null
@@ -935,6 +971,68 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_ads: {
+        Row: {
+          ad_type: string
+          clicks: number | null
+          cost: number
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          impressions: number | null
+          is_active: boolean | null
+          link_preview_data: Json | null
+          link_url: string
+          message_id: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ad_type: string
+          clicks?: number | null
+          cost?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number | null
+          is_active?: boolean | null
+          link_preview_data?: Json | null
+          link_url: string
+          message_id?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ad_type?: string
+          clicks?: number | null
+          cost?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number | null
+          is_active?: boolean | null
+          link_preview_data?: Json | null
+          link_url?: string
+          message_id?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_ads_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
             referencedColumns: ["id"]
           },
         ]
