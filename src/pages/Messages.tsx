@@ -9,8 +9,12 @@ import { FilterPanel } from '@/components/messages/FilterPanel';
 import { AnnouncementBanner } from '@/components/messages/AnnouncementBanner';
 import { ThreadedReplies } from '@/components/messages/ThreadedReplies';
 import { Message } from '@/components/messages/MessageItem';
+import { NativeAdCard } from '@/components/messages/NativeAdCard';
+import { BannerAdCarousel } from '@/components/messages/BannerAdCarousel';
+import { AdStatistics } from '@/components/messages/AdStatistics';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Bell } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MessageCircle, Bell, TrendingUp } from 'lucide-react';
 
 const Messages = () => {
   const { user } = useAuth();
@@ -24,6 +28,9 @@ const Messages = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [nativeAds, setNativeAds] = useState<any[]>([]);
+  const [bannerAds, setBannerAds] = useState<any[]>([]);
+  const [showAdStats, setShowAdStats] = useState(false);
 
   // Fetch user roles
   useEffect(() => {
@@ -42,6 +49,36 @@ const Messages = () => {
 
     fetchUserRoles();
   }, [user]);
+
+  // Fetch ads
+  const fetchAds = useCallback(async () => {
+    try {
+      const { data: nativeAdsData } = await supabase
+        .from('message_ads')
+        .select('*')
+        .eq('ad_type', 'native')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      const { data: bannerAdsData } = await supabase
+        .from('message_ads')
+        .select('*')
+        .eq('ad_type', 'banner')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      setNativeAds(nativeAdsData || []);
+      setBannerAds(bannerAdsData || []);
+    } catch (error) {
+      console.error('Error fetching ads:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAds();
+  }, [fetchAds]);
 
   // Fetch messages
   const fetchMessages = useCallback(async () => {
@@ -340,22 +377,56 @@ const Messages = () => {
                   setSortBy('recent');
                 }}
               />
+              
+              <div className="flex justify-end mt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAdStats(true)}
+                  className="gap-2"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  My Ads
+                </Button>
+              </div>
             </div>
+
+            {/* Banner Ads */}
+            {bannerAds.length > 0 && (
+              <div className="mt-3">
+                <BannerAdCarousel ads={bannerAds} />
+              </div>
+            )}
           </div>
         </div>
 
         {/* Messages Area - Scrollable */}
         <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 pb-28 md:pb-32">
-          <MessageList
-            messages={regularMessages}
-            loading={loading}
-            currentUserId={user?.id}
-            currentUserRoles={userRoles}
-            onReply={setReplyingTo}
-            onReact={handleReact}
-            onDelete={handleDelete}
-            onPin={handlePin}
-          />
+          <div className="space-y-4">
+            {regularMessages.map((message, index) => (
+              <React.Fragment key={message.id}>
+                <MessageList
+                  messages={[message]}
+                  loading={false}
+                  currentUserId={user?.id}
+                  currentUserRoles={userRoles}
+                  onReply={setReplyingTo}
+                  onReact={handleReact}
+                  onDelete={handleDelete}
+                  onPin={handlePin}
+                />
+                
+                {/* Inject native ad every 5 messages */}
+                {(index + 1) % 5 === 0 && nativeAds[Math.floor(index / 5)] && (
+                  <NativeAdCard ad={nativeAds[Math.floor(index / 5)]} />
+                )}
+              </React.Fragment>
+            ))}
+            
+            {loading && (
+              <div className="text-center py-8 text-muted-foreground">Loading...</div>
+            )}
+          </div>
         </div>
 
         {/* Fixed Message Input - Sticky at bottom, above mobile nav */}
@@ -375,6 +446,12 @@ const Messages = () => {
             currentUserRoles={userRoles}
           />
         )}
+        
+        {/* Ad Statistics Dialog */}
+        <AdStatistics
+          open={showAdStats}
+          onClose={() => setShowAdStats(false)}
+        />
       </div>
     </DashboardLayout>
   );
