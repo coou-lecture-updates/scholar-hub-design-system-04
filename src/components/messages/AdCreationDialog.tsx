@@ -64,8 +64,18 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
   }, [open, adType, messageContent]);
 
   const handleCreate = async () => {
-    if (!user || !title.trim() || !linkUrl.trim()) {
-      toast.error('Please fill in all required fields');
+    if (!user) {
+      toast.error('Please log in to create an ad');
+      return;
+    }
+    
+    if (!title.trim()) {
+      toast.error('Please enter a title for your ad');
+      return;
+    }
+    
+    if (!linkUrl.trim()) {
+      toast.error('Please enter a link URL for your ad');
       return;
     }
 
@@ -76,8 +86,13 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
       .eq('user_id', user.id)
       .single();
 
-    if (!wallet || wallet.balance < adCost) {
-      toast.error(`Insufficient balance. You need ₦${adCost.toLocaleString()}`);
+    if (!wallet) {
+      toast.error('Wallet not found. Please fund your wallet first.');
+      return;
+    }
+    
+    if (wallet.balance < adCost) {
+      toast.error(`Insufficient balance! You need ₦${adCost.toLocaleString()} but have ₦${wallet.balance.toLocaleString()}. Please fund your wallet.`);
       return;
     }
 
@@ -114,18 +129,19 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
 
       if (transactionError) throw transactionError;
 
-      toast.success('Ad created successfully!');
-      onAdCreated?.();
-      onClose();
+      toast.success('🎉 Ad created successfully! Your ad is now live and will appear in the message feed.');
       
       // Reset form
       setTitle('');
       setDescription('');
       setLinkUrl('');
       setImageUrl('');
-    } catch (error) {
+      
+      onAdCreated?.();
+      onClose();
+    } catch (error: any) {
       console.error('Ad creation error:', error);
-      toast.error('Failed to create ad');
+      toast.error(error?.message || 'Failed to create ad. Please try again.');
     } finally {
       setCreating(false);
     }
