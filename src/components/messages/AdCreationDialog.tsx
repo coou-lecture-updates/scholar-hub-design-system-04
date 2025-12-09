@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
 import { ImagePlus, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -243,6 +244,52 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
                 </Button>
               )}
             </div>
+
+            {/* Live Ad Preview */}
+            {(title.trim() || linkUrl.trim()) && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <span>Live Preview</span>
+                  <Badge variant="outline" className="text-xs">How your ad will appear</Badge>
+                </Label>
+                <div className="border-2 border-primary/60 rounded-xl p-4 bg-white">
+                  <div className="flex items-start gap-1 mb-2">
+                    <Badge className="text-xs bg-primary/10 text-primary border-primary/30">
+                      Sponsored
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    {imageUrl && (
+                      <img
+                        src={imageUrl}
+                        alt="Ad preview"
+                        className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
+                      />
+                    )}
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm line-clamp-2 text-foreground">
+                        {title || 'Your ad title'}
+                      </h3>
+                      {description && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                          {description}
+                        </p>
+                      )}
+                      {linkUrl && (
+                        <div className="flex items-center gap-1 mt-2 text-primary">
+                          <ExternalLink className="h-3 w-3" />
+                          <span className="text-xs truncate">
+                            {linkUrl.replace(/^https?:\/\//, '')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-muted p-3 rounded-lg">
               <p className="text-sm text-muted-foreground">
