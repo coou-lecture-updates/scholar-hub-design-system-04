@@ -52,14 +52,17 @@ const Messages = () => {
     fetchUserRoles();
   }, [user]);
 
-  // Fetch ads
+  // Fetch ads (only active and non-expired)
   const fetchAds = useCallback(async () => {
     try {
+      const now = new Date().toISOString();
+      
       const { data: nativeAdsData } = await supabase
         .from('message_ads')
         .select('*')
         .eq('ad_type', 'native')
         .eq('is_active', true)
+        .or(`expires_at.is.null,expires_at.gt.${now}`)
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -68,6 +71,7 @@ const Messages = () => {
         .select('*')
         .eq('ad_type', 'banner')
         .eq('is_active', true)
+        .or(`expires_at.is.null,expires_at.gt.${now}`)
         .order('created_at', { ascending: false })
         .limit(5);
 
