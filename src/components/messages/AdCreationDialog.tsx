@@ -33,9 +33,18 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
   const [description, setDescription] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [durationDays, setDurationDays] = useState<number>(7);
   const [creating, setCreating] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [adCost, setAdCost] = useState(1000);
+
+  const DURATION_OPTIONS = [
+    { days: 1, label: '1 Day', multiplier: 0.2 },
+    { days: 3, label: '3 Days', multiplier: 0.5 },
+    { days: 7, label: '1 Week', multiplier: 1 },
+    { days: 14, label: '2 Weeks', multiplier: 1.8 },
+    { days: 30, label: '1 Month', multiplier: 3 },
+  ];
 
   useEffect(() => {
     const fetchAdSettings = async () => {
@@ -45,11 +54,15 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
         .single();
       
       if (data) {
-        setAdCost(
+        const basePrice = 
           adType === 'native' ? Number(data.ad_cost_native) :
           adType === 'banner' ? Number(data.ad_cost_banner) :
-          Number(data.ad_cost_slider)
-        );
+          Number(data.ad_cost_slider);
+        
+        // Apply duration multiplier
+        const durationOption = DURATION_OPTIONS.find(d => d.days === durationDays);
+        const multiplier = durationOption?.multiplier || 1;
+        setAdCost(Math.round(basePrice * multiplier));
       }
     };
 
@@ -62,7 +75,7 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
         setLinkUrl(match[0]);
       }
     }
-  }, [open, adType, messageContent]);
+  }, [open, adType, durationDays, messageContent]);
 
   const handleCreate = async () => {
     if (!user) {
@@ -99,6 +112,10 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
 
     setCreating(true);
     try {
+      // Calculate expiry date
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + durationDays);
+
       // Create ad
       const { data: ad, error: adError } = await supabase
         .from('message_ads')
@@ -110,7 +127,9 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
           description: description.trim(),
           image_url: imageUrl || null,
           link_url: linkUrl.trim(),
-          cost: adCost
+          cost: adCost,
+          duration_days: durationDays,
+          expires_at: expiresAt.toISOString()
         })
         .select()
         .single();
@@ -173,6 +192,28 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
                   <Label htmlFor="slider" className="cursor-pointer">Slider Ad (Side)</Label>
                 </div>
               </RadioGroup>
+            </div>
+
+            {/* Duration Selection */}
+            <div>
+              <Label>Ad Duration</Label>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {DURATION_OPTIONS.map((option) => (
+                  <Button
+                    key={option.days}
+                    type="button"
+                    variant={durationDays === option.days ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setDurationDays(option.days)}
+                    className="text-xs"
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Longer durations offer better value per day
+              </p>
             </div>
 
             <div>

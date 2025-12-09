@@ -982,6 +982,8 @@ export type Database = {
           cost: number
           created_at: string | null
           description: string | null
+          duration_days: number | null
+          expires_at: string | null
           id: string
           image_url: string | null
           impressions: number | null
@@ -999,6 +1001,8 @@ export type Database = {
           cost?: number
           created_at?: string | null
           description?: string | null
+          duration_days?: number | null
+          expires_at?: string | null
           id?: string
           image_url?: string | null
           impressions?: number | null
@@ -1016,6 +1020,8 @@ export type Database = {
           cost?: number
           created_at?: string | null
           description?: string | null
+          duration_days?: number | null
+          expires_at?: string | null
           id?: string
           image_url?: string | null
           impressions?: number | null
