@@ -55,9 +55,9 @@ export const NativeAdCard: React.FC<NativeAdCardProps> = ({ ad }) => {
   };
 
   return (
-    <Card className="bg-white p-4 hover:shadow-lg transition-shadow cursor-pointer" onClick={handleClick}>
+    <Card className="bg-white p-4 border-2 border-primary/60 hover:border-primary hover:shadow-lg transition-all cursor-pointer" onClick={handleClick}>
       <div className="flex items-start gap-1 mb-2">
-        <Badge variant="outline" className="text-xs">
+        <Badge className="text-xs bg-primary/10 text-primary border-primary/30">
           Sponsored
         </Badge>
       </div>

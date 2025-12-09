@@ -137,7 +137,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
       transition={{ duration: 0.2 }}
       onDoubleClick={handleDoubleClick}
       className={cn(
-        'group relative p-3 md:p-4 rounded-lg transition-all hover:bg-muted/30 cursor-pointer select-none',
+        'group relative p-3 md:p-4 rounded-xl bg-white shadow-sm border border-border/40 transition-all hover:shadow-md cursor-pointer select-none',
         message.is_pinned && 'bg-accent/10 border-l-4 border-l-primary'
       )}
     >

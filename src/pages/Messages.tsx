@@ -12,9 +12,10 @@ import { Message } from '@/components/messages/MessageItem';
 import { NativeAdCard } from '@/components/messages/NativeAdCard';
 import { BannerAdCarousel } from '@/components/messages/BannerAdCarousel';
 import { AdStatistics } from '@/components/messages/AdStatistics';
+import { AdCreationDialog } from '@/components/messages/AdCreationDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Bell, TrendingUp } from 'lucide-react';
+import { MessageCircle, Bell, TrendingUp, Plus } from 'lucide-react';
 
 const Messages = () => {
   const { user } = useAuth();
@@ -31,6 +32,7 @@ const Messages = () => {
   const [nativeAds, setNativeAds] = useState<any[]>([]);
   const [bannerAds, setBannerAds] = useState<any[]>([]);
   const [showAdStats, setShowAdStats] = useState(false);
+  const [showAdCreate, setShowAdCreate] = useState(false);
 
   // Fetch user roles
   useEffect(() => {
@@ -378,7 +380,16 @@ const Messages = () => {
                 }}
               />
               
-              <div className="flex justify-end mt-2">
+              <div className="flex justify-end mt-2 gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setShowAdCreate(true)}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create Ad
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -430,7 +441,7 @@ const Messages = () => {
         </div>
 
         {/* Fixed Message Input - Sticky at bottom, above mobile nav */}
-        <div className="fixed bottom-16 md:bottom-0 left-0 right-0 border-t border-border bg-card/98 backdrop-blur-md shadow-2xl z-40">
+        <div className="fixed bottom-16 md:bottom-0 left-0 md:left-64 right-0 border-t border-border bg-card/98 backdrop-blur-md shadow-2xl z-40">
           <div className="max-w-6xl mx-auto px-3 md:px-6 py-2">
             <MessageInput onSend={handleSendMessage} />
           </div>
@@ -451,6 +462,16 @@ const Messages = () => {
         <AdStatistics
           open={showAdStats}
           onClose={() => setShowAdStats(false)}
+        />
+        
+        {/* Ad Creation Dialog */}
+        <AdCreationDialog
+          open={showAdCreate}
+          onClose={() => setShowAdCreate(false)}
+          onAdCreated={() => {
+            fetchAds();
+            setShowAdCreate(false);
+          }}
         />
       </div>
     </DashboardLayout>
