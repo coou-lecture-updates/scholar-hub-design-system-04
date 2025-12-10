@@ -170,34 +170,54 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Create Advertisement</DialogTitle>
+        <DialogContent className="w-[95vw] max-w-lg mx-auto max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="text-lg">Create Advertisement</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
+            {/* Ad Type - Compact for mobile */}
             <div>
-              <Label>Ad Type</Label>
-              <RadioGroup value={adType} onValueChange={(v: any) => setAdType(v)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="native" id="native" />
-                  <Label htmlFor="native" className="cursor-pointer">Native Ad (In-feed)</Label>
+              <Label className="text-sm font-medium">Ad Type</Label>
+              <RadioGroup 
+                value={adType} 
+                onValueChange={(v: any) => setAdType(v)} 
+                className="grid grid-cols-3 gap-2 mt-2"
+              >
+                <div className="flex items-center">
+                  <RadioGroupItem value="native" id="native" className="sr-only peer" />
+                  <Label 
+                    htmlFor="native" 
+                    className="flex-1 cursor-pointer text-center py-2 px-2 text-xs sm:text-sm border rounded-lg peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  >
+                    Native
+                  </Label>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="banner" id="banner" />
-                  <Label htmlFor="banner" className="cursor-pointer">Banner Ad (Top)</Label>
+                <div className="flex items-center">
+                  <RadioGroupItem value="banner" id="banner" className="sr-only peer" />
+                  <Label 
+                    htmlFor="banner" 
+                    className="flex-1 cursor-pointer text-center py-2 px-2 text-xs sm:text-sm border rounded-lg peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  >
+                    Banner
+                  </Label>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="slider" id="slider" />
-                  <Label htmlFor="slider" className="cursor-pointer">Slider Ad (Side)</Label>
+                <div className="flex items-center">
+                  <RadioGroupItem value="slider" id="slider" className="sr-only peer" />
+                  <Label 
+                    htmlFor="slider" 
+                    className="flex-1 cursor-pointer text-center py-2 px-2 text-xs sm:text-sm border rounded-lg peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  >
+                    Slider
+                  </Label>
                 </div>
               </RadioGroup>
             </div>
 
-            {/* Duration Selection */}
+            {/* Duration Selection - Scrollable on mobile */}
             <div>
-              <Label>Ad Duration</Label>
-              <div className="grid grid-cols-3 gap-2 mt-2">
+              <Label className="text-sm font-medium">Duration</Label>
+              <div className="flex gap-1.5 mt-2 overflow-x-auto pb-1 -mx-1 px-1">
                 {DURATION_OPTIONS.map((option) => (
                   <Button
                     key={option.days}
@@ -205,55 +225,56 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
                     variant={durationDays === option.days ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setDurationDays(option.days)}
-                    className="text-xs"
+                    className="text-xs whitespace-nowrap flex-shrink-0 h-8 px-2.5"
                   >
                     {option.label}
                   </Button>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Longer durations offer better value per day
-              </p>
             </div>
 
             <div>
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title" className="text-sm font-medium">Title *</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter ad title"
                 maxLength={100}
+                className="mt-1 h-10"
               />
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-sm font-medium">Description</Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter ad description"
+                placeholder="Brief description (optional)"
                 maxLength={500}
-                rows={3}
+                rows={2}
+                className="mt-1 resize-none"
               />
             </div>
 
             <div>
-              <Label htmlFor="link">Link URL *</Label>
-              <div className="flex gap-2">
+              <Label htmlFor="link" className="text-sm font-medium">Link URL *</Label>
+              <div className="flex gap-2 mt-1">
                 <Input
                   id="link"
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
                   placeholder="https://example.com"
                   type="url"
+                  className="flex-1 h-10"
                 />
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={() => window.open(linkUrl, '_blank')}
                   disabled={!linkUrl}
+                  className="h-10 w-10 flex-shrink-0"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
@@ -261,70 +282,65 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
             </div>
 
             <div>
-              <Label>Ad Image (Optional)</Label>
-              {imageUrl ? (
-                <div className="relative">
-                  <img src={imageUrl} alt="Ad" className="w-full rounded-lg" />
+              <Label className="text-sm font-medium">Image (Optional)</Label>
+              <div className="mt-1">
+                {imageUrl ? (
+                  <div className="relative">
+                    <img src={imageUrl} alt="Ad" className="w-full rounded-lg max-h-32 object-cover" />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2 h-7 text-xs"
+                      onClick={() => setImageUrl('')}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ) : (
                   <Button
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => setImageUrl('')}
+                    variant="outline"
+                    className="w-full h-10"
+                    onClick={() => setShowImageUpload(true)}
                   >
-                    Remove
+                    <ImagePlus className="h-4 w-4 mr-2" />
+                    Upload Image
                   </Button>
-                </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setShowImageUpload(true)}
-                >
-                  <ImagePlus className="h-4 w-4 mr-2" />
-                  Upload Image
-                </Button>
-              )}
+                )}
+              </div>
             </div>
 
-            {/* Live Ad Preview */}
+            {/* Compact Preview for mobile */}
             {(title.trim() || linkUrl.trim()) && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <span>Live Preview</span>
-                  <Badge variant="outline" className="text-xs">How your ad will appear</Badge>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  Preview
+                  <Badge variant="outline" className="text-[10px] font-normal">Live</Badge>
                 </Label>
-                <div className="border-2 border-primary/60 rounded-xl p-4 bg-white">
-                  <div className="flex items-start gap-1 mb-2">
-                    <Badge className="text-xs bg-primary/10 text-primary border-primary/30">
-                      Sponsored
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex gap-3">
+                <div className="border rounded-lg p-3 bg-card">
+                  <Badge className="text-[10px] bg-primary/10 text-primary border-primary/30 mb-2">
+                    Sponsored
+                  </Badge>
+                  <div className="flex gap-2">
                     {imageUrl && (
                       <img
                         src={imageUrl}
-                        alt="Ad preview"
-                        className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
+                        alt="Preview"
+                        className="w-14 h-14 rounded object-cover flex-shrink-0"
                       />
                     )}
-                    
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm line-clamp-2 text-foreground">
+                      <h3 className="font-medium text-sm line-clamp-1">
                         {title || 'Your ad title'}
                       </h3>
                       {description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                           {description}
                         </p>
                       )}
                       {linkUrl && (
-                        <div className="flex items-center gap-1 mt-2 text-primary">
-                          <ExternalLink className="h-3 w-3" />
-                          <span className="text-xs truncate">
-                            {linkUrl.replace(/^https?:\/\//, '')}
-                          </span>
-                        </div>
+                        <span className="text-xs text-primary truncate block mt-1">
+                          {linkUrl.replace(/^https?:\/\//, '').slice(0, 25)}...
+                        </span>
                       )}
                     </div>
                   </div>
@@ -332,24 +348,29 @@ export const AdCreationDialog: React.FC<AdCreationDialogProps> = ({
               </div>
             )}
 
-            <div className="bg-muted p-3 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                Cost: <span className="font-semibold text-foreground">₦{adCost.toLocaleString()}</span>
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                This amount will be deducted from your wallet balance
-              </p>
+            {/* Cost Summary */}
+            <div className="bg-muted/50 p-3 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Total Cost</span>
+                <span className="font-semibold text-lg">₦{adCost.toLocaleString()}</span>
+              </div>
             </div>
 
-            <div className="flex gap-2">
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-2">
               <Button
                 onClick={handleCreate}
                 disabled={creating || !title.trim() || !linkUrl.trim()}
-                className="flex-1"
+                className="flex-1 h-11"
               >
                 {creating ? 'Creating...' : 'Create Ad'}
               </Button>
-              <Button variant="outline" onClick={onClose} disabled={creating}>
+              <Button 
+                variant="outline" 
+                onClick={onClose} 
+                disabled={creating}
+                className="h-11 px-6"
+              >
                 Cancel
               </Button>
             </div>

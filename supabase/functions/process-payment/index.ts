@@ -9,10 +9,12 @@ const corsHeaders = {
 interface PaymentRequest {
   amount: number;
   email: string;
-  name: string;
+  full_name?: string;
+  name?: string;
   phone?: string;
   provider: 'paystack' | 'flutterwave' | 'korapay';
-  reference: string;
+  payment_type?: string;
+  user_id?: string;
   metadata?: any;
 }
 
@@ -24,73 +26,122 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
     const paymentRequest: PaymentRequest = await req.json();
+    const customerName = paymentRequest.full_name || paymentRequest.name || 'Customer';
     
-    console.log('Processing payment request:', paymentRequest);
+    console.log('Processing payment request:', {
+      provider: paymentRequest.provider,
+      amount: paymentRequest.amount,
+      email: paymentRequest.email
+    });
 
-    // Get payment gateway configuration
+    // Generate unique reference
+    const reference = `PAY_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+    // Get payment gateway configuration from payment_gateways table
     const { data: gateway, error: gatewayError } = await supabaseClient
       .from('payment_gateways')
       .select('*')
-      .eq('provider', paymentRequest.provider)
+      .ilike('provider', paymentRequest.provider)
       .eq('enabled', true)
       .maybeSingle();
 
-    if (gatewayError || !gateway) {
-      throw new Error(`${paymentRequest.provider} gateway not configured or disabled`);
+    console.log('Gateway lookup result:', { gateway: gateway ? 'found' : 'not found', error: gatewayError });
+
+    if (gatewayError) {
+      console.error('Gateway error:', gatewayError);
+      throw new Error(`Failed to fetch gateway configuration: ${gatewayError.message}`);
     }
+    
+    if (!gateway) {
+      throw new Error(`${paymentRequest.provider} gateway not configured or disabled. Please enable it in admin settings.`);
+    }
+
+    if (!gateway.secret_key) {
+      throw new Error(`${paymentRequest.provider} secret key not configured`);
+    }
+
+    // Build callback URL
+    const siteUrl = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || '';
+    const callbackUrl = `https://hhcitezdbueybdtslkth.supabase.co/functions/v1/payment-callback`;
 
     let paymentResponse;
     let redirectUrl = '';
 
     // Process payment based on provider
-    switch (paymentRequest.provider) {
+    switch (paymentRequest.provider.toLowerCase()) {
       case 'paystack':
-        paymentResponse = await initializePaystack(gateway, paymentRequest);
+        paymentResponse = await initializePaystack(gateway, {
+          ...paymentRequest,
+          reference,
+          name: customerName
+        }, callbackUrl);
         redirectUrl = paymentResponse.data?.authorization_url || '';
+        console.log('Paystack response:', paymentResponse);
         break;
+        
       case 'flutterwave':
-        paymentResponse = await initializeFlutterwave(gateway, paymentRequest);
+        paymentResponse = await initializeFlutterwave(gateway, {
+          ...paymentRequest,
+          reference,
+          name: customerName
+        }, callbackUrl);
         redirectUrl = paymentResponse.data?.link || '';
+        console.log('Flutterwave response:', paymentResponse);
         break;
+        
       case 'korapay':
-        paymentResponse = await initializeKorapay(gateway, paymentRequest);
+        paymentResponse = await initializeKorapay(gateway, {
+          ...paymentRequest,
+          reference,
+          name: customerName
+        }, callbackUrl);
         redirectUrl = paymentResponse.data?.checkout_url || '';
+        console.log('Korapay response:', paymentResponse);
         break;
+        
       default:
         throw new Error('Unsupported payment provider');
+    }
+
+    // Check if payment initialization was successful
+    if (!redirectUrl) {
+      console.error('Payment initialization failed:', paymentResponse);
+      throw new Error(paymentResponse?.message || paymentResponse?.error || 'Failed to initialize payment with provider');
     }
 
     // Store payment record
     const { error: paymentError } = await supabaseClient
       .from('payments')
       .insert({
-        payment_reference: paymentRequest.reference,
-        payment_type: paymentRequest.metadata?.type || 'general',
+        payment_reference: reference,
+        payment_type: paymentRequest.payment_type || 'wallet_funding',
         amount: paymentRequest.amount,
         email: paymentRequest.email,
-        full_name: paymentRequest.name,
+        full_name: customerName,
         phone: paymentRequest.phone,
         payment_method: paymentRequest.provider,
-        metadata: paymentRequest.metadata,
+        user_id: paymentRequest.user_id,
+        metadata: {
+          ...paymentRequest.metadata,
+          gateway_provider: paymentRequest.provider
+        },
         payment_status: 'pending'
       });
 
     if (paymentError) {
       console.error('Error storing payment:', paymentError);
-      throw new Error('Failed to store payment record');
+      // Don't throw - payment was already initiated
     }
 
     return new Response(JSON.stringify({
       success: true,
       message: 'Payment initialized successfully',
-      data: {
-        payment_url: redirectUrl,
-        reference: paymentRequest.reference
-      }
+      reference: reference,
+      payment_url: redirectUrl
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
@@ -107,7 +158,9 @@ serve(async (req) => {
   }
 });
 
-async function initializePaystack(gateway: any, request: PaymentRequest) {
+async function initializePaystack(gateway: any, request: any, callbackUrl: string) {
+  console.log('Initializing Paystack payment...');
+  
   const response = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
     headers: {
@@ -116,17 +169,27 @@ async function initializePaystack(gateway: any, request: PaymentRequest) {
     },
     body: JSON.stringify({
       email: request.email,
-      amount: request.amount * 100, // Convert to kobo
+      amount: Math.round(request.amount * 100), // Convert to kobo
       reference: request.reference,
-      callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/payment-callback`,
-      metadata: request.metadata || {}
+      callback_url: callbackUrl,
+      metadata: {
+        custom_fields: [
+          { display_name: "Customer Name", variable_name: "customer_name", value: request.name },
+          { display_name: "Payment Type", variable_name: "payment_type", value: request.payment_type || 'wallet_funding' }
+        ],
+        ...request.metadata
+      }
     }),
   });
 
-  return response.json();
+  const data = await response.json();
+  console.log('Paystack API response status:', response.status);
+  return data;
 }
 
-async function initializeFlutterwave(gateway: any, request: PaymentRequest) {
+async function initializeFlutterwave(gateway: any, request: any, callbackUrl: string) {
+  console.log('Initializing Flutterwave payment...');
+  
   const response = await fetch('https://api.flutterwave.com/v3/payments', {
     method: 'POST',
     headers: {
@@ -137,24 +200,33 @@ async function initializeFlutterwave(gateway: any, request: PaymentRequest) {
       tx_ref: request.reference,
       amount: request.amount,
       currency: 'NGN',
-      redirect_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/payment-callback`,
+      redirect_url: callbackUrl,
       customer: {
         email: request.email,
         name: request.name,
-        phonenumber: request.phone
+        phonenumber: request.phone || ''
       },
       customizations: {
         title: gateway.business_name || 'COOU Payment',
-        description: 'Payment processing'
+        description: request.payment_type === 'wallet_funding' ? 'Wallet Funding' : 'Payment',
+        logo: 'https://hhcitezdbueybdtslkth.supabase.co/storage/v1/object/public/branding/logo.png'
       },
-      meta: request.metadata || {}
+      meta: {
+        user_id: request.user_id,
+        payment_type: request.payment_type,
+        ...request.metadata
+      }
     }),
   });
 
-  return response.json();
+  const data = await response.json();
+  console.log('Flutterwave API response status:', response.status);
+  return data;
 }
 
-async function initializeKorapay(gateway: any, request: PaymentRequest) {
+async function initializeKorapay(gateway: any, request: any, callbackUrl: string) {
+  console.log('Initializing Korapay payment...');
+  
   const response = await fetch('https://api.korapay.com/merchant/api/v1/charges/initialize', {
     method: 'POST',
     headers: {
@@ -168,14 +240,20 @@ async function initializeKorapay(gateway: any, request: PaymentRequest) {
       customer: {
         name: request.name,
         email: request.email,
-        phone: request.phone
+        phone: request.phone || ''
       },
       merchant_bears_cost: true,
-      redirect_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/payment-callback`,
-      notification_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/korapay-webhook`,
-      metadata: request.metadata || {}
+      redirect_url: callbackUrl,
+      notification_url: `https://hhcitezdbueybdtslkth.supabase.co/functions/v1/korapay-webhook`,
+      metadata: {
+        user_id: request.user_id,
+        payment_type: request.payment_type,
+        ...request.metadata
+      }
     }),
   });
 
-  return response.json();
+  const data = await response.json();
+  console.log('Korapay API response status:', response.status);
+  return data;
 }
