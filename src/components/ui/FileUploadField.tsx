@@ -327,15 +327,17 @@ export const FileUploadField: React.FC<FileUploadFieldProps> = ({
       )}
 
       {/* Preview for images */}
-      {value && (value.includes('image') || accept.includes('image')) && (
-        <div className="mt-3">
+      {value && (
+        <div className="mt-3 relative">
+          <p className="text-xs text-muted-foreground mb-2">Preview:</p>
           <img 
             src={value} 
             alt="Preview" 
-            className="max-w-full h-32 object-cover rounded-lg border"
+            className="max-w-full max-h-48 object-contain rounded-lg border bg-muted/20"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
+              target.parentElement?.classList.add('hidden');
             }}
           />
         </div>

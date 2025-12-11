@@ -57,7 +57,7 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
           .from('payment_gateways')
           .select('*')
           .eq('enabled', true)
-          .order('display_order');
+          .order('provider');
 
         if (error) throw error;
 

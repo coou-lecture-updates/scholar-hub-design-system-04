@@ -121,9 +121,9 @@ const Events = () => {
               </Button>
             </EnhancedFundWallet>
             <Button variant="outline" asChild className="flex-1 text-sm md:text-base">
-              <a href="/dashboard">
+              <a href="/payment-history">
                 <Wallet className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">View Wallet History</span>
+                <span className="hidden sm:inline">View Payment History</span>
                 <span className="sm:hidden">History</span>
               </a>
             </Button>

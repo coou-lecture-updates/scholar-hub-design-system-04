@@ -15,6 +15,7 @@ import AnonymousMessage from "./pages/AnonymousMessage";
 import AnonymousSubmission from "./pages/AnonymousSubmission";
 import FundWallet from "./pages/FundWallet";
 import Wallet from "./pages/Wallet";
+import PaymentHistory from "./pages/PaymentHistory";
 import TicketPayments from "./pages/TicketPayments";
 import Events from "./pages/Events";
 import Tools from "./pages/Tools";
@@ -144,6 +145,7 @@ function AppInner() {
       <Route path="/anonymous/:linkId" element={<AnonymousSubmission />} />
       <Route path="/fund-wallet" element={<ProtectedRoute><FundWallet /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+      <Route path="/payment-history" element={<ProtectedRoute><PaymentHistory /></ProtectedRoute>} />
       <Route path="/ticket-payments" element={<ProtectedRoute><TicketPayments /></ProtectedRoute>} />
       <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
       <Route path="/timetable" element={<ProtectedRoute><Timetable /></ProtectedRoute>} />
