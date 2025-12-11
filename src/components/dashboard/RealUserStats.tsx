@@ -136,7 +136,7 @@ const RealUserStats: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="animate-pulse">
-            <div className="h-24 bg-gray-200 rounded-lg"></div>
+            <div className="h-24 bg-muted rounded-lg"></div>
           </div>
         ))}
       </div>
@@ -146,9 +146,9 @@ const RealUserStats: React.FC = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       {statCards.map((stat) => (
-        <Card key={stat.title} className="hover:shadow-md transition-shadow">
+        <Card key={stat.title} className="hover:shadow-md transition-shadow bg-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               {stat.title}
             </CardTitle>
             <div className={`p-2 rounded-lg ${stat.bgColor}`}>
@@ -156,9 +156,9 @@ const RealUserStats: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stat.value}</div>
+            <div className="text-2xl font-bold text-foreground">{stat.value}</div>
             {userProfile && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Level {userProfile.level} • {userProfile.department}
               </p>
             )}

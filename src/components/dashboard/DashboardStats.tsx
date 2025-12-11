@@ -17,11 +17,11 @@ interface Props {
 const DashboardStats: React.FC<Props> = ({ stats, loading }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
     {stats.map((stat, idx) => (
-      <Card key={idx} className={`border-l-4 ${stat.color}`}>
+      <Card key={idx} className={`border-l-4 bg-card ${stat.color}`}>
         <CardContent className="p-5 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-            <p className="text-3xl font-bold text-gray-900">
+            <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+            <p className="text-3xl font-bold text-foreground">
               {loading ? (
                 <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
@@ -30,7 +30,7 @@ const DashboardStats: React.FC<Props> = ({ stats, loading }) => (
               )}
             </p>
           </div>
-          <div className="rounded-full p-3 bg-white shadow-sm">
+          <div className="rounded-full p-3 bg-card shadow-sm border">
             {stat.icon}
           </div>
         </CardContent>
