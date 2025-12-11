@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -61,33 +61,37 @@ const ChangePasswordForm = ({ user }: any) => {
   };
 
   return (
-    <form onSubmit={handlePasswordChange}>
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="currentPassword" className="text-sm font-medium">Current Password</label>
-          <Input id="currentPassword" name="currentPassword" type="password" value={passwordData.currentPassword} onChange={handlePasswordInputChange} required />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="newPassword" className="text-sm font-medium">New Password</label>
-          <Input id="newPassword" name="newPassword" type="password" value={passwordData.newPassword} onChange={handlePasswordInputChange} required />
-          <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="confirmPassword" className="text-sm font-medium">Confirm New Password</label>
-          <Input id="confirmPassword" name="confirmPassword" type="password" value={passwordData.confirmPassword} onChange={handlePasswordInputChange} required />
-        </div>
-        <Button type="submit" variant="outline" disabled={changingPassword}>
-          {changingPassword ? (
-            <>
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
-              Changing Password...
-            </>
-          ) : (
-            "Change Password"
-          )}
-        </Button>
-      </div>
-    </form>
+    <Card className="bg-card border-0 shadow-sm">
+      <CardContent className="p-6">
+        <form onSubmit={handlePasswordChange}>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="currentPassword" className="text-sm font-medium">Current Password</label>
+              <Input id="currentPassword" name="currentPassword" type="password" value={passwordData.currentPassword} onChange={handlePasswordInputChange} required />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="newPassword" className="text-sm font-medium">New Password</label>
+              <Input id="newPassword" name="newPassword" type="password" value={passwordData.newPassword} onChange={handlePasswordInputChange} required />
+              <p className="text-xs text-muted-foreground">Password must be at least 6 characters</p>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="text-sm font-medium">Confirm New Password</label>
+              <Input id="confirmPassword" name="confirmPassword" type="password" value={passwordData.confirmPassword} onChange={handlePasswordInputChange} required />
+            </div>
+            <Button type="submit" variant="outline" disabled={changingPassword}>
+              {changingPassword ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  Changing Password...
+                </>
+              ) : (
+                "Change Password"
+              )}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 
