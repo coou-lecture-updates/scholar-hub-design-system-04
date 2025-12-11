@@ -212,9 +212,9 @@ const UserRoleDisplay: React.FC = () => {
   );
 
   return (
-    <Card className="border-l-4 border-blue-300 bg-white mb-2">
+    <Card className="border-l-4 border-blue-300 bg-card mb-2">
       <CardHeader className="pb-3">
-        <CardTitle className="text-md font-semibold text-gray-900 flex items-center justify-between">
+        <CardTitle className="text-md font-semibold text-foreground flex items-center justify-between">
           <div className="flex items-center">
             <Shield className="mr-2 h-4 w-4 text-blue-600" />
             Your Roles & Permissions
@@ -241,11 +241,11 @@ const UserRoleDisplay: React.FC = () => {
                   const badgeVariant = getRoleBadgeVariant(role.role);
                   
                   return (
-                    <div key={role.id} className="p-2 border rounded bg-gray-50 text-sm">
+                    <div key={role.id} className="p-2 border rounded bg-muted/50 text-sm">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <IconComponent className="h-4 w-4 text-blue-600" />
-                          <span className="font-medium text-gray-900 capitalize text-sm">
+                          <span className="font-medium text-foreground capitalize text-sm">
                             {role.role.replace('_', ' ')}
                           </span>
                         </div>
@@ -259,8 +259,8 @@ const UserRoleDisplay: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-4">
-                <User className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600 mb-2">Standard User Permissions</p>
+                <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground mb-2">Standard User Permissions</p>
               </div>
             )}
 

@@ -117,8 +117,8 @@ const UserLevelNotifications: React.FC = () => {
     return (
       <div className="space-y-4">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-          <div className="h-20 bg-gray-200 rounded"></div>
+          <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+          <div className="h-20 bg-muted rounded"></div>
         </div>
       </div>
     );
@@ -128,7 +128,7 @@ const UserLevelNotifications: React.FC = () => {
     <div className="space-y-6">
       {/* Notifications */}
       {notifications.length > 0 && (
-        <Card>
+        <Card className="bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5" />
@@ -140,19 +140,19 @@ const UserLevelNotifications: React.FC = () => {
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
                 >
                   <div className="text-blue-600 mt-1">
                     {getTypeIcon(notification.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm">{notification.title}</h4>
-                    <p className="text-sm text-gray-600 line-clamp-2">{notification.message}</p>
+                    <h4 className="font-medium text-sm text-foreground">{notification.title}</h4>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{notification.message}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge variant="outline" className="text-xs">
                         {notification.type}
                       </Badge>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {new Date(notification.created_at).toLocaleDateString()}
                       </span>
                     </div>
@@ -166,7 +166,7 @@ const UserLevelNotifications: React.FC = () => {
 
       {/* Announcements */}
       {announcements.length > 0 && (
-        <Card>
+        <Card className="bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
@@ -178,12 +178,12 @@ const UserLevelNotifications: React.FC = () => {
               {announcements.map((announcement) => (
                 <div
                   key={announcement.id}
-                  className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium">{announcement.title}</h4>
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-3">
+                      <h4 className="font-medium text-foreground">{announcement.title}</h4>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
                         {announcement.content}
                       </p>
                       <div className="flex items-center gap-2 mt-3">
@@ -193,7 +193,7 @@ const UserLevelNotifications: React.FC = () => {
                         <Badge variant="outline" className="text-xs">
                           {announcement.type}
                         </Badge>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           {new Date(announcement.created_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -207,11 +207,11 @@ const UserLevelNotifications: React.FC = () => {
       )}
 
       {notifications.length === 0 && announcements.length === 0 && (
-        <Card>
+        <Card className="bg-card">
           <CardContent className="text-center py-8">
-            <Bell className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-600">No notifications for your level at this time.</p>
-            <p className="text-sm text-gray-500">
+            <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-muted-foreground">No notifications for your level at this time.</p>
+            <p className="text-sm text-muted-foreground">
               {userProfile?.level && `Showing content for Level ${userProfile.level}`}
               {userProfile?.department && `, ${userProfile.department} Department`}
             </p>
