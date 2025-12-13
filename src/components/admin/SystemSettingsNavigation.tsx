@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Settings, Globe, CreditCard, Shield, Wrench, BarChart3, AlertTriangle, TestTube, Search, Image } from 'lucide-react';
+import { Settings, Globe, CreditCard, Shield, Wrench, BarChart3, AlertTriangle, TestTube, Search, Image, Megaphone } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +32,12 @@ const SystemSettingsNavigation = () => {
       label: 'Payment Gateways',
       icon: CreditCard,
       description: 'Configure payment methods'
+    },
+    {
+      path: '/admin/settings/ads',
+      label: 'Ads Settings',
+      icon: Megaphone,
+      description: 'Configure ad pricing and limits'
     },
     {
       path: '/admin/settings/events',

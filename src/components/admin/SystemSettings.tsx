@@ -19,6 +19,7 @@ import AnalyticsSettings from '@/components/admin/AnalyticsSettings';
 import MaintenanceSettings from '@/components/admin/MaintenanceSettings';
 import SystemSettingsNavigation from '@/components/admin/SystemSettingsNavigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import AdSettingsPanel from '@/components/admin/AdSettingsPanel';
 
 // Enhanced Settings Components
 import EnhancedGeneralSettings from '@/components/admin/enhanced/EnhancedGeneralSettings';
@@ -151,6 +152,10 @@ const SystemSettings: React.FC = () => {
                 isUpdating={updateSettingMutation.isPending}
               />
             } 
+          />
+          <Route 
+            path="ads" 
+            element={<AdSettingsPanel />} 
           />
           <Route 
             path="analytics" 
