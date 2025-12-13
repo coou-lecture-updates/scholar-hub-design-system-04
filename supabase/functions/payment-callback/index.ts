@@ -104,7 +104,11 @@ serve(async (req) => {
 });
 
 function redirectToStatus(status: string, message: string) {
-  const redirectUrl = `${Deno.env.get('SITE_URL') || 'http://localhost:3000'}/payment-status?status=${status}&message=${encodeURIComponent(message)}`;
+  // Use configured SITE_URL or fallback to the production URL
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://coouconnect.lovable.app';
+  const redirectUrl = `${siteUrl}/payment-status?status=${status}&message=${encodeURIComponent(message)}`;
+  
+  console.log('Redirecting to:', redirectUrl);
   
   return new Response(null, {
     status: 302,

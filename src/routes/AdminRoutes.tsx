@@ -18,6 +18,8 @@ import SystemSettings from '@/pages/admin/SystemSettings';
 import Messages from '@/pages/admin/Messages';
 import RoleManagement from '@/pages/admin/RoleManagement';
 import ModeratorDashboard from '@/pages/admin/ModeratorDashboard';
+import AdManagement from '@/pages/admin/AdManagement';
+import TransactionManagement from '@/pages/admin/TransactionManagement';
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -41,6 +43,8 @@ const AdminRoutes: React.FC = () => {
       <Route path="settings/*" element={<SystemSettings />} />
       <Route path="messages" element={<Messages />} />
       <Route path="roles" element={<RoleManagement />} />
+      <Route path="ads" element={<AdManagement />} />
+      <Route path="transactions" element={<TransactionManagement />} />
     </Routes>
   );
 };

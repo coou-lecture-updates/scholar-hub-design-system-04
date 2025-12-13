@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, Download, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -112,12 +114,14 @@ const Timetable = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
-            <span className="ml-2">Loading your timetable...</span>
-          </div>
-        </div>
+        <Card className="bg-card border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2 text-muted-foreground">Loading your timetable...</span>
+            </div>
+          </CardContent>
+        </Card>
       </DashboardLayout>
     );
   }
@@ -125,98 +129,97 @@ const Timetable = () => {
   // Show "No classes" as fallback instead of empty
   return (
     <DashboardLayout>
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-xl font-semibold">Class Timetable</h2>
-            {userProfile && (
-              <p className="text-sm text-gray-600 mt-1">
-                {/* Always format as 100 Level etc */}
-                {userProfile.level ? `${userProfile.level} Level` : ""} • {userProfile.department} • {userProfile.faculty} • {userProfile.campus} Campus
-              </p>
-            )}
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={prevWeek}
-                disabled={currentWeek === 1}
-                className={`p-1 rounded-full ${
-                  currentWeek === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <span className="text-sm font-medium">Week {currentWeek}</span>
-              <button 
-                onClick={nextWeek}
-                disabled={currentWeek === 2}
-                className={`p-1 rounded-full ${
-                  currentWeek === 2 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <ChevronRight size={20} />
-              </button>
+      <Card className="bg-card border-0 shadow-sm">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Class Timetable</h2>
+              {userProfile && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {userProfile.level ? `${userProfile.level} Level` : ""} • {userProfile.department} • {userProfile.faculty} • {userProfile.campus} Campus
+                </p>
+              )}
             </div>
             
-            <button className="flex items-center space-x-1 text-sm text-primary hover:underline">
-              <Download size={16} />
-              <span>Download</span>
-            </button>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  onClick={prevWeek}
+                  disabled={currentWeek === 1}
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <span className="text-sm font-medium text-foreground">Week {currentWeek}</span>
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  onClick={nextWeek}
+                  disabled={currentWeek === 2}
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </div>
+              
+              <Button variant="ghost" size="sm" className="text-primary">
+                <Download className="h-4 w-4 mr-1" />
+                Download
+              </Button>
+            </div>
           </div>
-        </div>
-        {lectures.length === 0 ? (
-          <div className="text-center py-10">
-            <p className="text-gray-500">No classes found for your profile.</p>
-            <p className="text-sm text-gray-400 mt-2">
-              Make sure your profile information is complete and classes have been scheduled.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="border border-gray-200 bg-gray-50 p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Time / Day
-                  </th>
-                  {days.map(day => (
-                    <th key={day} className="border border-gray-200 bg-gray-50 p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {day}
+          {lectures.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-muted-foreground">No classes found for your profile.</p>
+              <p className="text-sm text-muted-foreground/70 mt-2">
+                Make sure your profile information is complete and classes have been scheduled.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="border border-border bg-muted p-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Time / Day
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {timeSlots.map(timeSlot => (
-                  <tr key={timeSlot}>
-                    <td className="border border-gray-200 p-3 text-xs font-medium text-gray-500">
-                      {timeSlot}
-                    </td>
-                    {days.map(day => {
-                      const classData = getClassForTimeSlot(day, timeSlot);
-                      return (
-                        <td key={`${day}-${timeSlot}`} className="border border-gray-200 p-3">
-                          {classData ? (
-                            <div className={`${classData.color || 'bg-blue-50'} p-2 rounded border border-blue-100`}>
-                              <div className="font-medium text-blue-800">{classData.subject}</div>
-                              <div className="text-xs text-gray-600">{classData.room}</div>
-                              {classData.lecturer && (
-                                <div className="text-xs text-gray-600">{classData.lecturer}</div>
-                              )}
-                            </div>
-                          ) : null}
-                        </td>
-                      );
-                    })}
+                    {days.map(day => (
+                      <th key={day} className="border border-border bg-muted p-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        {day}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                </thead>
+                <tbody>
+                  {timeSlots.map(timeSlot => (
+                    <tr key={timeSlot}>
+                      <td className="border border-border p-3 text-xs font-medium text-muted-foreground bg-card">
+                        {timeSlot}
+                      </td>
+                      {days.map(day => {
+                        const classData = getClassForTimeSlot(day, timeSlot);
+                        return (
+                          <td key={`${day}-${timeSlot}`} className="border border-border p-3 bg-card">
+                            {classData ? (
+                              <div className={`${classData.color || 'bg-primary/10'} p-2 rounded border border-primary/20`}>
+                                <div className="font-medium text-primary">{classData.subject}</div>
+                                <div className="text-xs text-muted-foreground">{classData.room}</div>
+                                {classData.lecturer && (
+                                  <div className="text-xs text-muted-foreground">{classData.lecturer}</div>
+                                )}
+                              </div>
+                            ) : null}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </DashboardLayout>
   );
 };
