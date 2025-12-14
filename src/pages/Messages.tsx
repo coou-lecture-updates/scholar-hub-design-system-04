@@ -13,6 +13,7 @@ import { NativeAdCard } from '@/components/messages/NativeAdCard';
 import { BannerAdCarousel } from '@/components/messages/BannerAdCarousel';
 import { AdStatistics } from '@/components/messages/AdStatistics';
 import { AdCreationDialog } from '@/components/messages/AdCreationDialog';
+import { DemoAdCards } from '@/components/messages/DemoAdCards';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Bell, TrendingUp, Plus } from 'lucide-react';
@@ -418,6 +419,11 @@ const Messages = () => {
         {/* Messages Area - Scrollable */}
         <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 pb-28 md:pb-32">
           <div className="space-y-4">
+            {/* Show demo ads if no real native ads exist */}
+            {nativeAds.length === 0 && !loading && (
+              <DemoAdCards onCreateAd={() => setShowAdCreate(true)} />
+            )}
+            
             {regularMessages.map((message, index) => (
               <React.Fragment key={message.id}>
                 <MessageList
