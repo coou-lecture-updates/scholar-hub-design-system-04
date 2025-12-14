@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   BookOpen, Calendar, User, MessageSquare, Bell, Search, FileText, 
   PenTool, Layers, Settings, LogOut, Menu, X, ChevronDown, Building2,
-  BarChart3, FileSpreadsheet, Megaphone
+  BarChart3, FileSpreadsheet, Megaphone, CreditCard
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -66,7 +66,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
     { name: 'Settings', icon: <Settings size={20} />, path: '/user-settings' },
   ];
 
-  // Admin untouched! Remove Announcements
+  // Admin nav items with Ads and Transactions
   const adminNavItems = [
     { name: 'Dashboard', icon: <Layers size={20} />, path: '/admin-dashboard' },
     { name: 'Analytics', icon: <BarChart3 size={20} />, path: '/admin/analytics' },
@@ -78,6 +78,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
     { name: 'Exam Management', icon: <FileText size={20} />, path: '/admin/exams' },
     { name: 'Event Management', icon: <Calendar size={20} />, path: '/admin/events' },
     { name: 'Blog Management', icon: <PenTool size={20} />, path: '/admin/blogs' },
+    { name: 'Ad Management', icon: <Megaphone size={20} />, path: '/admin/ads' },
+    { name: 'Transactions', icon: <CreditCard size={20} />, path: '/admin/transactions' },
     { name: 'Send Alerts', icon: <Bell size={20} />, path: '/admin/alerts' },
     { name: 'Community Management', icon: <MessageSquare size={20} />, path: '/admin/community' },
     { name: 'System Reports', icon: <FileSpreadsheet size={20} />, path: '/admin/reports' },
