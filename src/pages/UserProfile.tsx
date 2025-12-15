@@ -17,6 +17,7 @@ interface UserProfile {
   full_name: string;
   email: string;
   created_at: string;
+  bio?: string | null;
 }
 
 interface UserStats {
@@ -50,7 +51,21 @@ const UserProfile = () => {
           .single();
 
         if (userError) throw userError;
-        setProfile(userData);
+
+        // Try to get bio separately (graceful fallback if column doesn't exist)
+        let bio = null;
+        try {
+          const { data: bioData } = await supabase
+            .from('users')
+            .select('bio')
+            .eq('id', userId)
+            .single();
+          bio = (bioData as any)?.bio || null;
+        } catch (e) {
+          // Bio column may not exist yet
+        }
+
+        setProfile({ ...userData, bio });
 
         // Fetch user roles
         const { data: rolesData } = await supabase
@@ -188,6 +203,9 @@ const UserProfile = () => {
                 <div className="flex flex-wrap gap-2 mb-2">
                   {userRoles.map(role => getRoleBadge(role))}
                 </div>
+                {profile.bio && (
+                  <p className="text-sm text-muted-foreground mb-2">{profile.bio}</p>
+                )}
                 <p className="text-sm text-muted-foreground">
                   Member since {formatDistanceToNow(new Date(profile.created_at), { addSuffix: true })}
                 </p>

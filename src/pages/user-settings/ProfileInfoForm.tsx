@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 const LEVELS = [
   { id: 100, name: "100 Level" },
   { id: 200, name: "200 Level" },
@@ -27,6 +29,7 @@ const ProfileInfoForm = ({ profile, onUpdate, refreshProfile, user }: any) => {
     level: profile?.level ?? 0,
     phone: profile?.phone ?? "",
     reg_number: profile?.reg_number ?? "",
+    bio: profile?.bio ?? "",
   });
   const [updating, setUpdating] = useState(false);
 
@@ -38,10 +41,10 @@ const ProfileInfoForm = ({ profile, onUpdate, refreshProfile, user }: any) => {
         campus: profile.campus ?? "",
         faculty: profile.faculty ?? "",
         department: profile.department ?? "",
-        // Make sure only allowed LEVELS IDs are used; fall back to 0 if invalid
         level: LEVELS.map(l => l.id).includes(profile.level) ? profile.level : 0,
         phone: profile.phone ?? "",
         reg_number: profile.reg_number ?? "",
+        bio: profile.bio ?? "",
       });
     }
   }, [profile]);
@@ -56,12 +59,15 @@ const ProfileInfoForm = ({ profile, onUpdate, refreshProfile, user }: any) => {
         : prev;
     });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    // Only allow editing phone/level, not reg_number, full_name, email, faculty, department, campus
-    if (name !== 'phone' && name !== 'level') return;
+    // Allow editing phone, bio
+    if (name !== 'phone' && name !== 'bio') return;
+    // Bio max 200 chars
+    if (name === 'bio' && value.length > 200) return;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
+
   const handleProfileUpdate = async (e: any) => {
     e.preventDefault();
     if (!user) {
@@ -73,8 +79,10 @@ const ProfileInfoForm = ({ profile, onUpdate, refreshProfile, user }: any) => {
       await onUpdate({
         phone: formData.phone,
         level: formData.level,
+        bio: formData.bio || null,
       });
       await refreshProfile?.();
+      toast({ title: "Profile updated", description: "Your profile has been saved successfully." });
     } catch (error: any) {
       toast({ title: "Update failed", description: error.message || "Failed to update profile. Please try again.", variant: "destructive" });
     } finally {
@@ -131,6 +139,23 @@ const ProfileInfoForm = ({ profile, onUpdate, refreshProfile, user }: any) => {
             <div className="space-y-2">
               <Label htmlFor="department">Department</Label>
               <Input id="department" value={formData.department || "Not set"} disabled className="bg-muted" />
+            </div>
+            
+            {/* Bio Section */}
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                placeholder="Tell students a little about yourself..."
+                className="resize-none h-20"
+                maxLength={200}
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {formData.bio?.length || 0}/200 characters
+              </p>
             </div>
           </div>
           <Button type="submit" className="mt-6" disabled={updating}>

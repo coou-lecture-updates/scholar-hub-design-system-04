@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MessageSquare, Heart, ThumbsUp, Laugh, Frown, Brain, Flame, Pin, Trash2, Edit, MoreVertical } from 'lucide-react';
+import { MessageSquare, Heart, ThumbsUp, Laugh, Frown, Brain, Flame, Pin, Trash2, MoreVertical, Image as ImageIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import {
   DropdownMenu,
@@ -13,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { UserBioPopover } from './UserBioPopover';
 
 export interface Reaction {
   id: string;
@@ -33,6 +33,7 @@ export interface Message {
   created_at: string;
   updated_at: string;
   edited_at: string | null;
+  image_url?: string | null;
   users?: {
     full_name: string;
     email: string;
@@ -72,9 +73,9 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   onPin,
   showReplies = true,
 }) => {
-  const navigate = useNavigate();
   const [showReactions, setShowReactions] = useState(false);
   const [showHeartAnimation, setShowHeartAnimation] = useState(false);
+  const [imageExpanded, setImageExpanded] = useState(false);
   
   // Double-click handler for quick reactions
   const handleDoubleClick = () => {
@@ -161,35 +162,51 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         </div>
       )}
 
-      <div className="flex gap-2 md:gap-3">
-        <Avatar 
-          className={cn(
-            "h-8 w-8 md:h-10 md:w-10 shrink-0",
-            !message.is_anonymous && "cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-          )}
-          onClick={() => !message.is_anonymous && message.user_id && navigate(`/user/${message.user_id}`)}
-        >
-          <AvatarFallback className={cn(
-            message.is_anonymous ? 'bg-muted' : 'bg-primary/10 text-primary'
-          )}>
-            {userName.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
+      <div className="flex gap-3">
+        {/* Avatar with Bio Popover for non-anonymous users */}
+        {!message.is_anonymous && message.user_id ? (
+          <UserBioPopover
+            userId={message.user_id}
+            userName={userName}
+            userRole={userRole}
+          >
+            <button className="shrink-0">
+              <Avatar className="h-10 w-10 md:h-11 md:w-11 ring-2 ring-transparent hover:ring-primary/30 transition-all cursor-pointer">
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-medium">
+                  {userName.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            </button>
+          </UserBioPopover>
+        ) : (
+          <Avatar className="h-10 w-10 md:h-11 md:w-11 shrink-0">
+            <AvatarFallback className="bg-muted text-muted-foreground">
+              {userName.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+        )}
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1 md:gap-2 mb-1 flex-wrap">
-            <span 
-              className={cn(
-                "font-medium text-xs md:text-sm",
-                !message.is_anonymous && "cursor-pointer hover:text-primary transition-colors"
-              )}
-              onClick={() => !message.is_anonymous && message.user_id && navigate(`/user/${message.user_id}`)}
-            >
-              {userName}
-            </span>
+          <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 flex-wrap">
+            {/* Name with Bio Popover for non-anonymous users */}
+            {!message.is_anonymous && message.user_id ? (
+              <UserBioPopover
+                userId={message.user_id}
+                userName={userName}
+                userRole={userRole}
+              >
+                <button className="font-semibold text-sm hover:text-primary transition-colors cursor-pointer">
+                  {userName}
+                </button>
+              </UserBioPopover>
+            ) : (
+              <span className="font-medium text-sm text-muted-foreground">
+                {userName}
+              </span>
+            )}
             {getRoleBadge()}
             {message.topic && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs font-normal">
                 #{message.topic}
               </Badge>
             )}
@@ -201,7 +218,22 @@ export const MessageItem: React.FC<MessageItemProps> = ({
             )}
           </div>
 
-          <p className="text-xs md:text-sm whitespace-pre-wrap break-words mb-2 md:mb-3">{message.content}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words mb-2">{message.content}</p>
+
+          {/* Image Display */}
+          {message.image_url && (
+            <div className="mb-3">
+              <img
+                src={message.image_url}
+                alt="Message attachment"
+                className={cn(
+                  "rounded-lg cursor-pointer transition-all border border-border/50",
+                  imageExpanded ? "max-w-full" : "max-w-xs max-h-48 object-cover hover:opacity-90"
+                )}
+                onClick={() => setImageExpanded(!imageExpanded)}
+              />
+            </div>
+          )}
 
           <div className="flex items-center gap-2 flex-wrap">
             {/* Reaction Buttons */}
