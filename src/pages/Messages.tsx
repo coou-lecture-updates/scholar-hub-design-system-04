@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { MessageInput } from '@/components/messages/MessageInput';
 import { MessageList } from '@/components/messages/MessageList';
@@ -467,7 +467,7 @@ const Messages = () => {
         <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 pb-28 md:pb-32">
           <div className="space-y-3">
             {regularMessages.map((message, index) => (
-              <React.Fragment key={message.id}>
+              <div key={message.id} className="space-y-3">
                 <MessageList
                   messages={[message]}
                   loading={false}
@@ -478,12 +478,12 @@ const Messages = () => {
                   onDelete={handleDelete}
                   onPin={handlePin}
                 />
-                
+
                 {/* Inject native ad every 5 messages */}
                 {(index + 1) % 5 === 0 && nativeAds[Math.floor(index / 5)] && (
                   <NativeAdCard ad={nativeAds[Math.floor(index / 5)]} />
                 )}
-              </React.Fragment>
+              </div>
             ))}
             
             {loading && (
