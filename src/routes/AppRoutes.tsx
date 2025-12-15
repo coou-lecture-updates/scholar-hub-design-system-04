@@ -116,9 +116,11 @@ const AppRoutes = () => {
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/wallet/fund" element={<FundWallet />} />
               <Route path="/ticket-recovery" element={<TicketRecovery />} />
-              <Route path="/user/:userId" element={<UserProfile />} />
             </>
           )}
+          
+          {/* User Profile Route - available for authenticated users */}
+          <Route path="/user/:userId" element={<UserProfile />} />
 
           {/* Admin Routes */}
           
