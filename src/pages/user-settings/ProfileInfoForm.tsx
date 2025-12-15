@@ -100,6 +100,24 @@ const ProfileInfoForm = ({ profile, onUpdate, refreshProfile, user }: any) => {
               <Input id="full_name" name="full_name" value={formData.full_name} disabled className="bg-muted" />
               <p className="text-xs text-muted-foreground">Name cannot be changed after signup.</p>
             </div>
+            
+            {/* Bio Section - Below Full Name */}
+            <div className="space-y-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                placeholder="Tell students a little about yourself..."
+                className="resize-none h-20"
+                maxLength={200}
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {formData.bio?.length || 0}/200 characters
+              </p>
+            </div>
+            
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <Input id="email" name="email" value={formData.email} disabled className="bg-muted" />
@@ -141,22 +159,6 @@ const ProfileInfoForm = ({ profile, onUpdate, refreshProfile, user }: any) => {
               <Input id="department" value={formData.department || "Not set"} disabled className="bg-muted" />
             </div>
             
-            {/* Bio Section */}
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                name="bio"
-                value={formData.bio}
-                onChange={handleInputChange}
-                placeholder="Tell students a little about yourself..."
-                className="resize-none h-20"
-                maxLength={200}
-              />
-              <p className="text-xs text-muted-foreground text-right">
-                {formData.bio?.length || 0}/200 characters
-              </p>
-            </div>
           </div>
           <Button type="submit" className="mt-6" disabled={updating}>
             {updating ? (
