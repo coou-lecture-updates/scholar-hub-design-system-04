@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MessageSquare, Heart, ExternalLink, User } from 'lucide-react';
+import { MessageSquare, Heart, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface UserBioPopoverProps {
@@ -35,6 +36,7 @@ export const UserBioPopover: React.FC<UserBioPopoverProps> = ({
 }) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [bioData, setBioData] = useState<UserBioData | null>(null);
   const [stats, setStats] = useState<UserStats>({ posts: 0, reactions: 0 });
   const [loading, setLoading] = useState(false);
@@ -177,21 +179,105 @@ export const UserBioPopover: React.FC<UserBioPopoverProps> = ({
 
           <Separator className="my-3" />
 
-          {/* View Profile Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full gap-2"
-            onClick={() => {
-              setOpen(false);
-              navigate(`/user/${userId}`);
-            }}
-          >
-            <User className="h-4 w-4" />
-            View Full Profile
-          </Button>
+          {/* View Profile */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-2"
+              onClick={() => {
+                setOpen(false);
+                setSheetOpen(true);
+              }}
+            >
+              <User className="h-4 w-4" />
+              Preview
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              className="w-full"
+              onClick={() => {
+                setOpen(false);
+                navigate(`/user/${userId}`);
+              }}
+            >
+              Open
+            </Button>
+          </div>
         </div>
       </PopoverContent>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent side="bottom" className="p-0">
+          <div className="p-4">
+            <SheetHeader className="text-left">
+              <SheetTitle className="text-base">Profile Preview</SheetTitle>
+            </SheetHeader>
+
+            <div className="mt-3 flex items-start gap-3">
+              <Avatar className="h-12 w-12">
+                <AvatarFallback className="bg-primary/10 text-primary text-lg">
+                  {userName.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm truncate">{bioData?.full_name || userName}</p>
+                <Badge className={cn('text-xs mt-1', getRoleBadgeStyle(userRole))}>
+                  {formatRole(userRole)}
+                </Badge>
+                <div className="mt-2">
+                  {loading ? (
+                    <div className="h-10 animate-pulse bg-muted rounded" />
+                  ) : bioData?.bio ? (
+                    <p className="text-sm text-muted-foreground">{bioData.bio}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">No bio yet</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <Separator className="my-4" />
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg border border-border/50 bg-card p-3">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="text-sm">Posts</span>
+                </div>
+                <p className="mt-1 text-lg font-semibold text-foreground">{stats.posts}</p>
+              </div>
+              <div className="rounded-lg border border-border/50 bg-card p-3">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Heart className="h-4 w-4" />
+                  <span className="text-sm">Reactions</span>
+                </div>
+                <p className="mt-1 text-lg font-semibold text-foreground">{stats.reactions}</p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setSheetOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  setSheetOpen(false);
+                  navigate(`/user/${userId}`);
+                }}
+              >
+                Open full profile
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </Popover>
   );
 };

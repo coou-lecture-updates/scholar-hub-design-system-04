@@ -29,6 +29,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ResumeBuilder from "./pages/ResumeBuilder";
 import AdminLogin from "./pages/AdminLogin";
 import UserSettings from "./pages/UserSettings";
+import UserProfile from "./pages/UserProfile";
 
 import ExamManagement from "./pages/admin/ExamManagement";
 import CommunityManagement from "./pages/admin/CommunityManagement";
@@ -155,6 +156,7 @@ function AppInner() {
       <Route path="/course-updates" element={<ProtectedRoute><CourseUpdates /></ProtectedRoute>} />
       <Route path="/exam-updates" element={<ProtectedRoute><ExamUpdates /></ProtectedRoute>} />
       <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+      <Route path="/user/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
 
       {/* Admin Routes */}
       
