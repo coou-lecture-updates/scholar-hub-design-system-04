@@ -13,6 +13,8 @@ interface MessageListProps {
   onReact: (messageId: string, reactionType: string) => void;
   onDelete: (messageId: string) => void;
   onPin?: (messageId: string) => void;
+  onBookmark?: (messageId: string) => void;
+  isBookmarked?: (messageId: string) => boolean;
   autoScroll?: boolean;
 }
 
@@ -25,6 +27,8 @@ export const MessageList: React.FC<MessageListProps> = ({
   onReact,
   onDelete,
   onPin,
+  onBookmark,
+  isBookmarked,
   autoScroll = true,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -68,6 +72,8 @@ export const MessageList: React.FC<MessageListProps> = ({
             onReact={onReact}
             onDelete={onDelete}
             onPin={onPin}
+            onBookmark={onBookmark}
+            isBookmarked={isBookmarked?.(message.id)}
           />
         ))}
       </AnimatePresence>
