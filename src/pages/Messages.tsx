@@ -3,11 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/contexts/auth/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useBookmarks } from '@/hooks/useBookmarks';
 import { MessageInput } from '@/components/messages/MessageInput';
 import { MessageList } from '@/components/messages/MessageList';
 import { FilterPanel } from '@/components/messages/FilterPanel';
 import { AnnouncementBanner } from '@/components/messages/AnnouncementBanner';
 import { ThreadedReplies } from '@/components/messages/ThreadedReplies';
+import { TrendingTopics } from '@/components/messages/TrendingTopics';
 import { Message } from '@/components/messages/MessageItem';
 import { NativeAdCard } from '@/components/messages/NativeAdCard';
 import { BannerAdCarousel } from '@/components/messages/BannerAdCarousel';
@@ -22,12 +24,14 @@ import { TrendingUp, Plus, Users, MessageCircle, Sparkles } from 'lucide-react';
 const Messages = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { bookmarkedIds, toggleBookmark, isBookmarked } = useBookmarks();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopic, setSelectedTopic] = useState('all');
   const [selectedRole, setSelectedRole] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
+  const [showSaved, setShowSaved] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -328,6 +332,9 @@ const Messages = () => {
 
   // Filter messages
   const filteredMessages = messages.filter(msg => {
+    if (showSaved && !bookmarkedIds.has(msg.id)) {
+      return false;
+    }
     if (searchQuery && !msg.content.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
@@ -356,6 +363,12 @@ const Messages = () => {
   const pinnedMessages = sortedMessages.filter(m => m.is_pinned);
   const regularMessages = sortedMessages.filter(m => !m.is_pinned);
   const topics = Array.from(new Set(messages.map(m => m.topic).filter(Boolean))) as string[];
+  
+  // Calculate trending topics with counts
+  const trendingTopics = topics.map(topic => ({
+    name: topic,
+    count: messages.filter(m => m.topic === topic).length
+  })).sort((a, b) => b.count - a.count);
 
   const replyingMessage = messages.find(m => m.id === replyingTo);
 
@@ -435,6 +448,17 @@ const Messages = () => {
               </div>
             )}
 
+            {/* Trending Topics */}
+            {trendingTopics.length > 0 && (
+              <div className="mb-3">
+                <TrendingTopics
+                  topics={trendingTopics}
+                  selectedTopic={selectedTopic}
+                  onTopicSelect={setSelectedTopic}
+                />
+              </div>
+            )}
+
             {/* Filter Panel */}
             <FilterPanel
               searchQuery={searchQuery}
@@ -446,11 +470,15 @@ const Messages = () => {
               sortBy={sortBy}
               onSortByChange={setSortBy}
               topics={topics}
+              showSaved={showSaved}
+              onShowSavedChange={setShowSaved}
+              savedCount={bookmarkedIds.size}
               onClearFilters={() => {
                 setSearchQuery('');
                 setSelectedTopic('all');
                 setSelectedRole('all');
                 setSortBy('recent');
+                setShowSaved(false);
               }}
             />
 
@@ -477,6 +505,8 @@ const Messages = () => {
                   onReact={handleReact}
                   onDelete={handleDelete}
                   onPin={handlePin}
+                  onBookmark={toggleBookmark}
+                  isBookmarked={isBookmarked}
                 />
 
                 {/* Inject native ad every 5 messages */}

@@ -2,7 +2,7 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, X, Hash, Users, Clock } from 'lucide-react';
+import { Search, Filter, X, Hash, Users, Clock, Bookmark } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -27,6 +27,9 @@ interface FilterPanelProps {
   onSortByChange: (sort: string) => void;
   topics: string[];
   onClearFilters: () => void;
+  showSaved?: boolean;
+  onShowSavedChange?: (show: boolean) => void;
+  savedCount?: number;
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
@@ -40,8 +43,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onSortByChange,
   topics,
   onClearFilters,
+  showSaved = false,
+  onShowSavedChange,
+  savedCount = 0,
 }) => {
-  const hasActiveFilters = searchQuery || selectedTopic !== 'all' || selectedRole !== 'all' || sortBy !== 'recent';
+  const hasActiveFilters = searchQuery || selectedTopic !== 'all' || selectedRole !== 'all' || sortBy !== 'recent' || showSaved;
 
   return (
     <div className="bg-accent/20 border border-border/50 rounded-xl p-3 md:p-4 space-y-3 md:space-y-4 backdrop-blur-sm">
@@ -101,6 +107,24 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </div>
           </PopoverContent>
         </Popover>
+
+        {/* Saved Filter */}
+        {onShowSavedChange && (
+          <Button
+            variant={showSaved ? "default" : "outline"}
+            size="sm"
+            className="gap-2 h-9 text-sm"
+            onClick={() => onShowSavedChange(!showSaved)}
+          >
+            <Bookmark className={showSaved ? "h-4 w-4 fill-current" : "h-4 w-4"} />
+            <span className="hidden sm:inline">Saved</span>
+            {savedCount > 0 && (
+              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                {savedCount}
+              </Badge>
+            )}
+          </Button>
+        )}
 
         {/* Role Filter */}
         <Popover>

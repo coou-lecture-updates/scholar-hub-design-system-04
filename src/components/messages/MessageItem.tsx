@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MessageSquare, Heart, ThumbsUp, Laugh, Frown, Brain, Flame, Pin, Trash2, MoreVertical, Image as ImageIcon } from 'lucide-react';
+import { MessageSquare, Heart, ThumbsUp, Laugh, Frown, Brain, Flame, Pin, Trash2, MoreVertical, Image as ImageIcon, Bookmark } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import {
   DropdownMenu,
@@ -51,6 +51,8 @@ interface MessageItemProps {
   onReact: (messageId: string, reactionType: string) => void;
   onDelete: (messageId: string) => void;
   onPin?: (messageId: string) => void;
+  onBookmark?: (messageId: string) => void;
+  isBookmarked?: boolean;
   showReplies?: boolean;
 }
 
@@ -71,6 +73,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   onReact,
   onDelete,
   onPin,
+  onBookmark,
+  isBookmarked = false,
   showReplies = true,
 }) => {
   const [showReactions, setShowReactions] = useState(false);
@@ -288,6 +292,19 @@ export const MessageItem: React.FC<MessageItemProps> = ({
               >
                 <MessageSquare className="h-3 w-3" />
                 {message.reply_count ? `View ${message.reply_count} ${message.reply_count === 1 ? 'Reply' : 'Replies'}` : 'Reply'}
+              </Button>
+            )}
+
+            {/* Bookmark Button */}
+            {onBookmark && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn('h-7 gap-1 text-xs', isBookmarked && 'text-primary')}
+                onClick={() => onBookmark(message.id)}
+              >
+                <Bookmark className={cn('h-3 w-3', isBookmarked && 'fill-current')} />
+                {isBookmarked ? 'Saved' : 'Save'}
               </Button>
             )}
 
