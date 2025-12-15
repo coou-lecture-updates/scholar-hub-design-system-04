@@ -13,10 +13,11 @@ import { NativeAdCard } from '@/components/messages/NativeAdCard';
 import { BannerAdCarousel } from '@/components/messages/BannerAdCarousel';
 import { AdStatistics } from '@/components/messages/AdStatistics';
 import { AdCreationDialog } from '@/components/messages/AdCreationDialog';
-import { DemoAdCards } from '@/components/messages/DemoAdCards';
+import { ActiveUsersRow } from '@/components/messages/ActiveUsersRow';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Bell, TrendingUp, Plus } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { TrendingUp, Plus, Users, MessageCircle, Sparkles } from 'lucide-react';
 
 const Messages = () => {
   const { user } = useAuth();
@@ -358,54 +359,100 @@ const Messages = () => {
 
   const replyingMessage = messages.find(m => m.id === replyingTo);
 
+  // Stats for header
+  const totalMessages = messages.length;
+  const todayMessages = messages.filter(m => {
+    const msgDate = new Date(m.created_at);
+    const today = new Date();
+    return msgDate.toDateString() === today.toDateString();
+  }).length;
+
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-6xl md:mx-auto bg-background">
-        {/* Fixed Header */}
-        <div className="flex-none bg-card border-b border-border shadow-sm sticky top-0 z-40">
-          <div className="px-3 md:px-6 pt-3 pb-2">
-            <AnnouncementBanner announcements={pinnedMessages} />
-
-            <div className="mt-2">
-              <FilterPanel
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                selectedTopic={selectedTopic}
-                onTopicChange={setSelectedTopic}
-                selectedRole={selectedRole}
-                onRoleChange={setSelectedRole}
-                sortBy={sortBy}
-                onSortByChange={setSortBy}
-                topics={topics}
-                onClearFilters={() => {
-                  setSearchQuery('');
-                  setSelectedTopic('all');
-                  setSelectedRole('all');
-                  setSortBy('recent');
-                }}
-              />
-              
-              <div className="flex justify-end mt-2 gap-2">
+      <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-5xl md:mx-auto">
+        {/* Enhanced Header */}
+        <div className="flex-none bg-gradient-to-b from-card to-background border-b border-border/50 sticky top-0 z-40">
+          <div className="px-4 md:px-6 pt-4 pb-3">
+            {/* Title Section */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                  <MessageCircle className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold">Community Forum</h1>
+                  <p className="text-xs text-muted-foreground">Connect with fellow students</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
                 <Button
                   variant="default"
                   size="sm"
                   onClick={() => setShowAdCreate(true)}
-                  className="gap-2"
+                  className="gap-1.5 shadow-sm"
                 >
                   <Plus className="h-4 w-4" />
-                  Create Ad
+                  <span className="hidden sm:inline">Create Ad</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAdStats(true)}
-                  className="gap-2"
+                  className="gap-1.5"
                 >
                   <TrendingUp className="h-4 w-4" />
-                  My Ads
+                  <span className="hidden sm:inline">My Ads</span>
                 </Button>
               </div>
             </div>
+
+            {/* Quick Stats */}
+            <div className="flex items-center gap-4 mb-3 text-sm">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <MessageCircle className="h-4 w-4" />
+                <span className="font-medium text-foreground">{totalMessages}</span>
+                <span>posts</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="font-medium text-foreground">{todayMessages}</span>
+                <span>today</span>
+              </div>
+              {unreadCount > 0 && (
+                <Badge variant="secondary" className="bg-primary/10 text-primary">
+                  {unreadCount} new
+                </Badge>
+              )}
+            </div>
+
+            {/* Active Users */}
+            <ActiveUsersRow />
+
+            {/* Pinned Announcements */}
+            {pinnedMessages.length > 0 && (
+              <div className="mb-3">
+                <AnnouncementBanner announcements={pinnedMessages} />
+              </div>
+            )}
+
+            {/* Filter Panel */}
+            <FilterPanel
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedTopic={selectedTopic}
+              onTopicChange={setSelectedTopic}
+              selectedRole={selectedRole}
+              onRoleChange={setSelectedRole}
+              sortBy={sortBy}
+              onSortByChange={setSortBy}
+              topics={topics}
+              onClearFilters={() => {
+                setSearchQuery('');
+                setSelectedTopic('all');
+                setSelectedRole('all');
+                setSortBy('recent');
+              }}
+            />
 
             {/* Banner Ads */}
             {bannerAds.length > 0 && (
@@ -418,12 +465,7 @@ const Messages = () => {
 
         {/* Messages Area - Scrollable */}
         <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 pb-28 md:pb-32">
-          <div className="space-y-4">
-            {/* Show demo ads if no real native ads exist */}
-            {nativeAds.length === 0 && !loading && (
-              <DemoAdCards onCreateAd={() => setShowAdCreate(true)} />
-            )}
-            
+          <div className="space-y-3">
             {regularMessages.map((message, index) => (
               <React.Fragment key={message.id}>
                 <MessageList
@@ -445,14 +487,25 @@ const Messages = () => {
             ))}
             
             {loading && (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-sm">Loading messages...</p>
+              </div>
+            )}
+
+            {!loading && regularMessages.length === 0 && (
+              <Card className="p-8 text-center border-dashed">
+                <MessageCircle className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                <h3 className="font-medium mb-1">No messages yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">Be the first to start a conversation!</p>
+              </Card>
             )}
           </div>
         </div>
 
-        {/* Fixed Message Input - Sticky at bottom, above mobile nav */}
+        {/* Fixed Message Input */}
         <div className="fixed bottom-16 md:bottom-0 left-0 md:left-64 right-0 border-t border-border bg-card/98 backdrop-blur-md shadow-2xl z-40">
-          <div className="max-w-6xl mx-auto px-3 md:px-6 py-2">
+          <div className="max-w-5xl mx-auto px-4 md:px-6 py-3">
             <MessageInput onSend={handleSendMessage} />
           </div>
         </div>
