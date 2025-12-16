@@ -66,7 +66,7 @@ const UserManagement = () => {
       setLoading(true);
       
       const { data: userData, error: userError } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
       if (userError) throw userError;
@@ -139,7 +139,7 @@ const UserManagement = () => {
       };
       if (editingUser) {
         const { error: userError } = await supabase
-          .from('users')
+          .from('profiles')
           .update({
             full_name: userData.full_name,
             faculty: userData.faculty,
