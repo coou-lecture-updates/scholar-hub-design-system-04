@@ -21,3 +21,6 @@ verify_jwt = false
 
 [functions.secure-payment-gateway]
 verify_jwt = true
+
+[functions.moderate-content]
+verify_jwt = false

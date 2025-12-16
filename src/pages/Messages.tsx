@@ -198,7 +198,7 @@ const Messages = () => {
     };
   }, [fetchMessages]);
 
-  const handleSendMessage = async (content: string, isAnonymous: boolean, topic?: string, parentId?: string, imageUrl?: string) => {
+  const handleSendMessage = async (content: string, isAnonymous: boolean, topic?: string, parentId?: string, imageUrl?: string, videoUrl?: string) => {
     if (!user && !isAnonymous) {
       toast({
         title: 'Error',
@@ -209,6 +209,23 @@ const Messages = () => {
     }
 
     try {
+      // Moderate content before posting
+      const { data: moderationResult, error: moderationError } = await supabase.functions.invoke('moderate-content', {
+        body: { content }
+      });
+
+      if (moderationError) {
+        console.error('Moderation check failed:', moderationError);
+        // Continue posting if moderation fails (fail open)
+      } else if (moderationResult && !moderationResult.safe) {
+        toast({
+          title: 'Content Not Allowed',
+          description: `Your message was blocked: ${moderationResult.reason || 'Inappropriate content detected'}`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const { error } = await supabase.from('community_messages').insert({
         user_id: isAnonymous ? null : user?.id,
         content,
@@ -216,6 +233,7 @@ const Messages = () => {
         topic,
         parent_id: parentId,
         image_url: imageUrl || null,
+        video_url: videoUrl || null,
       });
 
       if (error) throw error;
