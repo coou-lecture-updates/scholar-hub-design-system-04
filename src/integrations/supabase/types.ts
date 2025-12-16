@@ -405,6 +405,8 @@ export type Database = {
           topic: string | null
           updated_at: string
           user_id: string | null
+          video_thumbnail: string | null
+          video_url: string | null
         }
         Insert: {
           content: string
@@ -419,6 +421,8 @@ export type Database = {
           topic?: string | null
           updated_at?: string
           user_id?: string | null
+          video_thumbnail?: string | null
+          video_url?: string | null
         }
         Update: {
           content?: string
@@ -433,6 +437,8 @@ export type Database = {
           topic?: string | null
           updated_at?: string
           user_id?: string | null
+          video_thumbnail?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -1093,6 +1099,67 @@ export type Database = {
           },
         ]
       }
+      message_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_likes_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_polls: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          message_id: string
+          question: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          message_id: string
+          question: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          message_id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_polls_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_reactions: {
         Row: {
           created_at: string
@@ -1450,6 +1517,74 @@ export type Database = {
         }
         Relationships: []
       }
+      poll_options: {
+        Row: {
+          id: string
+          option_text: string
+          poll_id: string
+          votes_count: number | null
+        }
+        Insert: {
+          id?: string
+          option_text: string
+          poll_id: string
+          votes_count?: number | null
+        }
+        Update: {
+          id?: string
+          option_text?: string
+          poll_id?: string
+          votes_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "message_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          option_id: string
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          option_id: string
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          option_id?: string
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "message_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1791,6 +1926,27 @@ export type Database = {
           },
         ]
       }
+      user_follows: {
+        Row: {
+          created_at: string | null
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_mfa: {
         Row: {
           created_at: string
@@ -1814,6 +1970,60 @@ export type Database = {
           id?: string
           secret?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_mfa_recovery_codes: {
+        Row: {
+          code_hash: string
+          created_at: string | null
+          id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string | null
+          id?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string | null
+          id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_notifications: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          read_at: string | null
+          reference_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          reference_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          reference_id?: string | null
+          type?: string
           user_id?: string
         }
         Relationships: []

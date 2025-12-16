@@ -22,21 +22,18 @@ const MFARecoveryPanel = () => {
     
     setLoading(true);
     try {
-      // Generate 10 recovery codes
-      const codes = Array.from({ length: 10 }, () => 
-        Math.random().toString(36).substring(2, 8).toUpperCase()
-      );
+      const { data, error } = await supabase.functions.invoke('generate-recovery-codes', {
+        body: { userId: user.id }
+      });
       
-      // Store recovery codes in secure storage
-      // For now, we'll show them to the user to save manually
-      // In production, implement proper secure storage
+      if (error) throw error;
       
-      setRecoveryCodes(codes);
+      setRecoveryCodes(data.codes);
       setShowRecoveryCodes(true);
       
       toast({
         title: "Recovery codes generated",
-        description: "Please save these codes in a secure location",
+        description: "Save these codes in a secure location. They can only be used once.",
       });
     } catch (error: any) {
       toast({
@@ -61,32 +58,27 @@ const MFARecoveryPanel = () => {
     
     setLoading(true);
     try {
-      // For demo purposes, check against generated codes
-      if (recoveryCodes.includes(recoveryCode.trim().toUpperCase())) {
-        // Disable MFA by calling the disable function
-        const { data, error } = await supabase.functions.invoke('disable-mfa', {
-          body: { userId: user.id }
-        });
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Recovery successful",
-          description: "MFA has been disabled. Please set up new MFA.",
-        });
-        setRecoveryCode('');
-        setRecoveryCodes(codes => codes.filter(c => c !== recoveryCode.trim().toUpperCase()));
-      } else {
-        toast({
-          title: "Invalid recovery code",
-          description: "The recovery code is invalid or has already been used",
-          variant: "destructive",
-        });
-      }
+      const { data, error } = await supabase.functions.invoke('use-recovery-code', {
+        body: { 
+          userId: user.id,
+          recoveryCode: recoveryCode.trim().toUpperCase()
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Recovery successful",
+        description: `MFA has been disabled. ${data.remainingCodes} recovery codes remaining.`,
+      });
+      setRecoveryCode('');
+      
+      // Refresh page to update MFA status
+      window.location.reload();
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to use recovery code",
+        title: "Invalid recovery code",
+        description: error.message || "The recovery code is invalid or has already been used",
         variant: "destructive",
       });
     } finally {

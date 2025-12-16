@@ -8,6 +8,7 @@ import { ArrowLeft, Calendar, User, Facebook, Twitter, Linkedin, Copy, Check, Bo
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import DOMPurify from 'dompurify';
 
 const BlogDetail = () => {
   const { blogId } = useParams();
@@ -238,34 +239,15 @@ const BlogDetail = () => {
                       </div>
                     )}
                     
-                    <div className="prose prose-lg max-w-none">
-                      {/* Parse the content and create sections with IDs for table of contents */}
-                      {blog.content.split('\n\n').map((paragraph, index) => {
-                        if (paragraph.startsWith('## ')) {
-                          return (
-                            <h2 
-                              key={index} 
-                              id={`section-${tableOfContents.findIndex(s => s.title === paragraph.replace(/^## /, '').trim())}`}
-                              className="text-2xl font-bold mt-8 mb-4"
-                            >
-                              {paragraph.replace(/^## /, '')}
-                            </h2>
-                          );
-                        } else if (paragraph.startsWith('### ')) {
-                          return (
-                            <h3 
-                              key={index} 
-                              id={`section-${tableOfContents.findIndex(s => s.title === paragraph.replace(/^### /, '').trim())}`}
-                              className="text-xl font-bold mt-6 mb-3"
-                            >
-                              {paragraph.replace(/^### /, '')}
-                            </h3>
-                          );
-                        } else {
-                          return <p key={index} className="mb-4">{paragraph}</p>;
-                        }
-                      })}
-                    </div>
+                    <div 
+                      className="prose prose-lg max-w-none"
+                      dangerouslySetInnerHTML={{ 
+                        __html: DOMPurify.sanitize(blog.content, {
+                          ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'pre'],
+                          ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'id']
+                        }) 
+                      }}
+                    />
                   </div>
                 </article>
                 
