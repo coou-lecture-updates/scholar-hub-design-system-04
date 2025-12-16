@@ -294,7 +294,7 @@ const AdManagement = () => {
 
         {/* Ads Table */}
         <Card className="bg-card border-0 shadow-sm">
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
