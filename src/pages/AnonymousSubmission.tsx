@@ -124,6 +124,8 @@ const AnonymousSubmission = () => {
         .insert({
           page_id: pageDetails.id,
           content: message,
+          // Ensure visibility under RLS: expired_at > now()
+          expires_at: pageDetails.expires_at || new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
         });
 
       if (error) throw error;
