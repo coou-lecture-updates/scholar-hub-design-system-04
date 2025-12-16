@@ -275,9 +275,9 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Security Setup Panel - Critical for Admin Security */}
+        {/* Security Setup Panel - Critical for Admin Security - Mobile Responsive */}
         {userRole === 'admin' && (
-          <div className="mt-6">
+          <div className="mt-6 w-full">
             <SecuritySetupPanel />
           </div>
         )}

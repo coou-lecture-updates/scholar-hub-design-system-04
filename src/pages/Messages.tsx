@@ -19,7 +19,7 @@ import { AdCreationDialog } from '@/components/messages/AdCreationDialog';
 import { ActiveUsersRow } from '@/components/messages/ActiveUsersRow';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Plus, Users, MessageCircle, Sparkles, Bookmark } from 'lucide-react';
 
 const Messages = () => {
@@ -382,9 +382,12 @@ const Messages = () => {
     return msgDate.toDateString() === today.toDateString();
   }).length;
 
+  // Sidebar visibility state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-5xl md:mx-auto">
+      <div className="flex flex-col h-[calc(100vh-4rem)] w-full md:max-w-7xl md:mx-auto">
         {/* Enhanced Header */}
         <div className="flex-none bg-gradient-to-b from-card to-background border-b border-border/50 sticky top-0 z-40">
           <div className="px-4 md:px-6 pt-4 pb-3">
@@ -400,6 +403,15 @@ const Messages = () => {
                 </div>
               </div>
               <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="gap-1.5"
+                >
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">{sidebarOpen ? 'Hide' : 'Show'} Info</span>
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -434,43 +446,10 @@ const Messages = () => {
               </div>
             </div>
 
-            {/* Quick Stats */}
-            <div className="flex items-center gap-4 mb-3 text-sm">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <MessageCircle className="h-4 w-4" />
-                <span className="font-medium text-foreground">{totalMessages}</span>
-                <span>posts</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="font-medium text-foreground">{todayMessages}</span>
-                <span>today</span>
-              </div>
-              {unreadCount > 0 && (
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  {unreadCount} new
-                </Badge>
-              )}
-            </div>
-
-            {/* Active Users */}
-            <ActiveUsersRow />
-
             {/* Pinned Announcements */}
             {pinnedMessages.length > 0 && (
               <div className="mb-3">
                 <AnnouncementBanner announcements={pinnedMessages} />
-              </div>
-            )}
-
-            {/* Trending Topics */}
-            {trendingTopics.length > 0 && (
-              <div className="mb-3">
-                <TrendingTopics
-                  topics={trendingTopics}
-                  selectedTopic={selectedTopic}
-                  onTopicSelect={setSelectedTopic}
-                />
               </div>
             )}
 
@@ -506,46 +485,109 @@ const Messages = () => {
           </div>
         </div>
 
-        {/* Messages Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 pb-28 md:pb-32">
-          <div className="space-y-3">
-            {regularMessages.map((message, index) => (
-              <div key={message.id} className="space-y-3">
-                <MessageList
-                  messages={[message]}
-                  loading={false}
-                  currentUserId={user?.id}
-                  currentUserRoles={userRoles}
-                  onReply={setReplyingTo}
-                  onReact={handleReact}
-                  onDelete={handleDelete}
-                  onPin={handlePin}
-                  onBookmark={toggleBookmark}
-                  isBookmarked={isBookmarked}
-                />
+        {/* Main Content Area with Sidebar */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Messages List */}
+          <div className="flex-1 overflow-y-auto px-4 md:px-6 pt-4 pb-28 md:pb-32">
+            <div className="space-y-3">
+              {regularMessages.map((message, index) => (
+                <div key={message.id} className="space-y-3">
+                  <MessageList
+                    messages={[message]}
+                    loading={false}
+                    currentUserId={user?.id}
+                    currentUserRoles={userRoles}
+                    onReply={setReplyingTo}
+                    onReact={handleReact}
+                    onDelete={handleDelete}
+                    onPin={handlePin}
+                    onBookmark={toggleBookmark}
+                    isBookmarked={isBookmarked}
+                  />
 
-                {/* Inject native ad every 5 messages */}
-                {(index + 1) % 5 === 0 && nativeAds[Math.floor(index / 5)] && (
-                  <NativeAdCard ad={nativeAds[Math.floor(index / 5)]} />
+                  {/* Inject native ad every 5 messages */}
+                  {(index + 1) % 5 === 0 && nativeAds[Math.floor(index / 5)] && (
+                    <NativeAdCard ad={nativeAds[Math.floor(index / 5)]} />
+                  )}
+                </div>
+              ))}
+              
+              {loading && (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3" />
+                  <p className="text-sm">Loading messages...</p>
+                </div>
+              )}
+
+              {!loading && regularMessages.length === 0 && (
+                <Card className="p-8 text-center border-dashed">
+                  <MessageCircle className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                  <h3 className="font-medium mb-1">No messages yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Be the first to start a conversation!</p>
+                </Card>
+              )}
+            </div>
+          </div>
+
+          {/* Collapsible Info Sidebar */}
+          {sidebarOpen && (
+            <div className="hidden md:block w-80 border-l border-border overflow-y-auto bg-background">
+              <div className="p-4 space-y-4 sticky top-0">
+                {/* Quick Stats */}
+                <Card className="bg-card border-0 shadow-sm">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium text-foreground">{totalMessages}</span>
+                      <span className="text-muted-foreground">posts</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <span className="font-medium text-foreground">{todayMessages}</span>
+                      <span className="text-muted-foreground">today</span>
+                    </div>
+                    {unreadCount > 0 && (
+                      <Badge variant="secondary" className="bg-primary/10 text-primary w-full justify-center">
+                        {unreadCount} new messages
+                      </Badge>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Active Users */}
+                <Card className="bg-card border-0 shadow-sm">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Active This Week
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <ActiveUsersRow />
+                  </CardContent>
+                </Card>
+
+                {/* Trending Topics */}
+                {trendingTopics.length > 0 && (
+                  <Card className="bg-card border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4" />
+                        Trending Topics
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0">
+                      <TrendingTopics
+                        topics={trendingTopics}
+                        selectedTopic={selectedTopic}
+                        onTopicSelect={setSelectedTopic}
+                      />
+                    </CardContent>
+                  </Card>
                 )}
               </div>
-            ))}
-            
-            {loading && (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3" />
-                <p className="text-sm">Loading messages...</p>
-              </div>
-            )}
-
-            {!loading && regularMessages.length === 0 && (
-              <Card className="p-8 text-center border-dashed">
-                <MessageCircle className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
-                <h3 className="font-medium mb-1">No messages yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">Be the first to start a conversation!</p>
-              </Card>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Fixed Message Input */}
