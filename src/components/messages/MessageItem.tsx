@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MessageSquare, Heart, ThumbsUp, Laugh, Frown, Brain, Flame, Pin, Trash2, MoreVertical, Image as ImageIcon, Bookmark } from 'lucide-react';
+import { MessageSquare, Heart, ThumbsUp, Laugh, Frown, Brain, Flame, Pin, Trash2, MoreVertical, Image as ImageIcon, Bookmark, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import {
   DropdownMenu,
@@ -224,18 +224,27 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
           <p className="text-sm leading-relaxed whitespace-pre-wrap break-words mb-2">{message.content}</p>
 
-          {/* Image Display */}
+          {/* Image Display - Collapsible */}
           {message.image_url && (
             <div className="mb-3">
-              <img
-                src={message.image_url}
-                alt="Message attachment"
-                className={cn(
-                  "rounded-lg cursor-pointer transition-all border border-border/50",
-                  imageExpanded ? "max-w-full" : "max-w-xs max-h-48 object-cover hover:opacity-90"
-                )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-2"
                 onClick={() => setImageExpanded(!imageExpanded)}
-              />
+              >
+                <ImageIcon className="h-3.5 w-3.5" />
+                {imageExpanded ? 'Hide Image' : 'Show Image'}
+                {imageExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              </Button>
+              {imageExpanded && (
+                <img
+                  src={message.image_url}
+                  alt="Message attachment"
+                  className="rounded-lg cursor-pointer transition-all border border-border/50 max-w-full hover:opacity-90"
+                  onClick={() => window.open(message.image_url!, '_blank')}
+                />
+              )}
             </div>
           )}
 
