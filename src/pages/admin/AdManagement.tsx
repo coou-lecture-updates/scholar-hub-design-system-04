@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAdminAccess } from '@/hooks/useAdminAccess';
 
 interface MessageAd {
   id: string;
@@ -68,7 +66,6 @@ const AdManagement = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { hasAccess, loading: accessLoading } = useAdminAccess('admin');
 
   // Fetch all ads
   const { data: ads, isLoading } = useQuery({
@@ -190,36 +187,6 @@ const AdManagement = () => {
     if (!expiresAt) return false;
     return new Date(expiresAt) < new Date();
   };
-
-  if (accessLoading) {
-    return (
-      <DashboardLayout role="admin">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Checking admin access...</span>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (!hasAccess) {
-    return (
-      <DashboardLayout role="admin">
-        <div className="container mx-auto px-4 py-6 max-w-xl">
-          <Alert>
-            <AlertDescription>
-              You must be an admin to view this page.
-            </AlertDescription>
-          </Alert>
-          <div className="mt-4 flex justify-end">
-            <Button asChild>
-              <Link to="/admin/dashboard">Go back to Admin Dashboard</Link>
-            </Button>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   if (isLoading) {
     return (
