@@ -419,35 +419,35 @@ const TransactionManagement = () => {
 
           <TabsContent value="payments" className="space-y-6 mt-6">
             {/* Payment Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
               <Card className="bg-card border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Total Payments</div>
-                  <div className="text-2xl font-bold text-foreground">{paymentStats.total}</div>
+                <CardContent className="p-3 md:p-4">
+                  <div className="text-xs md:text-sm text-muted-foreground">Total Payments</div>
+                  <div className="text-xl md:text-2xl font-bold text-foreground">{paymentStats.total}</div>
                 </CardContent>
               </Card>
               <Card className="bg-card border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Successful</div>
-                  <div className="text-2xl font-bold text-green-600">{paymentStats.successful}</div>
+                <CardContent className="p-3 md:p-4">
+                  <div className="text-xs md:text-sm text-muted-foreground">Successful</div>
+                  <div className="text-xl md:text-2xl font-bold text-green-600">{paymentStats.successful}</div>
                 </CardContent>
               </Card>
               <Card className="bg-card border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Pending</div>
-                  <div className="text-2xl font-bold text-yellow-600">{paymentStats.pending}</div>
+                <CardContent className="p-3 md:p-4">
+                  <div className="text-xs md:text-sm text-muted-foreground">Pending</div>
+                  <div className="text-xl md:text-2xl font-bold text-yellow-600">{paymentStats.pending}</div>
                 </CardContent>
               </Card>
               <Card className="bg-card border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Failed</div>
-                  <div className="text-2xl font-bold text-destructive">{paymentStats.failed}</div>
+                <CardContent className="p-3 md:p-4">
+                  <div className="text-xs md:text-sm text-muted-foreground">Failed</div>
+                  <div className="text-xl md:text-2xl font-bold text-destructive">{paymentStats.failed}</div>
                 </CardContent>
               </Card>
               <Card className="bg-card border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Total Revenue</div>
-                  <div className="text-2xl font-bold text-primary">₦{paymentStats.totalAmount.toLocaleString()}</div>
+                <CardContent className="p-3 md:p-4">
+                  <div className="text-xs md:text-sm text-muted-foreground">Total Revenue</div>
+                  <div className="text-xl md:text-2xl font-bold text-primary">₦{paymentStats.totalAmount.toLocaleString()}</div>
                 </CardContent>
               </Card>
             </div>
@@ -552,29 +552,29 @@ const TransactionManagement = () => {
 
           <TabsContent value="wallet" className="space-y-6 mt-6">
             {/* Wallet Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
               <Card className="bg-card border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CardContent className="p-3 md:p-4">
+                  <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
                     <ArrowDownRight className="h-4 w-4 text-green-600" />
                     Total Credits
                   </div>
-                  <div className="text-2xl font-bold text-green-600">₦{walletStats.totalCredits.toLocaleString()}</div>
+                  <div className="text-xl md:text-2xl font-bold text-green-600">₦{walletStats.totalCredits.toLocaleString()}</div>
                 </CardContent>
               </Card>
               <Card className="bg-card border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CardContent className="p-3 md:p-4">
+                  <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
                     <ArrowUpRight className="h-4 w-4 text-destructive" />
                     Total Debits
                   </div>
-                  <div className="text-2xl font-bold text-destructive">₦{walletStats.totalDebits.toLocaleString()}</div>
+                  <div className="text-xl md:text-2xl font-bold text-destructive">₦{walletStats.totalDebits.toLocaleString()}</div>
                 </CardContent>
               </Card>
               <Card className="bg-card border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Total Transactions</div>
-                  <div className="text-2xl font-bold text-foreground">{walletStats.totalTransactions}</div>
+                <CardContent className="p-3 md:p-4">
+                  <div className="text-xs md:text-sm text-muted-foreground">Total Transactions</div>
+                  <div className="text-xl md:text-2xl font-bold text-foreground">{walletStats.totalTransactions}</div>
                 </CardContent>
               </Card>
             </div>
