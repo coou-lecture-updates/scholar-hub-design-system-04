@@ -38,6 +38,7 @@ const Wallet = React.lazy(() => import('@/pages/Wallet'));
 const FundWallet = React.lazy(() => import('@/pages/FundWallet'));
 const TicketRecovery = React.lazy(() => import('@/pages/TicketRecovery'));
 const UserProfile = React.lazy(() => import('@/pages/UserProfile'));
+const SavedMessages = React.lazy(() => import('@/pages/SavedMessages'));
 
 // Admin Pages
 
@@ -109,6 +110,7 @@ const AppRoutes = () => {
               <Route path="/resources" element={<Resources />} />
               <Route path="/lost-and-found" element={<LostAndFound />} />
               <Route path="/messages" element={<Messages />} />
+              <Route path="/saved-messages" element={<SavedMessages />} />
               <Route path="/resume-builder" element={<ResumeBuilder />} />
               <Route path="/tools" element={<Tools />} />
               <Route path="/user-settings" element={<UserSettings />} />

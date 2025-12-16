@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/contexts/auth/useAuth';
@@ -19,9 +20,10 @@ import { ActiveUsersRow } from '@/components/messages/ActiveUsersRow';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { TrendingUp, Plus, Users, MessageCircle, Sparkles } from 'lucide-react';
+import { TrendingUp, Plus, Users, MessageCircle, Sparkles, Bookmark } from 'lucide-react';
 
 const Messages = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const { bookmarkedIds, toggleBookmark, isBookmarked } = useBookmarks();
@@ -398,6 +400,19 @@ const Messages = () => {
                 </div>
               </div>
               <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/saved-messages')}
+                  className="gap-1.5"
+                >
+                  <Bookmark className="h-4 w-4" />
+                  {bookmarkedIds.size > 0 && (
+                    <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                      {bookmarkedIds.size}
+                    </Badge>
+                  )}
+                </Button>
                 <Button
                   variant="default"
                   size="sm"
