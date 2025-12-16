@@ -58,10 +58,10 @@ const AlertManagement = React.lazy(() => import('@/pages/admin/AlertManagement')
 const SystemSettings = React.lazy(() => import('@/pages/admin/SystemSettings'));
 const Analytics = React.lazy(() => import('@/pages/admin/Analytics'));
 const AdminMessages = React.lazy(() => import('@/pages/admin/Messages'));
-
-// Add new lazy loading for missing admin pages
 const SystemReports = React.lazy(() => import('@/pages/admin/SystemReports'));
 const ModeratorDashboard = React.lazy(() => import('@/pages/admin/ModeratorDashboard'));
+const AdManagement = React.lazy(() => import('@/pages/admin/AdManagement'));
+const TransactionManagement = React.lazy(() => import('@/pages/admin/TransactionManagement'));
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center h-64">
@@ -125,7 +125,6 @@ const AppRoutes = () => {
           <Route path="/user/:userId" element={<UserProfile />} />
 
           {/* Admin Routes */}
-          
           <Route path="/admin-recovery" element={<AdminRecovery />} />
           {/* Route: /admin should always redirect to system dashboard if hit */}
           <Route path="/admin" element={<AdminDashboard />} />
@@ -146,6 +145,8 @@ const AppRoutes = () => {
           <Route path="/admin/settings/*" element={<SystemSettings />} />
           <Route path="/admin/reports" element={<SystemReports />} />
           <Route path="/admin/moderator" element={<ModeratorDashboard />} />
+          <Route path="/admin/ads" element={<AdManagement />} />
+          <Route path="/admin/transactions" element={<TransactionManagement />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
