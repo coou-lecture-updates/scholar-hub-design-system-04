@@ -41,33 +41,47 @@ const Events = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      // Fetch events and check if they have associated tickets
+      // Optimized query: Fetch events with ticket existence check in a single query
       const { data: eventsData, error: eventsError } = await supabase
         .from('events')
-        .select('id,title,description,location,event_date,event_type,image_url,gallery,price,slug,published')
+        .select(`
+          id,
+          title,
+          description,
+          location,
+          event_date,
+          event_type,
+          image_url,
+          gallery,
+          price,
+          slug,
+          published,
+          tickets!left(id)
+        `)
         .eq('published', true)
         .gte('event_date', new Date().toISOString())
         .order('event_date', { ascending: true });
 
       if (eventsError) throw eventsError;
 
-      // Check which events have tickets (ticket_id exists)
-      const { data: ticketsData, error: ticketsError } = await supabase
-        .from('tickets')
-        .select('event_id')
-        .not('event_id', 'is', null);
-
-      if (ticketsError) console.warn('Error fetching tickets:', ticketsError);
-
-      const eventIdsWithTickets = new Set(ticketsData?.map(t => t.event_id) || []);
-
-      const mapped = (eventsData || []).map((ev: any) => ({
-        ...ev,
-        gallery: Array.isArray(ev.gallery) ? ev.gallery : [],
-        slug: typeof ev.slug === "string" ? ev.slug : undefined,
-        has_tickets: eventIdsWithTickets.has(ev.id),
-        type: eventIdsWithTickets.has(ev.id) ? "paid" : "scheduled"
-      })) as Event[];
+      // Map events with ticket information
+      const mapped = (eventsData || []).map((ev: any) => {
+        const hasTickets = ev.tickets && ev.tickets.length > 0;
+        return {
+          id: ev.id,
+          title: ev.title,
+          description: ev.description,
+          location: ev.location,
+          event_date: ev.event_date,
+          event_type: ev.event_type,
+          image_url: ev.image_url,
+          gallery: Array.isArray(ev.gallery) ? ev.gallery : [],
+          price: ev.price,
+          slug: typeof ev.slug === "string" ? ev.slug : undefined,
+          has_tickets: hasTickets,
+          type: hasTickets ? "paid" : "scheduled"
+        };
+      }) as Event[];
 
       setEvents(mapped);
     } catch (error: any) {

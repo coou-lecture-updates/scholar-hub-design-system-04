@@ -191,39 +191,39 @@ const AdManagement = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
           <Card className="bg-card border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">Total Ads</div>
-              <div className="text-2xl font-bold text-foreground">{stats.totalAds}</div>
+            <CardContent className="p-3 md:p-4">
+              <div className="text-xs md:text-sm text-muted-foreground">Total Ads</div>
+              <div className="text-xl md:text-2xl font-bold text-foreground">{stats.totalAds}</div>
             </CardContent>
           </Card>
           <Card className="bg-card border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">Active Ads</div>
-              <div className="text-2xl font-bold text-green-600">{stats.activeAds}</div>
+            <CardContent className="p-3 md:p-4">
+              <div className="text-xs md:text-sm text-muted-foreground">Active Ads</div>
+              <div className="text-xl md:text-2xl font-bold text-green-600">{stats.activeAds}</div>
             </CardContent>
           </Card>
           <Card className="bg-card border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">Total Revenue</div>
-              <div className="text-2xl font-bold text-primary">₦{stats.totalRevenue.toLocaleString()}</div>
+            <CardContent className="p-3 md:p-4">
+              <div className="text-xs md:text-sm text-muted-foreground">Total Revenue</div>
+              <div className="text-xl md:text-2xl font-bold text-primary">₦{stats.totalRevenue.toLocaleString()}</div>
             </CardContent>
           </Card>
           <Card className="bg-card border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground flex items-center gap-1">
+            <CardContent className="p-3 md:p-4">
+              <div className="text-xs md:text-sm text-muted-foreground flex items-center gap-1">
                 <Eye className="h-3 w-3" /> Impressions
               </div>
-              <div className="text-2xl font-bold text-foreground">{stats.totalImpressions.toLocaleString()}</div>
+              <div className="text-xl md:text-2xl font-bold text-foreground">{stats.totalImpressions.toLocaleString()}</div>
             </CardContent>
           </Card>
           <Card className="bg-card border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground flex items-center gap-1">
+            <CardContent className="p-3 md:p-4">
+              <div className="text-xs md:text-sm text-muted-foreground flex items-center gap-1">
                 <MousePointer className="h-3 w-3" /> Clicks
               </div>
-              <div className="text-2xl font-bold text-foreground">{stats.totalClicks.toLocaleString()}</div>
+              <div className="text-xl md:text-2xl font-bold text-foreground">{stats.totalClicks.toLocaleString()}</div>
             </CardContent>
           </Card>
         </div>
@@ -293,21 +293,22 @@ const AdManagement = () => {
         </Card>
 
         {/* Ads Table */}
-        <Card className="bg-card border-0 shadow-sm">
-          <CardContent className="p-0 overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Ad</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Cost</TableHead>
-                  <TableHead>Stats</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Expires</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+        <Card className="bg-card border-0 shadow-sm overflow-hidden">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[200px]">Ad</TableHead>
+                    <TableHead className="min-w-[100px]">Type</TableHead>
+                    <TableHead className="min-w-[100px]">Cost</TableHead>
+                    <TableHead className="min-w-[100px]">Stats</TableHead>
+                    <TableHead className="min-w-[100px]">Status</TableHead>
+                    <TableHead className="min-w-[120px]">Expires</TableHead>
+                    <TableHead className="min-w-[140px] text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                 {filteredAds?.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
@@ -364,8 +365,8 @@ const AdManagement = () => {
                         <TableCell className="text-sm text-muted-foreground">
                           {ad.expires_at ? format(new Date(ad.expires_at), 'MMM d, yyyy') : 'Never'}
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
                             <Switch
                               checked={ad.is_active ?? false}
                               onCheckedChange={(checked) => toggleAdMutation.mutate({ id: ad.id, is_active: checked })}
@@ -373,22 +374,22 @@ const AdManagement = () => {
                             />
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent>
+                              <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Ad</AlertDialogTitle>
                                   <AlertDialogDescription>
                                     Are you sure you want to delete this ad? This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                                  <AlertDialogCancel className="m-0">Cancel</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => deleteAdMutation.mutate(ad.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 m-0"
                                   >
                                     Delete
                                   </AlertDialogAction>
@@ -403,6 +404,7 @@ const AdManagement = () => {
                 )}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       </div>
