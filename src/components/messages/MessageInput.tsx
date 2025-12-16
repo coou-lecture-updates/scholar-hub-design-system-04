@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Send, Image, Smile, Hash, ChevronDown, ChevronUp, X, TrendingUp } from 'lucide-react';
+import { Send, Image, Smile, Hash, ChevronDown, ChevronUp, X, TrendingUp, Video } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
@@ -12,9 +12,10 @@ import {
 } from '@/components/ui/popover';
 import { ImageUploadDialog } from './ImageUploadDialog';
 import { AdCreationDialog } from './AdCreationDialog';
+import { VideoUpload } from './VideoUpload';
 
 interface MessageInputProps {
-  onSend: (content: string, isAnonymous: boolean, topic?: string, parentId?: string, imageUrl?: string) => void;
+  onSend: (content: string, isAnonymous: boolean, topic?: string, parentId?: string, imageUrl?: string, videoUrl?: string) => void;
   parentId?: string;
   placeholder?: string;
 }
@@ -38,7 +39,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   const [topic, setTopic] = useState<string>('');
   const [showTopic, setShowTopic] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showAdDialog, setShowAdDialog] = useState(false);
   const [emojiCategory, setEmojiCategory] = useState<keyof typeof EMOJI_CATEGORIES>('smileys');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -48,10 +51,11 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
   const handleSend = () => {
     if (content.trim()) {
-      onSend(content, isAnonymous, topic || undefined, parentId, imageUrl || undefined);
+      onSend(content, isAnonymous, topic || undefined, parentId, imageUrl || undefined, videoUrl || undefined);
       setContent('');
       setTopic('');
       setImageUrl('');
+      setVideoUrl('');
     }
   };
 
@@ -110,6 +114,20 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             </Button>
           </div>
         )}
+        
+        {videoUrl && (
+          <div className="relative p-2 border-b border-border/30">
+            <video src={videoUrl} controls className="max-h-48 rounded-lg" />
+            <Button
+              variant="destructive"
+              size="icon"
+              className="absolute top-3 right-3 h-6 w-6"
+              onClick={() => setVideoUrl('')}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
 
         <div className="relative">
           <Textarea
@@ -127,8 +145,18 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               size="icon"
               className="h-7 w-7 hover:bg-accent/50"
               onClick={() => setShowImageUpload(true)}
+              title="Add image"
             >
               <Image className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 hover:bg-accent/50"
+              onClick={() => setShowVideoUpload(true)}
+              title="Add video (30s max)"
+            >
+              <Video className="h-4 w-4" />
             </Button>
             <Popover>
               <PopoverTrigger asChild>
@@ -232,6 +260,12 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         open={showImageUpload}
         onClose={() => setShowImageUpload(false)}
         onImageSelected={setImageUrl}
+      />
+      
+      <VideoUpload
+        open={showVideoUpload}
+        onClose={() => setShowVideoUpload(false)}
+        onVideoUploaded={setVideoUrl}
       />
       
       <AdCreationDialog
