@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { Copy, Share2, Clock, CheckCircle, QrCode, AlertCircle, RefreshCw } from
 import QRCode from "qrcode";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { toPng } from "html-to-image";
 
 const AnonymousMessage = () => {
   const [activeTab, setActiveTab] = useState("create");
@@ -28,6 +29,7 @@ const AnonymousMessage = () => {
   const [showCreated, setShowCreated] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+  const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const generateRandomToken = () => {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -232,6 +234,45 @@ const AnonymousMessage = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const handleShareMessageCard = async (messageId: string) => {
+    const node = messageRefs.current[messageId];
+    if (!node) return;
+
+    try {
+      const dataUrl = await toPng(node, { quality: 1, cacheBust: true });
+      const fileName = `anonymous-message-${messageId}.png`;
+
+      // Try Web Share with files (if supported)
+      if (navigator.canShare && navigator.canShare()) {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], fileName, { type: "image/png" });
+
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "Anonymous message",
+            text: "Shared from my anonymous inbox on CoouConnect Online",
+          });
+          return;
+        }
+      }
+
+      // Fallback: trigger download
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = fileName;
+      link.click();
+    } catch (error) {
+      console.error("Error sharing message card:", error);
+      toast({
+        title: "Share failed",
+        description: "Unable to capture message. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -515,14 +556,33 @@ const AnonymousMessage = () => {
                       </div>
                       <div className="space-y-3 max-h-96 overflow-y-auto">
                         {messages.map((message) => (
-                          <div key={message.id} className="p-4 bg-card border rounded-lg">
+                          <div
+                            key={message.id}
+                            ref={(el) => {
+                              messageRefs.current[message.id] = el;
+                            }}
+                            className="p-4 bg-card border rounded-lg relative"
+                          >
                             <div className="flex justify-between items-start mb-2">
                               <span className="font-medium text-primary">Anonymous</span>
-                              <span className="text-xs text-muted-foreground">
-                                {formatDate(message.created_at)}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">
+                                  {formatDate(message.created_at)}
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => handleShareMessageCard(message.id)}
+                                  title="Share as image"
+                                >
+                                  <Share2 className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
-                            <p className="text-foreground whitespace-pre-wrap">{message.content}</p>
+                            <p className="text-foreground whitespace-pre-wrap">
+                              {message.content}
+                            </p>
                           </div>
                         ))}
                       </div>
