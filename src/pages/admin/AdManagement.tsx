@@ -184,10 +184,10 @@ const AdManagement = () => {
 
   return (
     <DashboardLayout role="admin">
-      <div className="container mx-auto px-2 md:px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         <div>
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-2">Ad Management</h1>
-          <p className="text-sm md:text-base text-muted-foreground">Manage user advertisements and settings</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Ad Management</h1>
+          <p className="text-muted-foreground">Manage user advertisements and settings</p>
         </div>
 
         {/* Stats Cards */}
@@ -293,21 +293,20 @@ const AdManagement = () => {
         </Card>
 
         {/* Ads Table */}
-        <Card className="bg-card border-0 shadow-sm overflow-hidden">
+        <Card className="bg-card border-0 shadow-sm">
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[150px]">Ad</TableHead>
-                    <TableHead className="min-w-[80px]">Type</TableHead>
-                    <TableHead className="min-w-[80px]">Cost</TableHead>
-                    <TableHead className="min-w-[80px]">Stats</TableHead>
-                    <TableHead className="min-w-[80px]">Status</TableHead>
-                    <TableHead className="min-w-[90px]">Expires</TableHead>
-                    <TableHead className="min-w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Ad</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Cost</TableHead>
+                  <TableHead>Stats</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Expires</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {filteredAds?.length === 0 ? (
                   <TableRow>
@@ -403,8 +402,7 @@ const AdManagement = () => {
                   })
                 )}
               </TableBody>
-              </Table>
-            </div>
+            </Table>
           </CardContent>
         </Card>
       </div>

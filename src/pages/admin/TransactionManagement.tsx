@@ -367,11 +367,11 @@ const TransactionManagement = () => {
 
   return (
     <DashboardLayout role="admin">
-      <div className="container mx-auto px-2 md:px-4 py-4 md:py-6 space-y-4 md:space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-1 md:mb-2">Transaction Management</h1>
-            <p className="text-sm md:text-base text-muted-foreground">View and manage all payments and wallet transactions</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Transaction Management</h1>
+            <p className="text-muted-foreground">View and manage all payments and wallet transactions</p>
           </div>
         </div>
 
