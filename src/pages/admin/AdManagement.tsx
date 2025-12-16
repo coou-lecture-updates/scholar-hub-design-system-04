@@ -53,6 +53,12 @@ interface MessageAd {
   created_at: string | null;
 }
 
+interface ProfileSummary {
+  id: string;
+  full_name: string;
+  email: string;
+}
+
 const AdManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -86,6 +92,18 @@ const AdManagement = () => {
       
       if (error) throw error;
       return data;
+    }
+  });
+
+  // Fetch basic user profile info for ad owners
+  const { data: profiles } = useQuery({
+    queryKey: ['admin-ad-profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, email');
+      if (error) throw error;
+      return (data || []) as ProfileSummary[];
     }
   });
 
@@ -302,6 +320,7 @@ const AdManagement = () => {
                     <TableHead className="min-w-[200px]">Ad</TableHead>
                     <TableHead className="min-w-[100px]">Type</TableHead>
                     <TableHead className="min-w-[100px]">Cost</TableHead>
+                    <TableHead className="min-w-[140px]">Owner</TableHead>
                     <TableHead className="min-w-[100px]">Stats</TableHead>
                     <TableHead className="min-w-[100px]">Status</TableHead>
                     <TableHead className="min-w-[120px]">Expires</TableHead>
@@ -340,6 +359,18 @@ const AdManagement = () => {
                         </TableCell>
                         <TableCell className="font-medium">
                           ₦{ad.cost.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          {(() => {
+                            const owner = profiles?.find((p) => p.id === ad.user_id);
+                            if (!owner) return <span className="text-xs text-muted-foreground">Unknown</span>;
+                            return (
+                              <div className="text-xs">
+                                <div className="font-medium text-foreground truncate">{owner.full_name}</div>
+                                <div className="text-muted-foreground truncate">{owner.email}</div>
+                              </div>
+                            );
+                          })()}
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
