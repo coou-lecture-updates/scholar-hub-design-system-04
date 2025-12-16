@@ -7,6 +7,8 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { CreditCard, Shield, AlertTriangle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface PaymentGatewaySettingsProps {
   getSetting: (key: string) => string;
@@ -61,26 +63,72 @@ const PaymentGatewaySettings: React.FC<PaymentGatewaySettingsProps> = ({
     setStripeSecretKey(getSetting('stripe_secret_key'));
   }, [getSetting]);
 
-  const handleSaveAll = () => {
-    // Save Paystack settings
-    onUpdate('paystack_enabled', paystackEnabled.toString());
-    onUpdate('paystack_public_key', paystackPublicKey);
-    onUpdate('paystack_secret_key', paystackSecretKey);
-    
-    // Save Flutterwave settings
-    onUpdate('flutterwave_enabled', flutterwaveEnabled.toString());
-    onUpdate('flutterwave_public_key', flutterwavePublicKey);
-    onUpdate('flutterwave_secret_key', flutterwaveSecretKey);
-    
-    // Save Korapay settings
-    onUpdate('korapay_enabled', korapayEnabled.toString());
-    onUpdate('korapay_public_key', korapayPublicKey);
-    onUpdate('korapay_secret_key', korapaySecretKey);
-    
-    // Save Stripe settings
-    onUpdate('stripe_enabled', stripeEnabled.toString());
-    onUpdate('stripe_public_key', stripePublicKey);
-    onUpdate('stripe_secret_key', stripeSecretKey);
+  const handleSaveAll = async () => {
+    const { toast } = useToast();
+
+    try {
+      // Save enabled flags to system_settings (for simple toggles)
+      onUpdate('paystack_enabled', paystackEnabled.toString());
+      onUpdate('flutterwave_enabled', flutterwaveEnabled.toString());
+      onUpdate('korapay_enabled', korapayEnabled.toString());
+      onUpdate('stripe_enabled', stripeEnabled.toString());
+
+      // Upsert credentials into secure payment_gateways table (live mode)
+      const upserts: any[] = [];
+
+      if (paystackPublicKey || paystackSecretKey) {
+        upserts.push({
+          provider: 'Paystack',
+          mode: 'live',
+          enabled: paystackEnabled,
+          public_key: paystackPublicKey,
+          secret_key: paystackSecretKey,
+          webhook_url: `${window.location.origin}/api/payments/paystack/callback`,
+        });
+      }
+
+      if (flutterwavePublicKey || flutterwaveSecretKey) {
+        upserts.push({
+          provider: 'Flutterwave',
+          mode: 'live',
+          enabled: flutterwaveEnabled,
+          public_key: flutterwavePublicKey,
+          secret_key: flutterwaveSecretKey,
+          webhook_url: `${window.location.origin}/api/payments/flutterwave/callback`,
+        });
+      }
+
+      if (korapayPublicKey || korapaySecretKey) {
+        upserts.push({
+          provider: 'Korapay',
+          mode: 'live',
+          enabled: korapayEnabled,
+          public_key: korapayPublicKey,
+          secret_key: korapaySecretKey,
+          webhook_url: `${window.location.origin}/api/payments/korapay/callback`,
+        });
+      }
+
+      if (upserts.length > 0) {
+        const { error } = await supabase
+          .from('payment_gateways')
+          .upsert(upserts, { onConflict: 'provider,mode' });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: 'Payment gateways updated',
+        description: 'Your payment provider keys have been saved securely.',
+      });
+    } catch (error: any) {
+      console.error('Error saving payment gateways:', error);
+      toast({
+        title: 'Failed to save gateway settings',
+        description: error.message || 'Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
