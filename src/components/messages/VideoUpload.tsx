@@ -4,13 +4,21 @@ import { Video, X, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface VideoUploadProps {
+  open: boolean;
+  onClose: () => void;
   onVideoUploaded: (videoUrl: string, thumbnailUrl?: string) => void;
-  onCancel: () => void;
 }
 
-export const VideoUpload = ({ onVideoUploaded, onCancel }: VideoUploadProps) => {
+export const VideoUpload = ({ open, onClose, onVideoUploaded }: VideoUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
@@ -68,17 +76,18 @@ export const VideoUpload = ({ onVideoUploaded, onCancel }: VideoUploadProps) => 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file type
-    const validTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
-    if (!validTypes.includes(file.type)) {
+    // Validate format
+    const validFormats = ['video/mp4', 'video/webm', 'video/quicktime'];
+    if (!validFormats.includes(file.type)) {
       toast({
-        title: "Invalid file type",
-        description: "Please upload MP4, WebM, or MOV videos only",
+        title: "Invalid format",
+        description: "Please select MP4, WebM, or MOV format",
         variant: "destructive",
       });
       return;
     }
 
+    // Validate duration and size
     const isValid = await validateVideo(file);
     if (!isValid) return;
 
@@ -121,6 +130,10 @@ export const VideoUpload = ({ onVideoUploaded, onCancel }: VideoUploadProps) => 
         title: "Success",
         description: "Video uploaded successfully",
       });
+
+      // Reset and close
+      handleReset();
+      onClose();
     } catch (error: any) {
       console.error('Video upload error:', error);
       toast({
@@ -133,81 +146,101 @@ export const VideoUpload = ({ onVideoUploaded, onCancel }: VideoUploadProps) => 
     }
   };
 
+  const handleReset = () => {
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+    }
+    setVideoPreview(null);
+    setSelectedFile(null);
+    setProgress(0);
+  };
+
+  const handleClose = () => {
+    handleReset();
+    onClose();
+  };
+
   return (
-    <div className="border-2 border-dashed border-border rounded-lg p-4 space-y-4">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="video/mp4,video/webm,video/quicktime"
-        onChange={handleFileSelect}
-        className="hidden"
-      />
-
-      {!videoPreview ? (
-        <div className="text-center py-8">
-          <Video className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-sm text-muted-foreground mb-4">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Upload Video</DialogTitle>
+          <DialogDescription>
             Upload a video (max 30 seconds, 50MB)
-          </p>
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="outline"
-            className="gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            Select Video
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="relative rounded-lg overflow-hidden bg-black aspect-video">
-            <video
-              src={videoPreview}
-              controls
-              className="w-full h-full"
-            />
-            {!uploading && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  setVideoPreview(null);
-                  setSelectedFile(null);
-                }}
-                className="absolute top-2 right-2 bg-black/50 hover:bg-black/70"
-              >
-                <X className="h-4 w-4 text-white" />
-              </Button>
-            )}
-          </div>
+          </DialogDescription>
+        </DialogHeader>
 
-          {uploading && (
-            <div className="space-y-2">
-              <Progress value={progress} />
-              <p className="text-sm text-center text-muted-foreground">
-                Uploading... {progress}%
-              </p>
-            </div>
-          )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="video/mp4,video/webm,video/quicktime"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
 
-          <div className="flex gap-2">
+        {!videoPreview ? (
+          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg">
+            <Video className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-sm text-muted-foreground mb-4 text-center">
+              Upload a video (max 30 seconds, 50MB)
+            </p>
             <Button
-              onClick={handleUpload}
-              disabled={uploading}
-              className="flex-1"
-            >
-              {uploading ? "Uploading..." : "Upload Video"}
-            </Button>
-            <Button
-              onClick={onCancel}
+              onClick={() => fileInputRef.current?.click()}
               variant="outline"
-              disabled={uploading}
+              className="gap-2"
             >
-              Cancel
+              <Upload className="h-4 w-4" />
+              Select Video
             </Button>
           </div>
-        </div>
-      )}
-    </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="relative rounded-lg overflow-hidden bg-black aspect-video">
+              <video
+                src={videoPreview}
+                controls
+                className="w-full h-full"
+              />
+              {!uploading && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleReset}
+                  className="absolute top-2 right-2 bg-black/50 hover:bg-black/70"
+                >
+                  <X className="h-4 w-4 text-white" />
+                </Button>
+              )}
+            </div>
+
+            {uploading && (
+              <div className="space-y-2">
+                <Progress value={progress} />
+                <p className="text-sm text-center text-muted-foreground">
+                  Uploading... {progress}%
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <Button
+                onClick={handleUpload}
+                disabled={uploading}
+                className="flex-1"
+              >
+                {uploading ? "Uploading..." : "Upload Video"}
+              </Button>
+              <Button
+                onClick={handleClose}
+                variant="outline"
+                disabled={uploading}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
