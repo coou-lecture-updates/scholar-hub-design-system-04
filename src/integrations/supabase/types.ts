@@ -185,6 +185,13 @@ export type Database = {
             referencedRelation: "anonymous_pages"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "anonymous_page_analytics_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "anonymous_pages_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       anonymous_pages: {
@@ -260,10 +267,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "anonymous_submissions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "anonymous_pages_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_anonymous_submissions_page"
             columns: ["page_id"]
             isOneToOne: false
             referencedRelation: "anonymous_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_anonymous_submissions_page"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "anonymous_pages_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1985,7 +2006,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      anonymous_pages_public: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string | null
+          page_name: string | null
+          page_token: string | null
+          public_link: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string | null
+          page_name?: string | null
+          page_token?: string | null
+          public_link?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string | null
+          page_name?: string | null
+          page_token?: string | null
+          public_link?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_expired_anonymous_data: { Args: never; Returns: undefined }
