@@ -312,7 +312,7 @@ const EnhancedPaymentSettings: React.FC<EnhancedPaymentSettingsProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <CreditCard className="h-6 w-6" />
@@ -320,7 +320,7 @@ const EnhancedPaymentSettings: React.FC<EnhancedPaymentSettingsProps> = ({
           </h2>
           <p className="text-muted-foreground">Configure payment methods and processing options</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="flex items-center gap-1">
             <Shield className="h-3 w-3" />
             Secure Configuration
@@ -690,12 +690,12 @@ const EnhancedPaymentSettings: React.FC<EnhancedPaymentSettingsProps> = ({
       <Separator />
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
         <Button 
           onClick={handleSaveAll}
           disabled={isUpdating}
           size="lg"
-          className="min-w-[140px]"
+          className="w-full sm:w-auto min-w-[140px]"
         >
           {isUpdating ? (
             <>
