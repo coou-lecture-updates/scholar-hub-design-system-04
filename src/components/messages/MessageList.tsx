@@ -34,11 +34,15 @@ export const MessageList: React.FC<MessageListProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const prevMessageCountRef = useRef(messages.length);
+
   useEffect(() => {
-    if (autoScroll && bottomRef.current) {
+    // Only auto-scroll when NEW messages are added, not on every update
+    if (autoScroll && bottomRef.current && messages.length > prevMessageCountRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, autoScroll]);
+    prevMessageCountRef.current = messages.length;
+  }, [messages.length, autoScroll]);
 
   if (loading) {
     return (
