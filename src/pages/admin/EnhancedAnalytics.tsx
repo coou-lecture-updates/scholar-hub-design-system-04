@@ -37,13 +37,49 @@ import {
   Star,
   Wallet,
   CreditCard,
-  Filter
+  Filter,
+  Megaphone,
+  Globe
 } from "lucide-react";
 
 const EnhancedAnalytics = () => {
   const { hasAccess, userRole } = useAdminAccess();
   const [selectedModerator, setSelectedModerator] = useState("all");
   const [selectedEventType, setSelectedEventType] = useState("all");
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportReport = () => {
+    try {
+      setIsExporting(true);
+      const rows: string[] = [];
+      rows.push('Section,Metric,Value');
+      rows.push(`Overview,Total Users,${overview?.users ?? 0}`);
+      rows.push(`Overview,Total Events,${overview?.events ?? 0}`);
+      rows.push(`Overview,Total Revenue,${overview?.totalRevenue ?? 0}`);
+      rows.push(`Ads,Total Ads,${adsSummary?.totalAds ?? 0}`);
+      rows.push(`Ads,Active Ads,${adsSummary?.activeAds ?? 0}`);
+      rows.push(`Ads,Total Impressions,${adsSummary?.totalImpressions ?? 0}`);
+      rows.push(`Ads,Total Clicks,${adsSummary?.totalClicks ?? 0}`);
+      rows.push(`Payments,Total Wallet Balance,${walletStats?.totalBalance ?? 0}`);
+      rows.push(`Payments,Total Credits,${walletStats?.totalCredits ?? 0}`);
+      rows.push(`Payments,Total Debits,${walletStats?.totalDebits ?? 0}`);
+      rows.push(`Search,Total Analytics Events,${searchAnalytics?.totalEvents ?? 0}`);
+      rows.push(`Search,Anonymous Page Views,${searchAnalytics?.anonymousPageViews ?? 0}`);
+
+      const csvContent = rows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'analytics-report.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Enhanced analytics queries
   const { data: overview, isLoading: loadingOverview } = useQuery({
@@ -303,6 +339,117 @@ const EnhancedAnalytics = () => {
     }
   });
 
+  // Advertisement performance analytics
+  const { data: adsSummary, isLoading: loadingAds } = useQuery({
+    queryKey: ['analytics-ads-summary'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('message_ads')
+        .select('is_active, impressions, clicks, cost, expires_at');
+
+      if (error) throw error;
+
+      const now = new Date();
+      const totalAds = data?.length || 0;
+      const activeAds = data?.filter(ad => ad.is_active && (!ad.expires_at || new Date(ad.expires_at) > now)).length || 0;
+      const expiredAds = data?.filter(ad => ad.expires_at && new Date(ad.expires_at) <= now).length || 0;
+      const totalImpressions = data?.reduce((sum, ad) => sum + (ad.impressions || 0), 0) || 0;
+      const totalClicks = data?.reduce((sum, ad) => sum + (ad.clicks || 0), 0) || 0;
+      const totalCost = data?.reduce((sum, ad) => sum + Number(ad.cost || 0), 0) || 0;
+      const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
+
+      return {
+        totalAds,
+        activeAds,
+        expiredAds,
+        totalImpressions,
+        totalClicks,
+        totalCost,
+        avgCTR: Number(avgCTR.toFixed(2)),
+      };
+    }
+  });
+
+  // Detailed payments & wallet analytics (for Payments tab)
+  interface PaymentRecord {
+    id: string;
+    full_name: string;
+    email: string;
+    amount: number;
+    payment_type: string;
+    payment_status: string | null;
+    payment_reference: string;
+    created_at: string;
+  }
+
+  interface WalletTransactionRecord {
+    id: string;
+    amount: number;
+    type: string;
+    description: string;
+    created_at: string;
+    reference: string | null;
+  }
+
+  const { data: paymentsDetailed, isLoading: loadingPayments } = useQuery({
+    queryKey: ['analytics-payments-detailed'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('id, full_name, email, amount, payment_type, payment_status, payment_reference, created_at')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      return data as PaymentRecord[];
+    }
+  });
+
+  const { data: walletDetailed, isLoading: loadingWalletDetailed } = useQuery({
+    queryKey: ['analytics-wallet-detailed'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('wallet_transactions')
+        .select('id, amount, type, description, created_at, reference')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      return data as WalletTransactionRecord[];
+    }
+  });
+
+  // Search Console & Bing verification + basic traffic
+  const { data: searchAnalytics, isLoading: loadingSearch } = useQuery({
+    queryKey: ['analytics-search-verification'],
+    queryFn: async () => {
+      const [{ data: settings }, analyticsEvents, anonymousPageViews] = await Promise.all([
+        supabase
+          .from('system_settings')
+          .select('key, value')
+          .in('key', ['google_verification', 'bing_verification']),
+        supabase
+          .from('analytics_events')
+          .select('*', { count: 'exact', head: true }),
+        supabase
+          .from('anonymous_page_analytics')
+          .select('*', { count: 'exact', head: true }),
+      ]);
+
+      const googleVerification = settings?.find(s => s.key === 'google_verification')?.value || '';
+      const bingVerification = settings?.find(s => s.key === 'bing_verification')?.value || '';
+
+      return {
+        googleConnected: !!googleVerification,
+        bingConnected: !!bingVerification,
+        googleVerification,
+        bingVerification,
+        totalEvents: analyticsEvents.count || 0,
+        anonymousPageViews: anonymousPageViews.count || 0,
+      };
+    }
+  });
+
   // Get list of moderators for filtering
   const { data: moderatorsList } = useQuery({
     queryKey: ['moderators-list'],
@@ -316,7 +463,7 @@ const EnhancedAnalytics = () => {
     enabled: userRole === 'admin'
   });
 
-  const isLoading = loadingOverview || loadingRevenue || loadingUserGrowth || loadingEvents;
+  const isLoading = loadingOverview || loadingRevenue || loadingUserGrowth || loadingEvents || loadingAds || loadingPayments || loadingWalletDetailed || loadingSearch;
 
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', '#3ecfff', '#67db86', '#ffd166', '#fa6134'];
 
@@ -334,7 +481,9 @@ const EnhancedAnalytics = () => {
               <Eye className="h-4 w-4 mr-2" />
               Live View
             </Button>
-            <Button size="sm">Export Report</Button>
+            <Button size="sm" onClick={handleExportReport}>
+              Export Report
+            </Button>
           </div>
         </div>
 
@@ -390,6 +539,50 @@ const EnhancedAnalytics = () => {
                 <CardContent>
                   <div className="text-2xl font-bold">{overview?.tickets}</div>
                   <p className="text-xs text-muted-foreground">{overview?.successfulPayments} transactions</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Search & Ads summary cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Search Traffic</CardTitle>
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-semibold">
+                    {(searchAnalytics?.totalEvents || 0) + (searchAnalytics?.anonymousPageViews || 0)} total page events
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Google Search Console: {searchAnalytics?.googleConnected ? 'Connected' : 'Not connected'} • Bing: {searchAnalytics?.bingConnected ? 'Connected' : 'Not connected'}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Ad Performance</CardTitle>
+                  <Megaphone className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-semibold">{adsSummary?.totalAds || 0} ads • {adsSummary?.activeAds || 0} active</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    CTR: {adsSummary ? `${adsSummary.avgCTR}%` : '0%'} • Impressions: {adsSummary?.totalImpressions?.toLocaleString?.() || 0}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Wallet Overview</CardTitle>
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-semibold">₦{walletStats?.totalBalance?.toLocaleString()}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {walletStats?.totalTransactions} transactions • {walletStats?.activeWallets} active wallets
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -550,11 +743,13 @@ const EnhancedAnalytics = () => {
 
             {/* Role-based Analytics Tabs */}
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="flex flex-wrap gap-2 w-full justify-start">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 {userRole === 'admin' && <TabsTrigger value="moderators">Moderators</TabsTrigger>}
                 {userRole === 'admin' && <TabsTrigger value="wallets">Wallets</TabsTrigger>}
                 <TabsTrigger value="events">Events</TabsTrigger>
+                <TabsTrigger value="ads">Ads</TabsTrigger>
+                <TabsTrigger value="payments">Payments</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
