@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from '@tanstack/react-query';
+import { Input } from "@/components/ui/input";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 import AdSettingsPanel from "@/components/admin/AdSettingsPanel";
@@ -40,14 +41,32 @@ import {
   CreditCard,
   Filter,
   Megaphone,
-  Globe
+  Globe,
+  AlertTriangle
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const EnhancedAnalytics = () => {
   const { hasAccess, userRole } = useAdminAccess();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
   const [selectedModerator, setSelectedModerator] = useState("all");
   const [selectedEventType, setSelectedEventType] = useState("all");
   const [isExporting, setIsExporting] = useState(false);
+
+  // Ads filters
+  const [adsCreatorId, setAdsCreatorId] = useState<string>("all");
+  const [adsType, setAdsType] = useState<string>("all");
+  const [adsStatus, setAdsStatus] = useState<string>("all");
+  const [adsDateFrom, setAdsDateFrom] = useState<string>("");
+  const [adsDateTo, setAdsDateTo] = useState<string>("");
+
+  // Payments filters
+  const [paymentsStatus, setPaymentsStatus] = useState<string>("all");
+  const [paymentsType, setPaymentsType] = useState<string>("all");
+  const [paymentsDateFrom, setPaymentsDateFrom] = useState<string>("");
+  const [paymentsDateTo, setPaymentsDateTo] = useState<string>("");
 
   const handleExportReport = () => {
     try {
@@ -392,15 +411,49 @@ const EnhancedAnalytics = () => {
     reference: string | null;
   }
 
+  interface AdRecord {
+    id: string;
+    title: string;
+    ad_type: string;
+    is_active: boolean | null;
+    impressions: number | null;
+    clicks: number | null;
+    cost: number | null;
+    created_at: string;
+    expires_at: string | null;
+    user_id: string | null;
+  }
+
   const { data: paymentsDetailed, isLoading: loadingPayments } = useQuery({
-    queryKey: ['analytics-payments-detailed'],
+    queryKey: [
+      'analytics-payments-detailed',
+      paymentsDateFrom || null,
+      paymentsDateTo || null,
+      paymentsStatus,
+      paymentsType,
+    ],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('payments')
         .select('id, full_name, email, amount, payment_type, payment_status, payment_reference, created_at')
-        .order('created_at', { ascending: false })
-        .limit(50);
+        .order('created_at', { ascending: false });
 
+      if (paymentsDateFrom) {
+        query = query.gte('created_at', paymentsDateFrom);
+      }
+      if (paymentsDateTo) {
+        const end = new Date(paymentsDateTo);
+        end.setHours(23, 59, 59, 999);
+        query = query.lte('created_at', end.toISOString());
+      }
+      if (paymentsStatus !== 'all') {
+        query = query.eq('payment_status', paymentsStatus);
+      }
+      if (paymentsType !== 'all') {
+        query = query.eq('payment_type', paymentsType);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data as PaymentRecord[];
     }
@@ -413,11 +466,82 @@ const EnhancedAnalytics = () => {
         .from('wallet_transactions')
         .select('id, amount, type, description, created_at, reference')
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (error) throw error;
       return data as WalletTransactionRecord[];
     }
+  });
+
+  // Detailed ads list with filters for management
+  const { data: adCreators } = useQuery({
+    queryKey: ['analytics-ad-creators'],
+    queryFn: async () => {
+      const { data: ads } = await supabase
+        .from('message_ads')
+        .select('user_id')
+        .not('user_id', 'is', null);
+
+      const userIds = Array.from(new Set((ads || []).map((a) => a.user_id)));
+      if (!userIds.length) return [];
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', userIds);
+
+      return profiles || [];
+    },
+  });
+
+  const { data: adsDetailed, isLoading: loadingAdsDetailed } = useQuery({
+    queryKey: [
+      'analytics-ads-detailed',
+      adsCreatorId,
+      adsType,
+      adsStatus,
+      adsDateFrom || null,
+      adsDateTo || null,
+    ],
+    queryFn: async () => {
+      let query = supabase
+        .from('message_ads')
+        .select('id, title, ad_type, is_active, impressions, clicks, cost, created_at, expires_at, user_id')
+        .order('created_at', { ascending: false });
+
+      if (adsCreatorId !== 'all') {
+        query = query.eq('user_id', adsCreatorId);
+      }
+      if (adsType !== 'all') {
+        query = query.eq('ad_type', adsType);
+      }
+      if (adsDateFrom) {
+        query = query.gte('created_at', adsDateFrom);
+      }
+      if (adsDateTo) {
+        const end = new Date(adsDateTo);
+        end.setHours(23, 59, 59, 999);
+        query = query.lte('created_at', end.toISOString());
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      const now = new Date();
+      let result = (data || []) as AdRecord[];
+
+      if (adsStatus === 'active') {
+        result = result.filter(
+          (ad) => ad.is_active && (!ad.expires_at || new Date(ad.expires_at) > now)
+        );
+      } else if (adsStatus === 'expired') {
+        result = result.filter(
+          (ad) => ad.expires_at && new Date(ad.expires_at) <= now
+        );
+      }
+
+      return result;
+    },
   });
 
   // Search Console & Bing verification + basic traffic
@@ -437,8 +561,8 @@ const EnhancedAnalytics = () => {
           .select('*', { count: 'exact', head: true }),
       ]);
 
-      const googleVerification = settings?.find(s => s.key === 'google_verification')?.value || '';
-      const bingVerification = settings?.find(s => s.key === 'bing_verification')?.value || '';
+      const googleVerification = settings?.find((s) => s.key === 'google_verification')?.value || '';
+      const bingVerification = settings?.find((s) => s.key === 'bing_verification')?.value || '';
 
       return {
         googleConnected: !!googleVerification,
@@ -448,7 +572,7 @@ const EnhancedAnalytics = () => {
         totalEvents: analyticsEvents.count || 0,
         anonymousPageViews: anonymousPageViews.count || 0,
       };
-    }
+    },
   });
 
   // Get list of moderators for filtering
@@ -461,12 +585,126 @@ const EnhancedAnalytics = () => {
         .eq('role', 'moderator');
       return data || [];
     },
-    enabled: userRole === 'admin'
+    enabled: userRole === 'admin',
   });
 
-  const isLoading = loadingOverview || loadingRevenue || loadingUserGrowth || loadingEvents || loadingAds || loadingPayments || loadingWalletDetailed || loadingSearch;
+  const perUserStats = useMemo(() => {
+    if (!paymentsDetailed) return [];
+
+    const map = new Map<
+      string,
+      { full_name: string; email: string; totalAmount: number; count: number }
+    >();
+
+    paymentsDetailed.forEach((p) => {
+      const key = p.email;
+      const entry =
+        map.get(key) || {
+          full_name: p.full_name,
+          email: p.email,
+          totalAmount: 0,
+          count: 0,
+        };
+      entry.totalAmount += Number(p.amount || 0);
+      entry.count += 1;
+      map.set(key, entry);
+    });
+
+    return Array.from(map.values()).sort((a, b) => b.totalAmount - a.totalAmount);
+  }, [paymentsDetailed]);
+
+  const isLoading =
+    loadingOverview ||
+    loadingRevenue ||
+    loadingUserGrowth ||
+    loadingEvents ||
+    loadingAds ||
+    loadingPayments ||
+    loadingWalletDetailed ||
+    loadingSearch;
 
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', '#3ecfff', '#67db86', '#ffd166', '#fa6134'];
+
+  const handleExportPayments = () => {
+    if (!paymentsDetailed) return;
+    const rows: string[] = [];
+    rows.push('Full Name,Email,Amount,Type,Status,Reference,Date');
+
+    paymentsDetailed.forEach((p) => {
+      rows.push(
+        [
+          `"${p.full_name}"`,
+          p.email,
+          p.amount,
+          p.payment_type,
+          p.payment_status || '',
+          p.payment_reference,
+          new Date(p.created_at).toISOString(),
+        ].join(',')
+      );
+    });
+
+    const csvContent = rows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'payments-export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const toggleAdStatusMutation = useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      const { error } = await supabase
+        .from('message_ads')
+        .update({ is_active: isActive })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['analytics-ads-detailed'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics-ads-summary'] });
+      toast({ title: 'Ad status updated successfully' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to update ad status', variant: 'destructive' });
+    },
+  });
+
+  const deleteAdMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('message_ads').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['analytics-ads-detailed'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics-ads-summary'] });
+      toast({ title: 'Ad deleted successfully' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to delete ad', variant: 'destructive' });
+    },
+  });
+
+  const flagPaymentMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('payments')
+        .update({ payment_status: 'review' })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['analytics-payments-detailed'] });
+      toast({ title: 'Payment flagged for review' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to flag payment', variant: 'destructive' });
+    },
+  });
 
   return (
     <DashboardLayout role="admin">
@@ -756,7 +994,9 @@ const EnhancedAnalytics = () => {
               <TabsContent value="overview" className="space-y-6">
                 {/* Existing charts content already shown above */}
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">Overview analytics shown above in the main dashboard.</p>
+                  <p className="text-muted-foreground">
+                    Overview analytics shown above in the main dashboard.
+                  </p>
                 </div>
               </TabsContent>
 
@@ -778,14 +1018,19 @@ const EnhancedAnalytics = () => {
                       ) : (
                         <div className="space-y-4">
                           {moderatorStats?.map((moderator) => (
-                            <div key={moderator.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div
+                              key={moderator.id}
+                              className="flex items-center justify-between p-4 border rounded-lg"
+                            >
                               <div>
                                 <h4 className="font-medium">{moderator.name}</h4>
                                 <p className="text-sm text-muted-foreground">{moderator.email}</p>
                               </div>
                               <div className="flex gap-6 text-sm">
                                 <div className="text-center">
-                                  <p className="font-semibold">₦{moderator.walletBalance.toLocaleString()}</p>
+                                  <p className="font-semibold">
+                                    ₦{moderator.walletBalance.toLocaleString()}
+                                  </p>
                                   <p className="text-muted-foreground">Balance</p>
                                 </div>
                                 <div className="text-center">
@@ -797,7 +1042,9 @@ const EnhancedAnalytics = () => {
                                   <p className="text-muted-foreground">Paid</p>
                                 </div>
                                 <div className="text-center">
-                                  <p className="font-semibold">₦{moderator.totalSpent.toLocaleString()}</p>
+                                  <p className="font-semibold">
+                                    ₦{moderator.totalSpent.toLocaleString()}
+                                  </p>
                                   <p className="text-muted-foreground">Spent</p>
                                 </div>
                               </div>
@@ -825,7 +1072,9 @@ const EnhancedAnalytics = () => {
                         <Wallet className="h-4 w-4 text-muted-foreground" />
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold">₦{walletStats?.totalBalance?.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">
+                          ₦{walletStats?.totalBalance?.toLocaleString()}
+                        </div>
                       </CardContent>
                     </Card>
 
@@ -835,7 +1084,9 @@ const EnhancedAnalytics = () => {
                         <TrendingUp className="h-4 w-4 text-green-600" />
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold">₦{walletStats?.totalCredits?.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">
+                          ₦{walletStats?.totalCredits?.toLocaleString()}
+                        </div>
                       </CardContent>
                     </Card>
 
@@ -845,7 +1096,9 @@ const EnhancedAnalytics = () => {
                         <TrendingUp className="h-4 w-4 text-red-600" />
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold">₦{walletStats?.totalDebits?.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">
+                          ₦{walletStats?.totalDebits?.toLocaleString()}
+                        </div>
                       </CardContent>
                     </Card>
 
@@ -855,7 +1108,9 @@ const EnhancedAnalytics = () => {
                         <CreditCard className="h-4 w-4 text-muted-foreground" />
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold">{walletStats?.totalTransactions}</div>
+                        <div className="text-2xl font-bold">
+                          {walletStats?.totalTransactions}
+                        </div>
                       </CardContent>
                     </Card>
 
@@ -881,9 +1136,9 @@ const EnhancedAnalytics = () => {
                         <Calendar className="h-5 w-5" />
                         Event Analytics
                       </CardTitle>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col md:flex-row gap-2">
                         <Select value={selectedModerator} onValueChange={setSelectedModerator}>
-                          <SelectTrigger className="w-48">
+                          <SelectTrigger className="md:w-48 w-full">
                             <SelectValue placeholder="Filter by moderator" />
                           </SelectTrigger>
                           <SelectContent>
@@ -896,7 +1151,7 @@ const EnhancedAnalytics = () => {
                           </SelectContent>
                         </Select>
                         <Select value={selectedEventType} onValueChange={setSelectedEventType}>
-                          <SelectTrigger className="w-48">
+                          <SelectTrigger className="md:w-48 w-full">
                             <SelectValue placeholder="Filter by type" />
                           </SelectTrigger>
                           <SelectContent>
@@ -918,20 +1173,24 @@ const EnhancedAnalytics = () => {
                     ) : (
                       <div className="space-y-4">
                         {eventAnalytics?.map((event) => (
-                          <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div
+                            key={event.id}
+                            className="flex flex-col md:flex-row md:items-center md:justify-between p-4 border rounded-lg gap-4"
+                          >
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
+                              <div className="flex flex-wrap items-center gap-2 mb-1">
                                 <h4 className="font-medium">{event.title}</h4>
-                                <Badge variant={event.published ? "default" : "secondary"}>
-                                  {event.published ? "Published" : "Draft"}
+                                <Badge variant={event.published ? 'default' : 'secondary'}>
+                                  {event.published ? 'Published' : 'Draft'}
                                 </Badge>
                                 <Badge variant="outline">{event.type}</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                Created by {event.creator} • {new Date(event.createdAt).toLocaleDateString()}
+                                Created by {event.creator} •{' '}
+                                {new Date(event.createdAt).toLocaleDateString()}
                               </p>
                             </div>
-                            <div className="flex gap-6 text-sm">
+                            <div className="flex gap-6 text-sm flex-wrap">
                               <div className="text-center">
                                 <p className="font-semibold">₦{event.price.toLocaleString()}</p>
                                 <p className="text-muted-foreground">Price</p>
@@ -945,7 +1204,9 @@ const EnhancedAnalytics = () => {
                                 <p className="text-muted-foreground">Sold</p>
                               </div>
                               <div className="text-center">
-                                <p className="font-semibold">₦{event.revenue.toLocaleString()}</p>
+                                <p className="font-semibold">
+                                  ₦{event.revenue.toLocaleString()}
+                                </p>
                                 <p className="text-muted-foreground">Revenue</p>
                               </div>
                             </div>
@@ -953,10 +1214,461 @@ const EnhancedAnalytics = () => {
                         ))}
                         {(!eventAnalytics || eventAnalytics.length === 0) && (
                           <div className="text-center py-8">
-                            <p className="text-muted-foreground">No events found for the selected filters.</p>
+                            <p className="text-muted-foreground">
+                              No events found for the selected filters.
+                            </p>
                           </div>
                         )}
                       </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Ads Analytics & Management Tab */}
+              <TabsContent value="ads" className="space-y-6">
+                <Card>
+                  <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Megaphone className="h-5 w-5" />
+                        Advertisement Analytics &amp; Management
+                      </CardTitle>
+                      <CardDescription>
+                        Filter, review and control all message advertisements from one place.
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Filter className="h-4 w-4" /> Filters apply instantly to the list below
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Creator</label>
+                        <Select value={adsCreatorId} onValueChange={setAdsCreatorId}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="All creators" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All creators</SelectItem>
+                            {adCreators?.map((creator: any) => (
+                              <SelectItem key={creator.id} value={creator.id}>
+                                {creator.full_name || creator.email}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Ad Type</label>
+                        <Select value={adsType} onValueChange={setAdsType}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="All types" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="native">Native</SelectItem>
+                            <SelectItem value="banner">Banner</SelectItem>
+                            <SelectItem value="slider">Slider</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Status</label>
+                        <Select value={adsStatus} onValueChange={setAdsStatus}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="All statuses" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="expired">Expired</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Date range</label>
+                        <div className="flex gap-2">
+                          <Input
+                            type="date"
+                            value={adsDateFrom}
+                            onChange={(e) => setAdsDateFrom(e.target.value)}
+                            className="text-xs"
+                          />
+                          <Input
+                            type="date"
+                            value={adsDateTo}
+                            onChange={(e) => setAdsDateTo(e.target.value)}
+                            className="text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Ad Settings</CardTitle>
+                    <CardDescription>
+                      Configure base pricing, limits and minimum wallet balance for student ads.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <AdSettingsPanel />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>All Advertisements</CardTitle>
+                    <CardDescription>
+                      Manage every ad inline – pause, activate or delete without leaving analytics.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    {loadingAdsDetailed ? (
+                      <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      </div>
+                    ) : adsDetailed && adsDetailed.length ? (
+                      <table className="min-w-[960px] w-full text-xs md:text-sm">
+                        <thead className="border-b">
+                          <tr className="text-left">
+                            <th className="py-2 px-2">Title</th>
+                            <th className="py-2 px-2">Type</th>
+                            <th className="py-2 px-2">Impr.</th>
+                            <th className="py-2 px-2">Clicks</th>
+                            <th className="py-2 px-2">CTR</th>
+                            <th className="py-2 px-2">Cost (₦)</th>
+                            <th className="py-2 px-2">Status</th>
+                            <th className="py-2 px-2">Created</th>
+                            <th className="py-2 px-2">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {adsDetailed.map((ad: AdRecord) => {
+                            const impressions = ad.impressions || 0;
+                            const clicks = ad.clicks || 0;
+                            const ctr = impressions > 0 ? ((clicks / impressions) * 100).toFixed(1) : '0.0';
+                            const expired = !!ad.expires_at && new Date(ad.expires_at) <= new Date();
+
+                            return (
+                              <tr key={ad.id} className="border-b last:border-0">
+                                <td className="py-2 px-2 max-w-[220px] truncate">{ad.title}</td>
+                                <td className="py-2 px-2 capitalize">{ad.ad_type}</td>
+                                <td className="py-2 px-2">{impressions}</td>
+                                <td className="py-2 px-2">{clicks}</td>
+                                <td className="py-2 px-2">{ctr}%</td>
+                                <td className="py-2 px-2">
+                                  ₦{Number(ad.cost || 0).toLocaleString()}
+                                </td>
+                                <td className="py-2 px-2">
+                                  <Badge
+                                    variant={
+                                      expired || !ad.is_active ? 'outline' : 'default'
+                                    }
+                                  >
+                                    {expired
+                                      ? 'Expired'
+                                      : ad.is_active
+                                      ? 'Active'
+                                      : 'Paused'}
+                                  </Badge>
+                                </td>
+                                <td className="py-2 px-2">
+                                  {new Date(ad.created_at).toLocaleDateString()}
+                                </td>
+                                <td className="py-2 px-2 space-x-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      toggleAdStatusMutation.mutate({
+                                        id: ad.id,
+                                        isActive: !ad.is_active,
+                                      })
+                                    }
+                                  >
+                                    {ad.is_active ? 'Pause' : 'Activate'}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => {
+                                      if (
+                                        window.confirm(
+                                          'Are you sure you want to delete this ad?'
+                                        )
+                                      ) {
+                                        deleteAdMutation.mutate(ad.id);
+                                      }
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-sm text-muted-foreground py-4">
+                        No ads match the current filters.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Payments Analytics & Management Tab */}
+              <TabsContent value="payments" className="space-y-6">
+                <Card>
+                  <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <CreditCard className="h-5 w-5" />
+                        Payments Analytics &amp; Management
+                      </CardTitle>
+                      <CardDescription>
+                        Filter, review and export all payment and wallet activity.
+                      </CardDescription>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleExportPayments}
+                        disabled={!paymentsDetailed?.length}
+                      >
+                        Export Payments (CSV)
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Status</label>
+                        <Select value={paymentsStatus} onValueChange={setPaymentsStatus}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="All statuses" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="processed">Processed</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="failed">Failed</SelectItem>
+                            <SelectItem value="review">Review</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Type</label>
+                        <Select value={paymentsType} onValueChange={setPaymentsType}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="All types" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="wallet_funding">Wallet funding</SelectItem>
+                            <SelectItem value="event_ticket">Event ticket</SelectItem>
+                            <SelectItem value="general">General</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Date from</label>
+                        <Input
+                          type="date"
+                          value={paymentsDateFrom}
+                          onChange={(e) => setPaymentsDateFrom(e.target.value)}
+                          className="text-xs"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Date to</label>
+                        <Input
+                          type="date"
+                          value={paymentsDateTo}
+                          onChange={(e) => setPaymentsDateTo(e.target.value)}
+                          className="text-xs"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Payments</CardTitle>
+                    <CardDescription>
+                      Inline controls let you quickly flag payments that look suspicious.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    {loadingPayments ? (
+                      <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      </div>
+                    ) : paymentsDetailed && paymentsDetailed.length ? (
+                      <table className="min-w-[960px] w-full text-xs md:text-sm">
+                        <thead className="border-b">
+                          <tr className="text-left">
+                            <th className="py-2 px-2">User</th>
+                            <th className="py-2 px-2">Amount</th>
+                            <th className="py-2 px-2">Type</th>
+                            <th className="py-2 px-2">Status</th>
+                            <th className="py-2 px-2">Reference</th>
+                            <th className="py-2 px-2">Date</th>
+                            <th className="py-2 px-2">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paymentsDetailed.map((p) => (
+                            <tr key={p.id} className="border-b last:border-0">
+                              <td className="py-2 px-2">
+                                <div className="font-medium">{p.full_name}</div>
+                                <div className="text-xs text-muted-foreground">{p.email}</div>
+                              </td>
+                              <td className="py-2 px-2">
+                                ₦{Number(p.amount).toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2 capitalize">{p.payment_type}</td>
+                              <td className="py-2 px-2">
+                                <Badge
+                                  variant={
+                                    p.payment_status === 'processed'
+                                      ? 'default'
+                                      : p.payment_status === 'failed'
+                                      ? 'destructive'
+                                      : p.payment_status === 'review'
+                                      ? 'outline'
+                                      : 'secondary'
+                                  }
+                                >
+                                  {p.payment_status || 'pending'}
+                                </Badge>
+                              </td>
+                              <td className="py-2 px-2 text-xs truncate max-w-[160px]">
+                                {p.payment_reference}
+                              </td>
+                              <td className="py-2 px-2 text-xs">
+                                {new Date(p.created_at).toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => flagPaymentMutation.mutate(p.id)}
+                                >
+                                  <AlertTriangle className="h-3 w-3 mr-1" />
+                                  Flag
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-sm text-muted-foreground py-4">
+                        No payments match the current filters.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Wallet Transactions</CardTitle>
+                    <CardDescription>
+                      Recent credits and debits recorded across all student wallets.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    {loadingWalletDetailed ? (
+                      <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      </div>
+                    ) : walletDetailed && walletDetailed.length ? (
+                      <table className="min-w-[960px] w-full text-xs md:text-sm">
+                        <thead className="border-b">
+                          <tr className="text-left">
+                            <th className="py-2 px-2">Description</th>
+                            <th className="py-2 px-2">Amount</th>
+                            <th className="py-2 px-2">Type</th>
+                            <th className="py-2 px-2">Reference</th>
+                            <th className="py-2 px-2">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {walletDetailed.map((t) => (
+                            <tr key={t.id} className="border-b last:border-0">
+                              <td className="py-2 px-2 max-w-[260px] truncate">{t.description}</td>
+                              <td className="py-2 px-2">
+                                ₦{Number(t.amount).toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2 capitalize">{t.type}</td>
+                              <td className="py-2 px-2 text-xs truncate max-w-[160px]">
+                                {t.reference}
+                              </td>
+                              <td className="py-2 px-2 text-xs">
+                                {new Date(t.created_at).toLocaleString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-sm text-muted-foreground py-4">
+                        No wallet transactions found.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Per-User Spending Summary</CardTitle>
+                    <CardDescription>
+                      See which students spend the most and how many payments they have made.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    {perUserStats.length ? (
+                      <table className="min-w-[720px] w-full text-xs md:text-sm">
+                        <thead className="border-b">
+                          <tr className="text-left">
+                            <th className="py-2 px-2">Name</th>
+                            <th className="py-2 px-2">Email</th>
+                            <th className="py-2 px-2">Total Spent (₦)</th>
+                            <th className="py-2 px-2">Transactions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {perUserStats.map((u) => (
+                            <tr key={u.email} className="border-b last:border-0">
+                              <td className="py-2 px-2">{u.full_name}</td>
+                              <td className="py-2 px-2 text-xs">{u.email}</td>
+                              <td className="py-2 px-2">
+                                ₦{u.totalAmount.toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2">{u.count}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-sm text-muted-foreground py-4">
+                        No payment data available for summary.
+                      </p>
                     )}
                   </CardContent>
                 </Card>
