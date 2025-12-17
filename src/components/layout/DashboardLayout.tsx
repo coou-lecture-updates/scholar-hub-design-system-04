@@ -66,7 +66,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
     { name: 'Settings', icon: <Settings size={20} />, path: '/user-settings' },
   ];
 
-  // Admin nav items with Ads and Transactions
+  // Admin nav items without separate Ads and Payments entries (now part of Analytics)
   const adminNavItems = [
     { name: 'Dashboard', icon: <Layers size={20} />, path: '/admin-dashboard' },
     { name: 'Analytics', icon: <BarChart3 size={20} />, path: '/admin/analytics' },
@@ -78,8 +78,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role = 'stu
     { name: 'Exam Management', icon: <FileText size={20} />, path: '/admin/exams' },
     { name: 'Event Management', icon: <Calendar size={20} />, path: '/admin/events' },
     { name: 'Blog Management', icon: <PenTool size={20} />, path: '/admin/blogs' },
-    { name: 'Advertisements', icon: <Megaphone size={20} />, path: '/admin/advertisements' },
-    { name: 'Payments', icon: <CreditCard size={20} />, path: '/admin/payments-transactions' },
     { name: 'Send Alerts', icon: <Bell size={20} />, path: '/admin/alerts' },
     { name: 'Community Management', icon: <MessageSquare size={20} />, path: '/admin/community' },
     { name: 'System Reports', icon: <FileSpreadsheet size={20} />, path: '/admin/reports' },
