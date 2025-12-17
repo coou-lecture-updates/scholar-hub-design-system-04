@@ -60,8 +60,8 @@ const Analytics = React.lazy(() => import('@/pages/admin/Analytics'));
 const AdminMessages = React.lazy(() => import('@/pages/admin/Messages'));
 const SystemReports = React.lazy(() => import('@/pages/admin/SystemReports'));
 const ModeratorDashboard = React.lazy(() => import('@/pages/admin/ModeratorDashboard'));
-const AdManagement = React.lazy(() => import('@/pages/admin/AdManagement'));
-const TransactionManagement = React.lazy(() => import('@/pages/admin/TransactionManagement'));
+const AdvertisementManagement = React.lazy(() => import('@/pages/admin/AdvertisementManagement'));
+const PaymentTransactions = React.lazy(() => import('@/pages/admin/PaymentTransactions'));
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center h-64">
@@ -145,8 +145,8 @@ const AppRoutes = () => {
           <Route path="/admin/settings/*" element={<SystemSettings />} />
           <Route path="/admin/reports" element={<SystemReports />} />
           <Route path="/admin/moderator" element={<ModeratorDashboard />} />
-          <Route path="/admin/ads" element={<AdManagement />} />
-          <Route path="/admin/transactions" element={<TransactionManagement />} />
+          <Route path="/admin/advertisements" element={<AdvertisementManagement />} />
+          <Route path="/admin/payments-transactions" element={<PaymentTransactions />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
