@@ -533,9 +533,9 @@ const AdvertisementManagement = () => {
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                  ))}
+                </TableBody>
+              </Table>
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">

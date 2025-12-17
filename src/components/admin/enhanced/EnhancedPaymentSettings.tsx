@@ -310,15 +310,15 @@ const EnhancedPaymentSettings: React.FC<EnhancedPaymentSettingsProps> = ({
   const setupProgress = (enabledProvidersCount / providers.length) * 100;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <CreditCard className="h-6 w-6" />
+          <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+            <CreditCard className="h-5 w-5 md:h-6 md:w-6" />
             Payment Gateway Settings
           </h2>
-          <p className="text-muted-foreground">Configure payment methods and processing options</p>
+          <p className="text-sm text-muted-foreground">Configure payment methods and processing options</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="flex items-center gap-1">
@@ -350,26 +350,26 @@ const EnhancedPaymentSettings: React.FC<EnhancedPaymentSettingsProps> = ({
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="providers" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="providers">Payment Providers</TabsTrigger>
-          <TabsTrigger value="global">Global Settings</TabsTrigger>
-          <TabsTrigger value="security">Security & Compliance</TabsTrigger>
+      <Tabs defaultValue="providers" className="space-y-4 md:space-y-6">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
+          <TabsTrigger value="providers" className="text-sm py-2">Payment Providers</TabsTrigger>
+          <TabsTrigger value="global" className="text-sm py-2">Global Settings</TabsTrigger>
+          <TabsTrigger value="security" className="text-sm py-2">Security</TabsTrigger>
         </TabsList>
 
         {/* Payment Providers */}
-        <TabsContent value="providers" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="providers" className="space-y-4 md:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {providers.map((provider) => (
               <Card key={provider.id} className="relative">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl">{provider.icon}</div>
-                      <div>
-                        <CardTitle className="flex items-center gap-2">
-                          {provider.name}
-                          <Badge 
+                <CardHeader className="pb-3 md:pb-6">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                      <div className="text-xl md:text-2xl">{provider.icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="flex items-center gap-2 text-base md:text-lg flex-wrap">
+                          <span className="truncate">{provider.name}</span>
+                          <Badge
                             variant={provider.enabled ? "default" : "secondary"}
                             className={`text-xs ${getProviderStatusColor(provider) === 'green' ? 'bg-green-100 text-green-800' : ''}`}
                           >
@@ -401,7 +401,7 @@ const EnhancedPaymentSettings: React.FC<EnhancedPaymentSettingsProps> = ({
                   {/* Features */}
                   <div>
                     <p className="font-medium text-sm mb-2">Supported Features</p>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1 overflow-x-auto pb-1">
                       {provider.features.map((feature) => (
                         <Badge key={feature} variant="outline" className="text-xs">
                           {feature}
@@ -438,7 +438,7 @@ const EnhancedPaymentSettings: React.FC<EnhancedPaymentSettingsProps> = ({
                               placeholder={`${provider.name} public key`}
                               value={provider.publicKey}
                               onChange={(e) => updateProvider(provider.id, 'publicKey', e.target.value)}
-                              className={validationErrors[`${provider.id}_publicKey`] ? 'border-red-500 pr-10' : 'pr-10'}
+                              className={`text-sm ${validationErrors[`${provider.id}_publicKey`] ? 'border-red-500 pr-10' : 'pr-10'}`}
                             />
                             <Button
                               type="button"

@@ -89,14 +89,14 @@ const EnhancedSecuritySettings: React.FC<EnhancedSecuritySettingsProps> = ({
   }, [getSetting]);
 
   return (
-    <ResponsiveContainer size="xl" className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <ResponsiveContainer size="xl" className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" />
+          <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+            <Shield className="h-5 w-5 md:h-6 md:w-6 text-primary" />
             Security Settings
           </h2>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Configure security policies and protection settings
           </p>
         </div>

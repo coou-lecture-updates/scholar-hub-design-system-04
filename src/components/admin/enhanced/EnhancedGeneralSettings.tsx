@@ -456,12 +456,12 @@ const EnhancedGeneralSettings: React.FC<EnhancedGeneralSettingsProps> = ({
       <Separator />
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-4">
         <Button 
           onClick={handleSaveAll}
           disabled={isUpdating || !hasChanges}
           size="lg"
-          className="min-w-[120px]"
+          className="w-full sm:w-auto min-w-[120px]"
         >
           {isUpdating ? (
             <>

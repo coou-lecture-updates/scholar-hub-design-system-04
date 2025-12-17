@@ -87,15 +87,15 @@ export const ImageLightbox = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl w-full h-[90vh] p-0 overflow-hidden bg-black/95">
-        <div className="relative h-full flex flex-col">
+        <div className="relative h-full flex flex-col touch-none">
           {/* Header */}
-          <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/80 to-transparent">
-            <div className="flex items-center gap-2">
+          <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-2 md:p-4 bg-gradient-to-b from-black/80 to-transparent">
+            <div className="flex items-center gap-1 md:gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleZoomOut}
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 h-10 w-10 md:h-9 md:w-9"
               >
                 <ZoomOut className="h-5 w-5" />
               </Button>
@@ -103,19 +103,19 @@ export const ImageLightbox = ({
                 variant="ghost"
                 size="icon"
                 onClick={handleZoomIn}
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 h-10 w-10 md:h-9 md:w-9"
               >
                 <ZoomIn className="h-5 w-5" />
               </Button>
-              <span className="text-white text-sm ml-2">{Math.round(zoom * 100)}%</span>
+              <span className="text-white text-xs md:text-sm ml-1 md:ml-2">{Math.round(zoom * 100)}%</span>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleDownload}
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 h-10 w-10 md:h-9 md:w-9"
               >
                 <Download className="h-5 w-5" />
               </Button>
@@ -123,7 +123,7 @@ export const ImageLightbox = ({
                 variant="ghost"
                 size="icon"
                 onClick={handleShare}
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 h-10 w-10 md:h-9 md:w-9"
               >
                 <Share2 className="h-5 w-5" />
               </Button>
@@ -131,7 +131,7 @@ export const ImageLightbox = ({
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 h-10 w-10 md:h-9 md:w-9"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -156,7 +156,7 @@ export const ImageLightbox = ({
                 size="icon"
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 disabled:opacity-50"
+                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 disabled:opacity-50 h-12 w-12 md:h-10 md:w-10"
               >
                 <ChevronLeft className="h-8 w-8" />
               </Button>
@@ -165,7 +165,7 @@ export const ImageLightbox = ({
                 size="icon"
                 onClick={handleNext}
                 disabled={currentIndex === images.length - 1}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 disabled:opacity-50"
+                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 disabled:opacity-50 h-12 w-12 md:h-10 md:w-10"
               >
                 <ChevronRight className="h-8 w-8" />
               </Button>
@@ -173,7 +173,7 @@ export const ImageLightbox = ({
           )}
 
           {/* Counter */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm">
+          <div className="absolute bottom-16 md:bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-3 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm">
             {currentIndex + 1} / {images.length}
           </div>
         </div>
