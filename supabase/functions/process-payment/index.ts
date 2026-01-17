@@ -18,6 +18,39 @@ interface PaymentRequest {
   metadata?: any;
 }
 
+// Validate API key format
+function validateApiKey(provider: string, secretKey: string): { valid: boolean; message: string } {
+  if (!secretKey || secretKey.length < 20) {
+    return { valid: false, message: `${provider} secret key is too short or missing` };
+  }
+
+  // Check for placeholder keys
+  if (secretKey.includes('000000') || secretKey === 'sk_test_xxx' || secretKey === 'sk_live_xxx') {
+    return { valid: false, message: `${provider} has placeholder API keys. Please configure real API keys in admin settings.` };
+  }
+
+  // Validate key format based on provider
+  switch (provider.toLowerCase()) {
+    case 'paystack':
+      if (!secretKey.startsWith('sk_test_') && !secretKey.startsWith('sk_live_')) {
+        return { valid: false, message: 'Paystack secret key should start with sk_test_ or sk_live_' };
+      }
+      break;
+    case 'flutterwave':
+      if (!secretKey.startsWith('FLWSECK_TEST') && !secretKey.startsWith('FLWSECK-')) {
+        return { valid: false, message: 'Flutterwave secret key format appears invalid' };
+      }
+      break;
+    case 'korapay':
+      if (!secretKey.startsWith('sk_test_') && !secretKey.startsWith('sk_live_')) {
+        return { valid: false, message: 'Korapay secret key format appears invalid' };
+      }
+      break;
+  }
+
+  return { valid: true, message: 'Key format valid' };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -32,16 +65,25 @@ serve(async (req) => {
     const paymentRequest: PaymentRequest = await req.json();
     const customerName = paymentRequest.full_name || paymentRequest.name || 'Customer';
     
-    console.log('Processing payment request:', {
-      provider: paymentRequest.provider,
-      amount: paymentRequest.amount,
-      email: paymentRequest.email
-    });
+    console.log('=== PAYMENT PROCESSING START ===');
+    console.log('Provider:', paymentRequest.provider);
+    console.log('Amount:', paymentRequest.amount);
+    console.log('Email:', paymentRequest.email);
+    console.log('Payment Type:', paymentRequest.payment_type);
+
+    // Validate required fields
+    if (!paymentRequest.amount || paymentRequest.amount < 100) {
+      throw new Error('Minimum payment amount is ₦100');
+    }
+
+    if (!paymentRequest.email) {
+      throw new Error('Email is required for payment');
+    }
 
     // Generate unique reference
     const reference = `PAY_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-    // Get payment gateway configuration from payment_gateways table
+    // Get payment gateway configuration
     const { data: gateway, error: gatewayError } = await supabaseClient
       .from('payment_gateways')
       .select('*')
@@ -49,23 +91,32 @@ serve(async (req) => {
       .eq('enabled', true)
       .maybeSingle();
 
-    console.log('Gateway lookup result:', { gateway: gateway ? 'found' : 'not found', error: gatewayError });
-
     if (gatewayError) {
-      console.error('Gateway error:', gatewayError);
+      console.error('Gateway lookup error:', gatewayError);
       throw new Error(`Failed to fetch gateway configuration: ${gatewayError.message}`);
     }
     
     if (!gateway) {
-      throw new Error(`${paymentRequest.provider} gateway not configured or disabled. Please enable it in admin settings.`);
+      console.error('Gateway not found or disabled:', paymentRequest.provider);
+      throw new Error(`${paymentRequest.provider} gateway is not configured or enabled. Please enable it in Admin Settings → Payment Gateways.`);
     }
 
+    console.log('Gateway found:', gateway.provider, 'Mode:', gateway.mode);
+
+    // Validate secret key
     if (!gateway.secret_key) {
-      throw new Error(`${paymentRequest.provider} secret key not configured`);
+      throw new Error(`${paymentRequest.provider} secret key is not configured. Please add your API keys in Admin Settings.`);
     }
+
+    const keyValidation = validateApiKey(paymentRequest.provider, gateway.secret_key);
+    if (!keyValidation.valid) {
+      console.error('API key validation failed:', keyValidation.message);
+      throw new Error(keyValidation.message);
+    }
+
+    console.log('API key validated. Mode:', gateway.mode);
 
     // Build callback URL
-    const siteUrl = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || '';
     const callbackUrl = `https://hhcitezdbueybdtslkth.supabase.co/functions/v1/payment-callback`;
 
     let paymentResponse;
@@ -74,44 +125,63 @@ serve(async (req) => {
     // Process payment based on provider
     switch (paymentRequest.provider.toLowerCase()) {
       case 'paystack':
+        console.log('Initializing Paystack payment...');
         paymentResponse = await initializePaystack(gateway, {
           ...paymentRequest,
           reference,
           name: customerName
         }, callbackUrl);
-        redirectUrl = paymentResponse.data?.authorization_url || '';
-        console.log('Paystack response:', paymentResponse);
+        
+        if (paymentResponse.status === true && paymentResponse.data?.authorization_url) {
+          redirectUrl = paymentResponse.data.authorization_url;
+        } else {
+          console.error('Paystack error response:', paymentResponse);
+          throw new Error(paymentResponse.message || 'Paystack initialization failed');
+        }
         break;
         
       case 'flutterwave':
+        console.log('Initializing Flutterwave payment...');
         paymentResponse = await initializeFlutterwave(gateway, {
           ...paymentRequest,
           reference,
           name: customerName
         }, callbackUrl);
-        redirectUrl = paymentResponse.data?.link || '';
-        console.log('Flutterwave response:', paymentResponse);
+        
+        if (paymentResponse.status === 'success' && paymentResponse.data?.link) {
+          redirectUrl = paymentResponse.data.link;
+        } else {
+          console.error('Flutterwave error response:', paymentResponse);
+          throw new Error(paymentResponse.message || 'Flutterwave initialization failed');
+        }
         break;
         
       case 'korapay':
+        console.log('Initializing Korapay payment...');
         paymentResponse = await initializeKorapay(gateway, {
           ...paymentRequest,
           reference,
           name: customerName
         }, callbackUrl);
-        redirectUrl = paymentResponse.data?.checkout_url || '';
-        console.log('Korapay response:', paymentResponse);
+        
+        if (paymentResponse.status === true && paymentResponse.data?.checkout_url) {
+          redirectUrl = paymentResponse.data.checkout_url;
+        } else {
+          console.error('Korapay error response:', paymentResponse);
+          throw new Error(paymentResponse.message || 'Korapay initialization failed');
+        }
         break;
         
       default:
-        throw new Error('Unsupported payment provider');
+        throw new Error(`Unsupported payment provider: ${paymentRequest.provider}`);
     }
 
-    // Check if payment initialization was successful
     if (!redirectUrl) {
-      console.error('Payment initialization failed:', paymentResponse);
-      throw new Error(paymentResponse?.message || paymentResponse?.error || 'Failed to initialize payment with provider');
+      console.error('No redirect URL obtained. Full response:', JSON.stringify(paymentResponse));
+      throw new Error('Failed to get payment URL from provider. Please check API credentials.');
     }
+
+    console.log('Payment initialized successfully. Redirect URL obtained.');
 
     // Store payment record
     const { error: paymentError } = await supabaseClient
@@ -127,30 +197,37 @@ serve(async (req) => {
         user_id: paymentRequest.user_id,
         metadata: {
           ...paymentRequest.metadata,
-          gateway_provider: paymentRequest.provider
+          gateway_provider: paymentRequest.provider,
+          gateway_mode: gateway.mode
         },
         payment_status: 'pending'
       });
 
     if (paymentError) {
-      console.error('Error storing payment:', paymentError);
-      // Don't throw - payment was already initiated
+      console.error('Error storing payment record:', paymentError);
+      // Don't throw - payment was already initiated with provider
     }
+
+    console.log('=== PAYMENT PROCESSING COMPLETE ===');
 
     return new Response(JSON.stringify({
       success: true,
       message: 'Payment initialized successfully',
       reference: reference,
-      payment_url: redirectUrl
+      payment_url: redirectUrl,
+      mode: gateway.mode
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
-    console.error('Payment processing error:', error);
+    console.error('=== PAYMENT ERROR ===');
+    console.error('Error:', error.message);
+    
     return new Response(JSON.stringify({
       success: false,
-      error: error.message
+      error: error.message,
+      hint: 'Please ensure payment gateway API keys are correctly configured in Admin Settings → Payment Gateways'
     }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -159,8 +236,6 @@ serve(async (req) => {
 });
 
 async function initializePaystack(gateway: any, request: any, callbackUrl: string) {
-  console.log('Initializing Paystack payment...');
-  
   const response = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
     headers: {
@@ -177,19 +252,19 @@ async function initializePaystack(gateway: any, request: any, callbackUrl: strin
           { display_name: "Customer Name", variable_name: "customer_name", value: request.name },
           { display_name: "Payment Type", variable_name: "payment_type", value: request.payment_type || 'wallet_funding' }
         ],
+        user_id: request.user_id,
+        payment_type: request.payment_type,
         ...request.metadata
       }
     }),
   });
 
   const data = await response.json();
-  console.log('Paystack API response status:', response.status);
+  console.log('Paystack API status:', response.status, response.statusText);
   return data;
 }
 
 async function initializeFlutterwave(gateway: any, request: any, callbackUrl: string) {
-  console.log('Initializing Flutterwave payment...');
-  
   const response = await fetch('https://api.flutterwave.com/v3/payments', {
     method: 'POST',
     headers: {
@@ -220,13 +295,11 @@ async function initializeFlutterwave(gateway: any, request: any, callbackUrl: st
   });
 
   const data = await response.json();
-  console.log('Flutterwave API response status:', response.status);
+  console.log('Flutterwave API status:', response.status, response.statusText);
   return data;
 }
 
 async function initializeKorapay(gateway: any, request: any, callbackUrl: string) {
-  console.log('Initializing Korapay payment...');
-  
   const response = await fetch('https://api.korapay.com/merchant/api/v1/charges/initialize', {
     method: 'POST',
     headers: {
@@ -239,8 +312,7 @@ async function initializeKorapay(gateway: any, request: any, callbackUrl: string
       currency: 'NGN',
       customer: {
         name: request.name,
-        email: request.email,
-        phone: request.phone || ''
+        email: request.email
       },
       merchant_bears_cost: true,
       redirect_url: callbackUrl,
@@ -254,6 +326,6 @@ async function initializeKorapay(gateway: any, request: any, callbackUrl: string
   });
 
   const data = await response.json();
-  console.log('Korapay API response status:', response.status);
+  console.log('Korapay API status:', response.status, response.statusText);
   return data;
 }

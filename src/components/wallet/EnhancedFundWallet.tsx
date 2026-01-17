@@ -48,6 +48,7 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
   const quickAmounts = [1000, 2000, 5000, 10000, 20000, 50000];
   
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+  const [gatewayMode, setGatewayMode] = useState<'test' | 'live'>('test');
 
   // Fetch available payment gateways
   React.useEffect(() => {
@@ -61,12 +62,29 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
 
         if (error) throw error;
 
-        const methods = (data || []).map(gateway => {
+        // Filter to only show one entry per provider (prefer live mode)
+        const uniqueProviders = new Map<string, any>();
+        (data || []).forEach((gateway: any) => {
+          const providerKey = gateway.provider.toLowerCase();
+          const existing = uniqueProviders.get(providerKey);
+          if (!existing || gateway.mode === 'live') {
+            uniqueProviders.set(providerKey, gateway);
+          }
+        });
+
+        // Check if any have valid keys (not placeholder)
+        const validGateways = Array.from(uniqueProviders.values()).filter((gateway: any) => {
+          return gateway.secret_key && 
+                 !gateway.secret_key.includes('000000') && 
+                 gateway.secret_key.length > 20;
+        });
+
+        const methods = validGateways.map((gateway: any) => {
           const provider = gateway.provider.toLowerCase();
           return {
             id: provider,
             name: gateway.business_name || gateway.provider,
-            description: `${gateway.provider} payment gateway`,
+            description: `${gateway.provider} (${gateway.mode} mode)`,
             icon: provider === 'flutterwave' ? <CreditCard className="h-5 w-5" /> :
                   provider === 'paystack' ? <CreditCard className="h-5 w-5" /> :
                   provider === 'korapay' ? <Smartphone className="h-5 w-5" /> :
@@ -79,9 +97,14 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
                      provider === 'paystack' ? 'bg-blue-50' :
                      provider === 'korapay' ? 'bg-purple-50' :
                      'bg-gray-50',
-            provider: gateway.provider
+            provider: gateway.provider,
+            mode: gateway.mode
           };
         });
+
+        // Check for any live mode gateways
+        const hasLiveMode = methods.some(m => m.mode === 'live');
+        setGatewayMode(hasLiveMode ? 'live' : 'test');
 
         setPaymentMethods(methods);
         if (methods.length > 0) {
@@ -89,19 +112,7 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
         }
       } catch (error) {
         console.error('Error fetching payment methods:', error);
-        // Fallback to default methods
-        setPaymentMethods([
-          {
-            id: 'flutterwave',
-            name: 'Flutterwave',
-            description: 'Cards, Bank Transfer, Mobile Money',
-            icon: <CreditCard className="h-5 w-5" />,
-            color: 'text-orange-600',
-            bgColor: 'bg-orange-50',
-            provider: 'flutterwave'
-          }
-        ]);
-        setSelectedMethod('flutterwave');
+        setPaymentMethods([]);
       }
     };
 
@@ -338,11 +349,23 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
         </Button>
       </div>
 
+      {/* Mode Indicator */}
+      {paymentMethods.length > 0 && (
+        <div className={`p-2 rounded-lg text-center text-xs font-medium ${
+          gatewayMode === 'live' 
+            ? 'bg-green-50 text-green-700 border border-green-200' 
+            : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+        }`}>
+          {gatewayMode === 'live' ? '🟢 Live Mode - Real payments' : '🟡 Test Mode - No real charges'}
+        </div>
+      )}
+
       <div className="space-y-3">
         {paymentMethods.length === 0 ? (
-          <div className="text-center p-6 text-muted-foreground">
-            <p>No payment methods available</p>
-            <p className="text-sm">Please contact support to enable payment gateways</p>
+          <div className="text-center p-6 text-muted-foreground space-y-2">
+            <p className="font-medium">No payment methods available</p>
+            <p className="text-sm">Payment gateways are not configured or API keys are invalid.</p>
+            <p className="text-xs">Please contact the administrator to enable payment gateways.</p>
           </div>
         ) : (
           paymentMethods.map((method) => (
