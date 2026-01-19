@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import PaymentGatewayCard, { GatewayBase } from "./PaymentGatewayCard";
+import PaymentGatewayCard, { GatewayBase, getProviderDisplayName } from "./PaymentGatewayCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,24 +7,36 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
 
-// Only these providers allowed
-const ALLOWED_PROVIDERS = ["Flutterwave", "Korapay", "Paystack"] as const;
+// Only these providers allowed - use lowercase to match database
+const ALLOWED_PROVIDERS = ["flutterwave", "korapay", "paystack"] as const;
+type ProviderType = typeof ALLOWED_PROVIDERS[number];
 
 const providerIcons: Record<string, string> = {
-  Flutterwave: "/lovable-uploads/fdd20512-006f-4e76-a7ec-e229371370fc.png",
-  Korapay: "/lovable-uploads/64b237aa-13e5-47f2-898f-26a6977d2274.png",
-  Paystack: "/lovable-uploads/14c0d5bb-a4e2-4e2a-bbc9-866a577f7b0b.png",
+  flutterwave: "/lovable-uploads/fdd20512-006f-4e76-a7ec-e229371370fc.png",
+  korapay: "/lovable-uploads/64b237aa-13e5-47f2-898f-26a6977d2274.png",
+  paystack: "/lovable-uploads/14c0d5bb-a4e2-4e2a-bbc9-866a577f7b0b.png",
 };
 
 const providerDocs: Record<string, string> = {
-  Flutterwave: "https://developer.flutterwave.com/docs/getting-started",
-  Korapay: "https://korapay.com/developers/docs",
-  Paystack: "https://paystack.com/docs/api/",
+  flutterwave: "https://developer.flutterwave.com/docs/getting-started",
+  korapay: "https://korapay.com/developers/docs",
+  paystack: "https://paystack.com/docs/api/",
+};
+
+const providerDisplayNames: Record<string, string> = {
+  flutterwave: "Flutterwave",
+  korapay: "Korapay",
+  paystack: "Paystack",
+};
+
+const getWebhookUrl = (provider: string) => {
+  const baseUrl = "https://hhcitezdbueybdtslkth.supabase.co/functions/v1";
+  return `${baseUrl}/${provider}-webhook`;
 };
 
 const initialGateways: GatewayBase[] = [
   {
-    provider: "Flutterwave",
+    provider: "flutterwave",
     enabled: false,
     mode: "test",
     public_key: "",
@@ -32,10 +44,10 @@ const initialGateways: GatewayBase[] = [
     encryption_key: "",
     merchant_id: "",
     business_name: "",
-    webhook_url: "",
+    webhook_url: getWebhookUrl("flutterwave"),
   },
   {
-    provider: "Korapay",
+    provider: "korapay",
     enabled: false,
     mode: "test",
     public_key: "",
@@ -43,17 +55,17 @@ const initialGateways: GatewayBase[] = [
     encryption_key: "",
     merchant_id: "",
     business_name: "",
-    webhook_url: "",
+    webhook_url: getWebhookUrl("korapay"),
   },
   {
-    provider: "Paystack",
+    provider: "paystack",
     enabled: false,
     mode: "test",
     public_key: "",
     secret_key: "",
     merchant_id: "",
     business_name: "",
-    webhook_url: "",
+    webhook_url: getWebhookUrl("paystack"),
   },
 ];
 
@@ -68,8 +80,10 @@ function validateApiKey(provider: string, secretKey: string): { valid: boolean; 
     return { valid: false, message: 'Placeholder key detected - please enter real API key', isPlaceholder: true };
   }
 
+  const prov = provider.toLowerCase();
+  
   // Validate key format based on provider
-  switch (provider.toLowerCase()) {
+  switch (prov) {
     case 'paystack':
       if (!secretKey.startsWith('sk_test_') && !secretKey.startsWith('sk_live_')) {
         return { valid: false, message: 'Should start with sk_test_ or sk_live_', isPlaceholder: false };
@@ -125,18 +139,19 @@ export default function PaymentGatewaysPanel() {
       return;
     }
 
-    const validProviders: Array<"Flutterwave" | "Korapay" | "Paystack"> = ["Flutterwave", "Korapay", "Paystack"];
+    const validProviders = ALLOWED_PROVIDERS;
     const modes: ("test" | "live")[] = ["test", "live"];
     const flat: GatewayBase[] = [];
 
     for (const prov of validProviders) {
       for (const mode of modes) {
-        const row = data.find((g: any) => g.provider === prov && g.mode === mode);
+        // Match by lowercase provider name
+        const row = data.find((g: any) => g.provider.toLowerCase() === prov && g.mode === mode);
         if (row) {
-          flat.push({ ...row, provider: prov, mode });
+          flat.push({ ...row, provider: prov as any, mode });
         } else {
           const base = initialGateways.find(g => g.provider === prov) as GatewayBase;
-          flat.push({ ...base, mode, enabled: false, provider: prov });
+          flat.push({ ...base, mode, enabled: false, provider: prov as any });
         }
       }
     }
@@ -182,7 +197,7 @@ export default function PaymentGatewaysPanel() {
         .single();
       if (error) throw error;
       toast({
-        title: `${g.provider} [${g.mode}] saved!`,
+        title: `${getProviderDisplayName(g.provider)} [${g.mode}] saved!`,
         description: g.mode === 'live' ? "Production mode configured" : "Test mode configured",
       });
       await loadGateways();
@@ -251,7 +266,7 @@ export default function PaymentGatewaysPanel() {
   // Only show one card per provider (prefer 'live' mode)
   const displayGateways = gateways.filter(
     (g, i, arr) =>
-      ALLOWED_PROVIDERS.includes(g.provider) &&
+      (ALLOWED_PROVIDERS as readonly string[]).includes(g.provider) &&
       (g.mode === "live" ||
         (g.mode === "test" && !arr.some(other => other.provider === g.provider && other.mode === "live")))
   );

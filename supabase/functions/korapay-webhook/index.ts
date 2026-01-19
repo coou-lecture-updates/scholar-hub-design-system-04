@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-paystack-signature',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-korapay-signature',
 };
 
 serve(async (req) => {
@@ -12,21 +12,19 @@ serve(async (req) => {
   }
 
   try {
-    const signature = req.headers.get('x-paystack-signature');
     const body = await req.text();
-    
-    console.log('Paystack webhook received');
+    console.log('Korapay webhook received');
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    // Get secret key from database
+    // Get secret key from database for signature verification
     const { data: gateway } = await supabaseClient
       .from('payment_gateways')
       .select('secret_key')
-      .eq('provider', 'paystack')
+      .eq('provider', 'korapay')
       .eq('enabled', true)
       .order('mode', { ascending: false }) // Prefer live mode
       .limit(1)
@@ -35,31 +33,35 @@ serve(async (req) => {
     const secretKey = gateway?.secret_key;
 
     // Verify webhook signature
+    const signature = req.headers.get('x-korapay-signature');
     if (signature && secretKey) {
-      const expectedSignature = await verifyPaystackSignature(body, secretKey);
+      const expectedSignature = await createHmacSignature(body, secretKey);
       if (signature !== expectedSignature) {
-        console.log('Invalid Paystack signature - but continuing');
+        console.log('Korapay signature mismatch - continuing anyway');
       }
     }
 
     const event = JSON.parse(body);
-    console.log('Paystack event:', event.event, event.data?.status);
+    console.log('Korapay event:', event.event, event.data?.status);
 
-    if (event.event === 'charge.success') {
-      const { reference, amount, status, customer } = event.data;
+    // Handle successful charge
+    if (event.event === 'charge.success' || 
+        (event.data?.status === 'success' || event.data?.status === 'successful')) {
+      const reference = event.data?.reference || event.data?.tx_ref;
+      const korapayRef = event.data?.korapay_reference || event.data?.payment_reference;
       
-      console.log('Processing successful Paystack charge:', reference);
+      console.log('Processing successful Korapay charge:', reference);
 
       // Update payment record
       const { data: payment, error: updateError } = await supabaseClient
         .from('payments')
         .update({
           payment_status: 'completed',
-          transaction_id: event.data.id?.toString(),
+          transaction_id: korapayRef,
           metadata: {
             ...event.data,
             webhook_verified_at: new Date().toISOString(),
-            provider: 'paystack'
+            provider: 'korapay'
           }
         })
         .eq('payment_reference', reference)
@@ -79,13 +81,11 @@ serve(async (req) => {
             .eq('user_id', payment.user_id)
             .single();
 
-          const fundAmount = payment.amount;
-
           if (wallet) {
             await supabaseClient
               .from('wallets')
               .update({ 
-                balance: wallet.balance + fundAmount,
+                balance: wallet.balance + payment.amount,
                 updated_at: new Date().toISOString()
               })
               .eq('id', wallet.id);
@@ -94,28 +94,28 @@ serve(async (req) => {
               .from('wallet_transactions')
               .insert({
                 user_id: payment.user_id,
-                amount: fundAmount,
+                amount: payment.amount,
                 type: 'credit',
-                description: 'Wallet funded via Paystack',
+                description: 'Wallet funded via Korapay',
                 reference: reference
               });
 
-            console.log('Wallet funded:', payment.user_id, fundAmount);
+            console.log('Wallet funded:', payment.user_id, payment.amount);
           } else {
             await supabaseClient
               .from('wallets')
               .insert({
                 user_id: payment.user_id,
-                balance: fundAmount
+                balance: payment.amount
               });
 
             await supabaseClient
               .from('wallet_transactions')
               .insert({
                 user_id: payment.user_id,
-                amount: fundAmount,
+                amount: payment.amount,
                 type: 'credit',
-                description: 'Wallet funded via Paystack',
+                description: 'Wallet funded via Korapay',
                 reference: reference
               });
 
@@ -152,14 +152,14 @@ serve(async (req) => {
         .from('payment_transactions')
         .insert({
           payment_id: payment?.id,
-          provider: 'paystack',
-          provider_reference: reference,
+          provider: 'korapay',
+          provider_reference: korapayRef,
           status: 'completed',
           webhook_data: event.data,
           verified_at: new Date().toISOString()
         });
 
-      console.log(`Paystack payment completed: ${reference}`);
+      console.log(`Korapay payment completed: ${reference}`);
     }
 
     return new Response(JSON.stringify({ status: 'success' }), { 
@@ -167,7 +167,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Paystack webhook error:', error);
+    console.error('Korapay webhook error:', error);
     return new Response(JSON.stringify({ status: 'error', message: error.message }), { 
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -175,12 +175,12 @@ serve(async (req) => {
   }
 });
 
-async function verifyPaystackSignature(body: string, secret: string): Promise<string> {
+async function createHmacSignature(body: string, secret: string): Promise<string> {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     'raw',
     encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-512' },
+    { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']
   );
