@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 
 export type GatewayBase = {
   id?: string;
-  provider: "Flutterwave" | "Korapay" | "Paystack";
+  provider: "flutterwave" | "korapay" | "paystack";
   enabled: boolean;
   mode: "test" | "live";
   public_key: string;
@@ -18,6 +18,16 @@ export type GatewayBase = {
   merchant_id?: string;
   business_name?: string;
   webhook_url: string;
+};
+
+// Display name helper
+export const getProviderDisplayName = (provider: string): string => {
+  const names: Record<string, string> = {
+    flutterwave: "Flutterwave",
+    korapay: "Korapay",
+    paystack: "Paystack",
+  };
+  return names[provider.toLowerCase()] || provider;
 };
 
 type PaymentGatewayCardProps = {
@@ -59,11 +69,11 @@ const PaymentGatewayCard: React.FC<PaymentGatewayCardProps> = ({
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <img
               src={providerIcons[g.provider] || ""}
-              alt={g.provider + " logo"}
+              alt={getProviderDisplayName(g.provider) + " logo"}
               className="h-8 w-8 rounded bg-white border"
             />
             <div className="flex flex-col flex-1 min-w-0">
-              <CardTitle className="text-lg font-semibold truncate">{g.provider}</CardTitle>
+              <CardTitle className="text-lg font-semibold truncate">{getProviderDisplayName(g.provider)}</CardTitle>
               <CardDescription className="truncate">
                 <a
                   href={providerDocs[g.provider]}
@@ -139,7 +149,7 @@ const PaymentGatewayCard: React.FC<PaymentGatewayCardProps> = ({
             onChange={e => onChange(idx, "secret_key", e.target.value)}
           />
         </div>
-        {g.provider === "Flutterwave" && (
+        {g.provider === "flutterwave" && (
           <div className="grid gap-2">
             <Label className="text-xs">Encryption Key</Label>
             <Input
@@ -151,7 +161,7 @@ const PaymentGatewayCard: React.FC<PaymentGatewayCardProps> = ({
             />
           </div>
         )}
-        {g.provider === "Korapay" && (
+        {g.provider === "korapay" && (
           <div className="grid gap-2">
             <Label className="text-xs">Merchant ID</Label>
             <Input

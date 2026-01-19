@@ -16,6 +16,12 @@ verify_jwt = false
 [functions.paystack-webhook]
 verify_jwt = false
 
+[functions.flutterwave-webhook]
+verify_jwt = false
+
+[functions.korapay-webhook]
+verify_jwt = false
+
 [functions.academic-system]
 verify_jwt = false
 
@@ -23,4 +29,7 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.moderate-content]
+verify_jwt = false
+
+[functions.verify-payment]
 verify_jwt = false
