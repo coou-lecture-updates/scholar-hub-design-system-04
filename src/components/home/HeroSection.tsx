@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Search, BookOpen, Calendar, FileText } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Search, BookOpen, Calendar, FileText } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface CustomLink {
   id: string;
@@ -16,7 +16,7 @@ interface CustomLink {
 interface SearchResult {
   id: string;
   title: string;
-  type: 'course' | 'event' | 'blog';
+  type: "course" | "event" | "blog";
   summary?: string;
 }
 
@@ -26,7 +26,7 @@ const HeroSection = () => {
   const { toast } = useToast();
 
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -35,14 +35,14 @@ const HeroSection = () => {
     const fetchCustomLinks = async () => {
       try {
         const { data, error } = await supabase
-          .from('custom_links')
-          .select('*')
-          .eq('is_active', true)
-          .eq('category', 'hero')
-          .order('name');
+          .from("custom_links")
+          .select("*")
+          .eq("is_active", true)
+          .eq("category", "hero")
+          .order("name");
 
         if (error) {
-          console.error('Error fetching custom links:', error);
+          console.error("Error fetching custom links:", error);
           return;
         }
 
@@ -50,7 +50,7 @@ const HeroSection = () => {
           setCustomLinks(data);
         }
       } catch (err) {
-        console.error('Failed to fetch custom links:', err);
+        console.error("Failed to fetch custom links:", err);
       }
     };
 
@@ -69,8 +69,8 @@ const HeroSection = () => {
       const results: SearchResult[] = [];
 
       const { data: courses } = await supabase
-        .from('courses')
-        .select('id, title, description')
+        .from("courses")
+        .select("id, title, description")
         .or(`title.ilike.%${query}%, description.ilike.%${query}%`)
         .limit(3);
 
@@ -79,15 +79,15 @@ const HeroSection = () => {
           ...courses.map((course) => ({
             id: course.id,
             title: course.title,
-            type: 'course' as const,
+            type: "course" as const,
             summary: course.description,
           })),
         );
       }
 
       const { data: events } = await supabase
-        .from('events')
-        .select('id, title, description')
+        .from("events")
+        .select("id, title, description")
         .or(`title.ilike.%${query}%, description.ilike.%${query}%`)
         .limit(3);
 
@@ -96,16 +96,16 @@ const HeroSection = () => {
           ...events.map((event) => ({
             id: event.id,
             title: event.title,
-            type: 'event' as const,
+            type: "event" as const,
             summary: event.description,
           })),
         );
       }
 
       const { data: blogs } = await supabase
-        .from('blog_posts')
-        .select('id, title, summary')
-        .eq('published', true)
+        .from("blog_posts")
+        .select("id, title, summary")
+        .eq("published", true)
         .or(`title.ilike.%${query}%, summary.ilike.%${query}%`)
         .limit(3);
 
@@ -114,7 +114,7 @@ const HeroSection = () => {
           ...blogs.map((blog) => ({
             id: blog.id,
             title: blog.title,
-            type: 'blog' as const,
+            type: "blog" as const,
             summary: blog.summary,
           })),
         );
@@ -123,11 +123,11 @@ const HeroSection = () => {
       setSearchResults(results);
       setShowResults(true);
     } catch (error) {
-      console.error('Search error:', error);
+      console.error("Search error:", error);
       toast({
-        title: 'Search Error',
-        description: 'There was an error performing the search. Please try again.',
-        variant: 'destructive',
+        title: "Search Error",
+        description: "There was an error performing the search. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsSearching(false);
@@ -139,25 +139,25 @@ const HeroSection = () => {
   };
 
   const handleResultClick = (result: SearchResult) => {
-    if (result.type === 'course') {
+    if (result.type === "course") {
       navigate(`/courses/${result.id}`);
-    } else if (result.type === 'event') {
+    } else if (result.type === "event") {
       navigate(`/events/${result.id}`);
-    } else if (result.type === 'blog') {
+    } else if (result.type === "blog") {
       navigate(`/blogs/${result.id}`);
     }
 
     setShowResults(false);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const getResultIcon = (type: string) => {
     switch (type) {
-      case 'course':
+      case "course":
         return <BookOpen className="h-4 w-4 text-blue-500" />;
-      case 'event':
+      case "event":
         return <Calendar className="h-4 w-4 text-green-500" />;
-      case 'blog':
+      case "blog":
         return <FileText className="h-4 w-4 text-purple-500" />;
       default:
         return <Search className="h-4 w-4" />;
@@ -176,7 +176,7 @@ const HeroSection = () => {
       </div>
 
       <div className="container mx-auto px-4 md:px-6 pt-12 pb-16 md:py-24 relative z-10">
-        <div className="max-w-xl md:max-w-3xl mx-auto">
+        <div className="max-w-xl md:px-6 mx-auto">
           <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 md:leading-tight leading-snug">
             Welcome to Chukwuemeka Odumegwu Ojukwu University
           </h1>
@@ -193,7 +193,7 @@ const HeroSection = () => {
                 className="w-full px-4 py-3 pr-10 rounded-full text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary/70 bg-white text-foreground"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
 
@@ -214,9 +214,7 @@ const HeroSection = () => {
                               <h4 className="font-medium text-sm text-foreground">{result.title}</h4>
                               <p className="text-[11px] text-muted-foreground capitalize">{result.type}</p>
                               {result.summary && (
-                                <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2">
-                                  {result.summary}
-                                </p>
+                                <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2">{result.summary}</p>
                               )}
                             </div>
                           </div>
@@ -236,7 +234,7 @@ const HeroSection = () => {
               onClick={handleSearch}
               disabled={isSearching}
             >
-              {isSearching ? 'Searching...' : 'Search'}
+              {isSearching ? "Searching..." : "Search"}
             </Button>
           </div>
 
@@ -248,7 +246,7 @@ const HeroSection = () => {
                   key={link.id}
                   variant="outline"
                   className="bg-white/10 text-white border-white/40 hover:bg-white/20 rounded-full px-5"
-                  onClick={() => window.open(link.url, '_blank')}
+                  onClick={() => window.open(link.url, "_blank")}
                 >
                   {link.name}
                 </Button>
