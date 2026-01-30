@@ -51,7 +51,7 @@ const StatsCounter: React.FC = () => {
     { label: 'Students', value: 1000, icon: <Users className="h-8 w-8" />, suffix: '+' },
     { label: 'Courses', value: 156, icon: <BookOpen className="h-8 w-8" /> },
     { label: 'Events', value: 71, icon: <Calendar className="h-8 w-8" /> },
-    { label: 'Departments', value: 42, icon: <GraduationCap className="h-8 w-8" /> },
+    { label: 'Departments', value: 50, icon: <GraduationCap className="h-8 w-8" /> },
   ];
 
   return (
