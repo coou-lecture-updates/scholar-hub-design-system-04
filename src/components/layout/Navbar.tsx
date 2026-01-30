@@ -138,7 +138,7 @@ const LogoComponent = () => {
         alt="COOU Logo" 
         className="h-10 w-auto"
       />
-      <span className="text-xl font-bold text-blue-700 hidden sm:block">
+      <span className="text-xl font-bold text-primary hidden sm:block">
         {siteName}
       </span>
     </Link>
@@ -214,7 +214,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-card shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -224,10 +224,10 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-6">
             {/* Public Navigation */}
             {publicNavItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className="text-gray-700 hover:text-blue-700 font-medium transition-colors"
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="text-foreground hover:text-primary font-medium transition-colors"
               >
                 {item.name}
               </Link>
@@ -479,10 +479,10 @@ const Navbar = () => {
             {/* Public Navigation */}
             <div className="py-4 space-y-2">
               {publicNavItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="block py-2 text-gray-700 hover:text-blue-700 font-medium"
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="block py-2 text-foreground hover:text-primary font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
@@ -518,39 +518,39 @@ const Navbar = () => {
                     </Button>
                   </CollapsibleTrigger>
                   <CollapsibleContent className="space-y-1 ml-4">
-                    <Link to="/dashboard" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/dashboard" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <LayoutDashboard className="h-4 w-4" />
                       <span>Dashboard</span>
                     </Link>
-                    <Link to="/timetable" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/timetable" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <Calendar className="h-4 w-4" />
                       <span>Timetable</span>
                     </Link>
-                    <Link to="/course-updates" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/course-updates" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <BookOpen className="h-4 w-4" />
                       <span>Course Updates</span>
                     </Link>
-                    <Link to="/exam-updates" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/exam-updates" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <ClipboardList className="h-4 w-4" />
                       <span>Exam Updates</span>
                     </Link>
-                    <Link to="/community" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/community" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <Users className="h-4 w-4" />
                       <span>Community</span>
                     </Link>
-                    <Link to="/resources" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/resources" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <FileText className="h-4 w-4" />
                       <span>Resources</span>
                     </Link>
-                    <Link to="/messages" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/messages" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <MessageSquare className="h-4 w-4" />
                       <span>Messages</span>
                     </Link>
-                    <Link to="/lost-and-found" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/lost-and-found" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <FileText className="h-4 w-4" />
                       <span>Lost & Found</span>
                     </Link>
-                    <Link to="/tools" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/tools" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                       <Settings className="h-4 w-4" />
                       <span>Tools</span>
                     </Link>
@@ -573,11 +573,11 @@ const Navbar = () => {
                       </Button>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="space-y-1 ml-4">
-                      <Link to="/admin/lectures" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/lectures" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <School className="h-4 w-4" />
                         <span>Lecture Management</span>
                       </Link>
-                      <Link to="/admin/timetables" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/timetables" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <Calendar className="h-4 w-4" />
                         <span>Timetable Management</span>
                       </Link>
@@ -601,55 +601,55 @@ const Navbar = () => {
                       </Button>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="space-y-1 ml-4">
-                      <Link to="/admin" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <LayoutDashboard className="h-4 w-4" />
                         <span>Admin Dashboard</span>
                       </Link>
-                      <Link to="/admin/blogs" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/blogs" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <FileText className="h-4 w-4" />
                         <span>Blog Management</span>
                       </Link>
-                      <Link to="/admin/events" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/events" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <Calendar className="h-4 w-4" />
                         <span>Event Management</span>
                       </Link>
-                      <Link to="/admin/alerts" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/alerts" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <Bell className="h-4 w-4" />
                         <span>Alert Management</span>
                       </Link>
-                      <Link to="/admin/messages" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/messages" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <MessageSquare className="h-4 w-4" />
                         <span>Messages</span>
                       </Link>
-                      <Link to="/admin/lectures" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/lectures" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <School className="h-4 w-4" />
                         <span>Lecture Management</span>
                       </Link>
-                      <Link to="/admin/exams" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/exams" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <ClipboardList className="h-4 w-4" />
                         <span>Exam Management</span>
                       </Link>
-                      <Link to="/admin/faculties" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/faculties" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <Building className="h-4 w-4" />
                         <span>Faculty Management</span>
                       </Link>
-                      <Link to="/admin/departments" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/departments" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <Building className="h-4 w-4" />
                         <span>Department Management</span>
                       </Link>
-                      <Link to="/admin/users" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/users" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <UserCog className="h-4 w-4" />
                         <span>User Management</span>
                       </Link>
-                      <Link to="/admin/roles" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/roles" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <UserCheck className="h-4 w-4" />
                         <span>Role Management</span>
                       </Link>
-                      <Link to="/admin/analytics" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/analytics" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <BarChart3 className="h-4 w-4" />
                         <span>Analytics & Reports</span>
                       </Link>
-                      <Link to="/admin/settings" className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700" onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/admin/settings" className="flex items-center space-x-2 py-2 text-foreground hover:text-primary" onClick={() => setIsMenuOpen(false)}>
                         <Settings className="h-4 w-4" />
                         <span>System Settings</span>
                       </Link>
@@ -660,7 +660,7 @@ const Navbar = () => {
                 <div className="border-t pt-4 mt-4">
                   <Link
                     to="/settings"
-                    className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700"
+                    className="flex items-center space-x-2 py-2 text-foreground hover:text-primary"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Settings className="h-4 w-4" />
@@ -671,7 +671,7 @@ const Navbar = () => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center space-x-2 py-2 text-gray-700 hover:text-blue-700 w-full text-left"
+                    className="flex items-center space-x-2 py-2 text-foreground hover:text-primary w-full text-left"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Sign out</span>
