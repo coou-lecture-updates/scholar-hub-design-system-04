@@ -3,6 +3,9 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import RealUserStats from '@/components/dashboard/RealUserStats';
 import UserLevelNotifications from '@/components/dashboard/UserLevelNotifications';
 import CreateEventCTA from '@/components/dashboard/CreateEventCTA';
+import QuickActions from '@/components/dashboard/QuickActions';
+import RecentActivity from '@/components/dashboard/RecentActivity';
+import UpcomingDeadlines from '@/components/dashboard/UpcomingDeadlines';
 import { Loader2, BookOpen, Calendar, FileText, MessageSquare, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth/useAuth';
@@ -191,7 +194,14 @@ const Dashboard = () => {
       <div className="space-y-4 p-2 sm:p-3">
         <DashboardHeader fullName={userProfile?.full_name} />
         
+        <QuickActions />
+        
         <CreateEventCTA />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <RecentActivity />
+          <UpcomingDeadlines />
+        </div>
         
         <UserProfileInfo userInfo={userInfo} />
         <UserRoleDisplay />

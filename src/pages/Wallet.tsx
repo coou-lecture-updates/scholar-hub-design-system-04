@@ -11,16 +11,18 @@ import {
   ArrowUpRight, 
   ArrowDownLeft, 
   Search, 
-  Filter,
   Calendar,
   Receipt
 } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import TransactionExport from '@/components/wallet/TransactionExport';
+import { useAuth } from '@/contexts/auth/useAuth';
 
 const Wallet: React.FC = () => {
   const { wallet, transactions, loading } = useWallet();
+  const { userProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'credit' | 'debit'>('all');
 
@@ -123,13 +125,21 @@ const Wallet: React.FC = () => {
         {/* Transactions */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Receipt className="h-5 w-5" />
-              Transaction History
-            </CardTitle>
-            <CardDescription>
-              View all your wallet transactions and activities
-            </CardDescription>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Receipt className="h-5 w-5" />
+                  Transaction History
+                </CardTitle>
+                <CardDescription>
+                  View all your wallet transactions and activities
+                </CardDescription>
+              </div>
+              <TransactionExport 
+                transactions={transactions} 
+                userName={userProfile?.full_name} 
+              />
+            </div>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="all" className="space-y-4">

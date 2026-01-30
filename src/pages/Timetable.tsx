@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Download, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import TimetableExport from '@/components/timetable/TimetableExport';
 
 interface LectureData {
   id: number;
@@ -162,10 +163,7 @@ const Timetable = () => {
                 </Button>
               </div>
               
-              <Button variant="ghost" size="sm" className="text-primary">
-                <Download className="h-4 w-4 mr-1" />
-                Download
-              </Button>
+              <TimetableExport lectures={lectures} userProfile={userProfile} />
             </div>
           </div>
           {lectures.length === 0 ? (
