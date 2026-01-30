@@ -46,57 +46,13 @@ const AnimatedCounter: React.FC<{ end: number; duration?: number; suffix?: strin
 };
 
 const StatsCounter: React.FC = () => {
-  const [stats, setStats] = useState<Stat[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [
-          { count: usersCount },
-          { count: coursesCount },
-          { count: eventsCount },
-          { count: departmentsCount }
-        ] = await Promise.all([
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('courses').select('*', { count: 'exact', head: true }),
-          supabase.from('events').select('*', { count: 'exact', head: true }).eq('published', true),
-          supabase.from('departments').select('*', { count: 'exact', head: true })
-        ]);
-
-        setStats([
-          { label: 'Students', value: usersCount || 0, icon: <Users className="h-8 w-8" />, suffix: '+' },
-          { label: 'Courses', value: coursesCount || 0, icon: <BookOpen className="h-8 w-8" /> },
-          { label: 'Events', value: eventsCount || 0, icon: <Calendar className="h-8 w-8" /> },
-          { label: 'Departments', value: departmentsCount || 0, icon: <GraduationCap className="h-8 w-8" /> },
-        ]);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="py-12 bg-primary/5">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="animate-pulse flex flex-col items-center">
-                <div className="h-12 w-12 bg-primary/20 rounded-full mb-3" />
-                <div className="h-8 w-20 bg-primary/20 rounded mb-2" />
-                <div className="h-4 w-16 bg-primary/20 rounded" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Use fake data for now - 1000+ students and 71 events
+  const stats: Stat[] = [
+    { label: 'Students', value: 1000, icon: <Users className="h-8 w-8" />, suffix: '+' },
+    { label: 'Courses', value: 156, icon: <BookOpen className="h-8 w-8" /> },
+    { label: 'Events', value: 71, icon: <Calendar className="h-8 w-8" /> },
+    { label: 'Departments', value: 42, icon: <GraduationCap className="h-8 w-8" /> },
+  ];
 
   return (
     <div className="py-12 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">

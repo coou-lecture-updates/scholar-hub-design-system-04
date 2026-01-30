@@ -165,37 +165,41 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden min-h-[500px] md:min-h-[600px]">
+      {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
           src="/lovable-uploads/497e0a50-40be-4200-b5d8-b57acd658ca7.png"
-          alt="Chukwuemeka Odumegwu Ojukwu University"
+          alt="Chukwuemeka Odumegwu Ojukwu University Campus"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-blue-900/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/75 via-blue-900/70 to-blue-900/80" />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 pt-12 pb-16 md:py-24 relative z-10">
-        <div className="max-w-xl md:px-6 mx-auto">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 md:leading-tight leading-snug">
+      {/* Content */}
+      <div className="container mx-auto px-4 md:px-6 pt-16 pb-20 md:py-28 relative z-10">
+        <div className="max-w-3xl mx-auto text-center">
+          {/* Title with elegant italic styling like reference */}
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 md:mb-8 leading-tight italic">
             Welcome to Chukwuemeka Odumegwu Ojukwu University
           </h1>
-          <p className="text-white/90 text-sm md:text-lg mb-6 md:mb-8">
+          
+          <p className="text-white/90 text-base md:text-xl mb-8 md:mb-10 max-w-2xl mx-auto">
             Stay updated with the latest news, events, and resources for Uli and Igbariam campuses
           </p>
 
-          {/* Search card */}
-          <div className="w-full bg-white/95 rounded-2xl shadow-lg px-4 py-4 md:px-6 md:py-5 mb-5 md:mb-8 space-y-3">
-            <div className="relative w-full">
+          {/* Enhanced Search Card - matching reference image */}
+          <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl px-5 py-5 md:px-8 md:py-6 mb-8 md:mb-10">
+            <div className="relative w-full mb-4">
               <input
                 type="text"
                 placeholder="Search for courses, events, news..."
-                className="w-full px-4 py-3 pr-10 rounded-full text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary/70 bg-white text-foreground"
+                className="w-full px-5 py-4 pr-12 rounded-full text-base md:text-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-gray-50/50 text-foreground placeholder:text-muted-foreground"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
 
               {/* Search Results Dropdown */}
               {showResults && (
@@ -230,7 +234,7 @@ const HeroSection = () => {
               )}
             </div>
             <Button
-              className="w-full md:w-auto md:self-start bg-primary hover:bg-primary/90 text-primary-foreground rounded-full"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-full py-3 text-base font-semibold shadow-md"
               onClick={handleSearch}
               disabled={isSearching}
             >
@@ -238,14 +242,14 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          {/* Quick links */}
-          <div className="flex flex-wrap gap-3">
+          {/* Quick links - centered below search card */}
+          <div className="flex flex-wrap justify-center gap-4">
             {customLinks.length > 0 ? (
               customLinks.map((link) => (
                 <Button
                   key={link.id}
                   variant="outline"
-                  className="bg-white/10 text-white border-white/40 hover:bg-white/20 rounded-full px-5"
+                  className="bg-white/15 text-white border-white/50 hover:bg-white/25 hover:border-white/70 rounded-full px-6 py-2.5 font-medium backdrop-blur-sm transition-all"
                   onClick={() => window.open(link.url, "_blank")}
                 >
                   {link.name}
@@ -255,13 +259,13 @@ const HeroSection = () => {
               <>
                 <Button
                   variant="outline"
-                  className="bg-white/10 text-white border-white/40 hover:bg-white/20 rounded-full px-5"
+                  className="bg-white/15 text-white border-white/50 hover:bg-white/25 hover:border-white/70 rounded-full px-6 py-2.5 font-medium backdrop-blur-sm transition-all"
                 >
                   Academic Calendar
                 </Button>
                 <Button
                   variant="outline"
-                  className="bg-white/10 text-white border-white/40 hover:bg-white/20 rounded-full px-5"
+                  className="bg-white/15 text-white border-white/50 hover:bg-white/25 hover:border-white/70 rounded-full px-6 py-2.5 font-medium backdrop-blur-sm transition-all"
                 >
                   Student Resources
                 </Button>
