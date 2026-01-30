@@ -187,22 +187,50 @@ export default function PaymentGatewaysPanel() {
     }
 
     try {
-      let upsertBody: any = { ...g };
-      delete upsertBody.id;
-      upsertBody.updated_at = new Date().toISOString();
+      // Prepare data for upsert - ensure provider is lowercase
+      const upsertBody: any = {
+        provider: g.provider.toLowerCase(),
+        mode: g.mode,
+        enabled: g.enabled,
+        public_key: g.public_key || '',
+        secret_key: g.secret_key || '',
+        encryption_key: g.encryption_key || '',
+        merchant_id: g.merchant_id || '',
+        business_name: g.business_name || '',
+        webhook_url: g.webhook_url || getWebhookUrl(g.provider),
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('Saving gateway:', upsertBody.provider, upsertBody.mode);
+
       const { data, error } = await supabase
         .from("payment_gateways")
         .upsert(upsertBody, { onConflict: "provider,mode" })
         .select()
         .single();
-      if (error) throw error;
+        
+      if (error) {
+        console.error('Save error:', error);
+        throw error;
+      }
+      
+      console.log('Gateway saved successfully:', data);
+      
       toast({
-        title: `${getProviderDisplayName(g.provider)} [${g.mode}] saved!`,
-        description: g.mode === 'live' ? "Production mode configured" : "Test mode configured",
+        title: `✅ ${getProviderDisplayName(g.provider)} [${g.mode}] saved!`,
+        description: g.enabled 
+          ? (g.mode === 'live' ? "🟢 Production mode configured - ready for live payments" : "🟡 Test mode configured") 
+          : "Gateway saved but not enabled",
+        variant: "default"
       });
       await loadGateways();
     } catch (error: any) {
-      toast({ title: "Save failed", description: error.message, variant: "destructive" });
+      console.error('Failed to save gateway:', error);
+      toast({ 
+        title: "Save failed", 
+        description: error.message || "Unknown error occurred. Please try again.", 
+        variant: "destructive" 
+      });
     } finally {
       setSavingIdx(null);
     }
