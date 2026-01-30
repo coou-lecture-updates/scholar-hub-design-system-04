@@ -732,8 +732,9 @@ const EnhancedAnalytics = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-              <Card className="col-span-2">
+            {/* Overview Stats - Responsive Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
@@ -744,32 +745,32 @@ const EnhancedAnalytics = () => {
                 </CardContent>
               </Card>
 
-              <Card className="col-span-2">
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">₦{overview?.totalRevenue?.toLocaleString()}</div>
+                  <div className="text-xl sm:text-2xl font-bold">₦{overview?.totalRevenue?.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">{overview?.conversionRate}% conversion rate</p>
                 </CardContent>
               </Card>
 
-              <Card className="col-span-2">
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Events</CardTitle>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{overview?.events}</div>
-                  <div className="flex gap-1 mt-1">
+                  <div className="flex flex-wrap gap-1 mt-1">
                     <Badge variant="secondary" className="text-xs">{eventStats?.published} Live</Badge>
                     <Badge variant="outline" className="text-xs">{eventStats?.draft} Draft</Badge>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="col-span-2">
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Tickets Sold</CardTitle>
                   <Activity className="h-4 w-4 text-muted-foreground" />
@@ -781,19 +782,19 @@ const EnhancedAnalytics = () => {
               </Card>
             </div>
 
-            {/* Search & Ads summary cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+            {/* Search & Ads summary cards - Responsive Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Search Traffic</CardTitle>
                   <Globe className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-lg font-semibold">
-                    {(searchAnalytics?.totalEvents || 0) + (searchAnalytics?.anonymousPageViews || 0)} total page events
+                  <div className="text-base sm:text-lg font-semibold">
+                    {(searchAnalytics?.totalEvents || 0) + (searchAnalytics?.anonymousPageViews || 0)} page events
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Google Search Console: {searchAnalytics?.googleConnected ? 'Connected' : 'Not connected'} • Bing: {searchAnalytics?.bingConnected ? 'Connected' : 'Not connected'}
+                  <p className="text-xs text-muted-foreground mt-1 break-words">
+                    Google: {searchAnalytics?.googleConnected ? '✓' : '✗'} • Bing: {searchAnalytics?.bingConnected ? '✓' : '✗'}
                   </p>
                 </CardContent>
               </Card>
@@ -804,22 +805,22 @@ const EnhancedAnalytics = () => {
                   <Megaphone className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-lg font-semibold">{adsSummary?.totalAds || 0} ads • {adsSummary?.activeAds || 0} active</div>
+                  <div className="text-base sm:text-lg font-semibold">{adsSummary?.totalAds || 0} ads • {adsSummary?.activeAds || 0} active</div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    CTR: {adsSummary ? `${adsSummary.avgCTR}%` : '0%'} • Impressions: {adsSummary?.totalImpressions?.toLocaleString?.() || 0}
+                    CTR: {adsSummary ? `${adsSummary.avgCTR}%` : '0%'} • {adsSummary?.totalImpressions?.toLocaleString?.() || 0} impressions
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="sm:col-span-2 lg:col-span-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Wallet Overview</CardTitle>
                   <Wallet className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-lg font-semibold">₦{walletStats?.totalBalance?.toLocaleString()}</div>
+                  <div className="text-base sm:text-lg font-semibold">₦{walletStats?.totalBalance?.toLocaleString() || 0}</div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {walletStats?.totalTransactions} transactions • {walletStats?.activeWallets} active wallets
+                    {walletStats?.totalTransactions || 0} txns • {walletStats?.activeWallets || 0} active
                   </p>
                 </CardContent>
               </Card>
@@ -1064,62 +1065,63 @@ const EnhancedAnalytics = () => {
               {/* Wallet Analytics Tab - Admin Only */}
               {userRole === 'admin' && (
                 <TabsContent value="wallets" className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  {/* Wallet Stats - Responsive Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                     <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-                        <Wallet className="h-4 w-4 text-muted-foreground" />
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium">Total Balance</CardTitle>
+                        <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                       </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">
-                          ₦{walletStats?.totalBalance?.toLocaleString()}
+                      <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+                        <div className="text-lg sm:text-2xl font-bold">
+                          ₦{walletStats?.totalBalance?.toLocaleString() || 0}
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-green-600" />
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium">Credits</CardTitle>
+                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
                       </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">
-                          ₦{walletStats?.totalCredits?.toLocaleString()}
+                      <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+                        <div className="text-lg sm:text-2xl font-bold text-green-600">
+                          ₦{walletStats?.totalCredits?.toLocaleString() || 0}
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Debits</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-red-600" />
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium">Debits</CardTitle>
+                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
                       </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">
-                          ₦{walletStats?.totalDebits?.toLocaleString()}
+                      <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+                        <div className="text-lg sm:text-2xl font-bold text-red-600">
+                          ₦{walletStats?.totalDebits?.toLocaleString() || 0}
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Transactions</CardTitle>
-                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium">Transactions</CardTitle>
+                        <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                       </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">
-                          {walletStats?.totalTransactions}
+                      <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+                        <div className="text-lg sm:text-2xl font-bold">
+                          {walletStats?.totalTransactions || 0}
                         </div>
                       </CardContent>
                     </Card>
 
-                    <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Wallets</CardTitle>
-                        <Activity className="h-4 w-4 text-muted-foreground" />
+                    <Card className="col-span-2 sm:col-span-1">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium">Active Wallets</CardTitle>
+                        <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                       </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">{walletStats?.activeWallets}</div>
+                      <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+                        <div className="text-lg sm:text-2xl font-bold">{walletStats?.activeWallets || 0}</div>
                       </CardContent>
                     </Card>
                   </div>

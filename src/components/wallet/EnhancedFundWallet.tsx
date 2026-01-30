@@ -54,37 +54,71 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
   React.useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
+        console.log('Fetching payment gateways...');
+        
+        // Fetch all enabled gateways
         const { data, error } = await supabase
           .from('payment_gateways')
           .select('*')
           .eq('enabled', true)
           .order('provider');
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching gateways:', error);
+          throw error;
+        }
+
+        console.log('Found gateways:', data?.length || 0, data);
+
+        if (!data || data.length === 0) {
+          console.log('No enabled payment gateways found');
+          setPaymentMethods([]);
+          return;
+        }
 
         // Filter to only show one entry per provider (prefer live mode)
         const uniqueProviders = new Map<string, any>();
-        (data || []).forEach((gateway: any) => {
+        data.forEach((gateway: any) => {
           const providerKey = gateway.provider.toLowerCase();
           const existing = uniqueProviders.get(providerKey);
+          // Prefer live mode over test mode
           if (!existing || gateway.mode === 'live') {
             uniqueProviders.set(providerKey, gateway);
           }
         });
 
+        console.log('Unique providers:', Array.from(uniqueProviders.keys()));
+
         // Check if any have valid keys (not placeholder)
         const validGateways = Array.from(uniqueProviders.values()).filter((gateway: any) => {
-          return gateway.secret_key && 
+          const hasValidKey = gateway.secret_key && 
                  !gateway.secret_key.includes('000000') && 
-                 gateway.secret_key.length > 20;
+                 !gateway.secret_key.includes('xxx') &&
+                 gateway.secret_key.length > 15;
+          
+          if (!hasValidKey) {
+            console.log(`Gateway ${gateway.provider} has invalid/placeholder key`);
+          }
+          return hasValidKey;
         });
+
+        console.log('Valid gateways:', validGateways.length);
+
+        const getProviderDisplayName = (provider: string) => {
+          const names: Record<string, string> = {
+            'flutterwave': 'Flutterwave',
+            'paystack': 'Paystack', 
+            'korapay': 'Korapay'
+          };
+          return names[provider.toLowerCase()] || provider;
+        };
 
         const methods = validGateways.map((gateway: any) => {
           const provider = gateway.provider.toLowerCase();
           return {
             id: provider,
-            name: gateway.business_name || gateway.provider,
-            description: `${gateway.provider} (${gateway.mode} mode)`,
+            name: gateway.business_name || getProviderDisplayName(provider),
+            description: `Pay via ${getProviderDisplayName(provider)} (${gateway.mode} mode)`,
             icon: provider === 'flutterwave' ? <CreditCard className="h-5 w-5" /> :
                   provider === 'paystack' ? <CreditCard className="h-5 w-5" /> :
                   provider === 'korapay' ? <Smartphone className="h-5 w-5" /> :
@@ -97,10 +131,12 @@ const EnhancedFundWallet: React.FC<EnhancedFundWalletProps> = ({
                      provider === 'paystack' ? 'bg-blue-50' :
                      provider === 'korapay' ? 'bg-purple-50' :
                      'bg-gray-50',
-            provider: gateway.provider,
+            provider: provider, // Always lowercase
             mode: gateway.mode
           };
         });
+
+        console.log('Payment methods available:', methods.map(m => m.id));
 
         // Check for any live mode gateways
         const hasLiveMode = methods.some(m => m.mode === 'live');

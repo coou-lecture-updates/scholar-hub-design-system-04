@@ -224,10 +224,28 @@ serve(async (req) => {
     console.error('=== PAYMENT ERROR ===');
     console.error('Error:', error.message);
     
+    // Provide user-friendly error messages
+    let userMessage = error.message;
+    let hint = 'Please try again or contact support.';
+    
+    if (error.message.includes('not configured') || error.message.includes('not enabled')) {
+      userMessage = 'Payment gateway is not properly configured';
+      hint = 'Administrator needs to enable and configure the payment gateway in Admin Settings → Payment Gateways';
+    } else if (error.message.includes('placeholder') || error.message.includes('API key')) {
+      userMessage = 'Payment gateway has invalid API credentials';
+      hint = 'Administrator needs to enter valid API keys from the payment provider dashboard';
+    } else if (error.message.includes('secret key')) {
+      userMessage = 'Payment gateway authentication failed';
+      hint = 'The API keys may be expired or incorrect. Please check the payment provider dashboard.';
+    } else if (error.message.includes('Minimum')) {
+      hint = 'Please enter an amount of at least ₦100';
+    }
+    
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
-      hint: 'Please ensure payment gateway API keys are correctly configured in Admin Settings → Payment Gateways'
+      error: userMessage,
+      hint: hint,
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
