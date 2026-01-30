@@ -178,18 +178,18 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 md:px-6 pt-16 pb-20 md:py-28 relative z-10">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center md:text-left">
           {/* Title with elegant italic styling like reference */}
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 md:mb-8 leading-tight italic">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-6 md:mb-8 leading-tight italic">
             Welcome to Chukwuemeka Odumegwu Ojukwu University
           </h1>
           
-          <p className="text-white/90 text-base md:text-xl mb-8 md:mb-10 max-w-2xl mx-auto">
+          <p className="text-white/90 text-base md:text-xl mb-8 md:mb-10 max-w-2xl md:max-w-none">
             Stay updated with the latest news, events, and resources for Uli and Igbariam campuses
           </p>
 
           {/* Enhanced Search Card - matching reference image */}
-          <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl px-5 py-5 md:px-8 md:py-6 mb-8 md:mb-10">
+          <div className="w-full max-w-3xl mx-auto md:mx-0 bg-white rounded-2xl shadow-2xl px-5 py-5 md:px-8 md:py-6 mb-8 md:mb-10">
             <div className="relative w-full mb-4">
               <input
                 type="text"
@@ -243,7 +243,7 @@ const HeroSection = () => {
           </div>
 
           {/* Quick links - centered below search card */}
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center md:justify-start gap-4">
             {customLinks.length > 0 ? (
               customLinks.map((link) => (
                 <Button
