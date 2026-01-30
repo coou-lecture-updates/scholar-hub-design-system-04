@@ -234,7 +234,7 @@ const HeroSection = () => {
               )}
             </div>
             <Button
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-full py-3 text-base font-semibold shadow-md"
+              className="w-auto px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full text-base font-semibold shadow-md"
               onClick={handleSearch}
               disabled={isSearching}
             >
