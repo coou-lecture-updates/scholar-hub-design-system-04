@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import SecuritySetupPanel from '@/components/admin/SecuritySetupPanel';
+import AdminRealTimeStats from '@/components/admin/AdminRealTimeStats';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
@@ -248,31 +249,36 @@ const AdminDashboard = () => {
         {/* Stats grid - enhanced responsiveness */}
         <div className="w-full overflow-x-auto pb-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 min-w-[450px]">
-            <div className="flex flex-col bg-blue-50 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-600">Users</span>
-              <span className="text-xl font-bold">{stats.users}</span>
+            <div className="flex flex-col bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
+              <span className="text-xs text-muted-foreground">Users</span>
+              <span className="text-xl font-bold text-foreground">{stats.users}</span>
             </div>
-            <div className="flex flex-col bg-green-50 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-600">Blog Posts</span>
-              <span className="text-xl font-bold">{stats.blogPosts}</span>
+            <div className="flex flex-col bg-green-50 dark:bg-green-900/20 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
+              <span className="text-xs text-muted-foreground">Blog Posts</span>
+              <span className="text-xl font-bold text-foreground">{stats.blogPosts}</span>
             </div>
-            <div className="flex flex-col bg-yellow-50 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-600">Events</span>
-              <span className="text-xl font-bold">{stats.events}</span>
+            <div className="flex flex-col bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
+              <span className="text-xs text-muted-foreground">Events</span>
+              <span className="text-xl font-bold text-foreground">{stats.events}</span>
             </div>
-            <div className="flex flex-col bg-purple-50 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-600">Courses</span>
-              <span className="text-xl font-bold">{stats.courses}</span>
+            <div className="flex flex-col bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
+              <span className="text-xs text-muted-foreground">Courses</span>
+              <span className="text-xl font-bold text-foreground">{stats.courses}</span>
             </div>
-            <div className="flex flex-col bg-pink-50 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-600">Faculties</span>
-              <span className="text-xl font-bold">{stats.faculties}</span>
+            <div className="flex flex-col bg-pink-50 dark:bg-pink-900/20 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
+              <span className="text-xs text-muted-foreground">Faculties</span>
+              <span className="text-xl font-bold text-foreground">{stats.faculties}</span>
             </div>
-            <div className="flex flex-col bg-orange-50 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-600">Departments</span>
-              <span className="text-xl font-bold">{stats.departments}</span>
+            <div className="flex flex-col bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg font-medium shadow-sm min-w-[110px]">
+              <span className="text-xs text-muted-foreground">Departments</span>
+              <span className="text-xl font-bold text-foreground">{stats.departments}</span>
             </div>
           </div>
+        </div>
+
+        {/* Real-time Stats Panel */}
+        <div className="mt-6">
+          <AdminRealTimeStats />
         </div>
 
         {/* Security Setup Panel - Critical for Admin Security - Mobile Responsive */}

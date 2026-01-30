@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useSEO } from '@/hooks/useSEO';
 import Navbar from '@/components/layout/Navbar';
@@ -12,6 +11,9 @@ import PublicTimetable from '@/components/home/PublicTimetable';
 import QuickNotification from '@/components/home/QuickNotification';
 import FacultySection from '@/components/home/FacultySection';
 import LiveClock from '@/components/home/LiveClock';
+import AnnouncementsTicker from '@/components/home/AnnouncementsTicker';
+import StatsCounter from '@/components/home/StatsCounter';
+import TestimonialsCarousel from '@/components/home/TestimonialsCarousel';
 
 const Index = () => {
   useSEO({
@@ -24,9 +26,11 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navbar />
+      <AnnouncementsTicker />
       <HeroSection />
+      <StatsCounter />
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2">
@@ -41,6 +45,7 @@ const Index = () => {
       <FeaturedBlogs />
       <FeaturedCourses />
       <UpcomingEvents />
+      <TestimonialsCarousel />
       <FacultySection />
       <ResourcesSection />
       <Footer />
