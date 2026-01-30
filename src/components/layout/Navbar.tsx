@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { SimpleDarkModeToggle } from '@/components/ui/dark-mode-toggle';
+
 
 import { 
   Menu, 
@@ -453,7 +453,6 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <SimpleDarkModeToggle />
                 <Link to="/login">
                   <Button variant="ghost">Sign In</Button>
                 </Link>
