@@ -1,132 +1,116 @@
 
-# Plan: Dark Mode, Stats Update, and Hero Section Enhancement
+# Plan: Hero Section Restoration and Dark Mode Fix
 
 ## Summary
-This plan addresses three specific requests:
-1. Add proper dark mode support with persistent user preference
-2. Change the Departments stat from 42 to 50
-3. Enhance the hero section to match the uploaded reference image
+This plan addresses two issues:
+1. Restore the hero section to match the "before" design (image-15)
+2. Fix dark mode to apply properly across all pages by replacing hardcoded colors with semantic Tailwind classes
 
 ---
 
-## Changes Required
+## Issue 1: Hero Section Differences
 
-### 1. Enable Dark Mode with Persistence
+### Analysis of Before vs Now
 
-**Problem**: The dark mode toggle exists but the `ThemeProvider` from `next-themes` is not wrapping the application, so the theme cannot persist or function.
+| Element | BEFORE (Desired) | NOW (Current) |
+|---------|------------------|---------------|
+| Title | 2 lines, larger text | 4 lines, wrapping too much |
+| Subtitle | Left-aligned under title | Centered |
+| Search Card | Wider, more spacious | Narrower |
+| Search Button | Small, left-aligned in card | Small, centered |
+| Quick Links | Semi-transparent outline style | Solid blue background |
 
-**Solution**: Wrap the App with `ThemeProvider` in `main.tsx`:
+### Changes for HeroSection.tsx
 
+1. **Title**: Remove `text-center` from parent, use left alignment on larger screens
+2. **Title sizing**: Increase minimum text size so it fits on fewer lines
+3. **Subtitle**: Left-align to match the reference
+4. **Search Card**: Make wider with `max-w-3xl` instead of `max-w-2xl`
+5. **Quick Links**: Keep the semi-transparent outline style (current is correct)
+
+---
+
+## Issue 2: Dark Mode Not Updating All Pages
+
+### Root Cause
+The `Navbar.tsx` component uses hardcoded colors that don't respond to dark mode:
+- Line 217: `bg-white` should be `bg-card`
+- Line 230: `text-gray-700` should be `text-foreground`
+- Line 141: `text-blue-700` should be `text-primary`
+
+### Components to Fix
+
+**File: `src/components/layout/Navbar.tsx`**
+- Replace `bg-white` with `bg-card`
+- Replace `text-gray-700` with `text-foreground`
+- Replace `text-blue-700` with `text-primary`
+
+**File: `src/components/layout/Footer.tsx`**
+- Ensure all colors use semantic tokens or have `dark:` variants
+
+---
+
+## Technical Implementation
+
+### File 1: `src/components/home/HeroSection.tsx`
+
+Key changes to match "before" design:
 ```text
-main.tsx changes:
-- Import ThemeProvider from 'next-themes'
-- Wrap the App component with ThemeProvider
-- Configure with defaultTheme="system", storageKey="coou-theme"
-- Enable enableSystem option for system preference detection
+Current:
+- max-w-3xl mx-auto text-center
+
+Change to:
+- max-w-4xl mx-auto (wider container)
+- Title and subtitle left-aligned on larger screens
+- Search card wider (max-w-3xl)
 ```
 
-**File**: `src/main.tsx`
+The title should read on 2 lines like:
+"Welcome to Chukwuemeka Odumegwu Ojukwu University"
+Instead of 4 lines.
 
----
+### File 2: `src/components/layout/Navbar.tsx`
 
-### 2. Update Departments Statistic
+Replace hardcoded colors:
+- Line 217: `bg-white` -> `bg-card`
+- Line 230: `text-gray-700` -> `text-foreground`
+- Line 141: `text-blue-700` -> `text-primary`
+- All mobile menu colors need the same treatment
 
-**Problem**: Departments value is currently 42, should be 50.
+### File 3: `src/index.css`
 
-**Solution**: Simple value change in StatsCounter.
-
-**File**: `src/components/home/StatsCounter.tsx`
-- Line 54: Change `value: 42` to `value: 50`
-
----
-
-### 3. Hero Section UI Enhancements
-
-**Reference Image Analysis:**
-```text
-+------------------------------------------+
-|                                          |
-|    Welcome to Chukwuemeka                |
-|    Odumegwu Ojukwu University            |
-|                                          |  <- Large italic white heading
-|    Stay updated with the latest news,    |
-|    events, and resources for Uli and     |
-|    Igbariam campuses                     |  <- Subtitle (left-aligned look)
-|                                          |
-|   +----------------------------------+   |
-|   |  Search for courses, events,     |   |
-|   |  news...                    Q    |   |  <- Rounded input with icon
-|   |                                  |   |
-|   |  [Search]                        |   |  <- Small blue button
-|   +----------------------------------+   |
-|                                          |
-|   [Academic Calendar] [Student Resources]|  <- Centered quick links
-|                                          |
-+------------------------------------------+
+Add dark mode sidebar variables to the `.dark` section:
+```css
+--sidebar-background: 224 71% 4%;
+--sidebar-foreground: 213 31% 91%;
+--sidebar-primary: 210 40% 98%;
+--sidebar-primary-foreground: 222.2 47.4% 1.2%;
+--sidebar-accent: 216 34% 17%;
+--sidebar-accent-foreground: 210 40% 98%;
+--sidebar-border: 216 34% 17%;
+--sidebar-ring: 216 34% 17%;
 ```
-
-**Changes for HeroSection.tsx:**
-1. Keep the italic font styling on the heading
-2. The search card should have:
-   - Rounded input field (already rounded-full)
-   - Search button should be smaller/left-aligned, not full-width
-   - Maintain clean white card appearance
-3. Quick links should remain centered below the search card
-4. Ensure mobile responsive: text scales appropriately on smaller screens
-
-**File**: `src/components/home/HeroSection.tsx`
-
----
-
-## Technical Implementation Details
-
-### File 1: `src/main.tsx`
-```tsx
-import { createRoot } from 'react-dom/client'
-import { ThemeProvider } from 'next-themes'
-import App from './App.tsx'
-import './index.css'
-
-createRoot(document.getElementById("root")!).render(
-  <ThemeProvider 
-    attribute="class" 
-    defaultTheme="system" 
-    enableSystem 
-    storageKey="coou-theme"
-  >
-    <App />
-  </ThemeProvider>
-);
-```
-
-### File 2: `src/components/home/StatsCounter.tsx`
-- Line 54: `{ label: 'Departments', value: 50, icon: <GraduationCap className="h-8 w-8" /> }`
-
-### File 3: `src/components/home/HeroSection.tsx`
-Key styling changes:
-- Search button: Change from full-width to inline, left-aligned
-- Button styles: `w-auto px-8 py-3` instead of `w-full`
-- Maintain the italic heading style
-- Keep responsive text sizing for mobile
 
 ---
 
 ## Files to Modify
 
-| File | Change |
-|------|--------|
-| `src/main.tsx` | Wrap App with ThemeProvider for dark mode persistence |
-| `src/components/home/StatsCounter.tsx` | Change Departments from 42 to 50 |
-| `src/components/home/HeroSection.tsx` | Refine search card layout to match reference |
+| File | Changes |
+|------|---------|
+| `src/components/home/HeroSection.tsx` | Restore layout to "before" design - wider container, left-aligned text on desktop |
+| `src/components/layout/Navbar.tsx` | Replace hardcoded colors with semantic Tailwind classes |
+| `src/index.css` | Add dark mode sidebar CSS variables |
 
 ---
 
 ## Expected Outcome
 
 After implementation:
-- Dark mode toggle will properly switch themes
-- Theme preference persists in localStorage (`coou-theme` key)
-- System preference detection works automatically
-- Departments stat shows "50"
-- Hero section matches the clean, professional look from the reference image
-- Mobile and desktop layouts both work correctly
+1. Hero section will match the "before" reference image:
+   - Title displays on 2 lines (not 4)
+   - Subtitle is left-aligned under title
+   - Search card is wider and more spacious
+2. Dark mode will properly update:
+   - Navbar will use dark backgrounds and light text in dark mode
+   - All pages will correctly respond to theme toggle
+   - Footer will maintain proper contrast in both modes
